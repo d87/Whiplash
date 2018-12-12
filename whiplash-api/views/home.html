@@ -1,0 +1,1593 @@
+{% extends 'base.html' %}
+{% block title %}Whiplash{% endblock %}
+
+{% block head %}
+<script>
+$(function() {
+
+
+    // function makeguid() {
+    //   function s4() {
+    //     return Math.floor((1 + Math.random()) * 0x10000)
+    //       .toString(16)
+    //       .substring(1);
+    //   }
+    //   return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+    //     s4() + '-' + s4() + s4() + s4();
+    // }
+
+    // var sessionID = makeguid()
+    // var pollingID = 1
+    // console.log(sessionID)
+
+    // var EventPolling = new MiniDaemon($("head"), function(){
+    //     $.post("/api/events", { sessionID: sessionID, pollingID: pollingID })
+    //             .done(function(resp){
+    //                 pollingID++;
+    //                 // var data = resp.data
+    //                 // console.log(resp)
+    //             })
+    // }, 6000, Infinity);
+    // EventPolling.start()
+
+
+    // var eventSource = new EventSource("http://nevihta.d87:4001/stream", { withCredentials: true });
+    var eventSource = new EventSource("/sse/stream");
+    // eventSource.onmessage = function(e) {
+        // console.log(e.data);
+    // };
+    eventSource.onopen = function(e) {
+      console.log("Connected to event source");
+    };
+    eventSource.onerror = function(e) {
+        if (this.readyState == EventSource.CONNECTING) {
+            console.log("Event source disconnected, retrying...");
+        } else {
+            console.log("Error, code: " + this.readyState);
+        }
+    };
+
+    var fixedColors = {
+        "Mozilla Firefox": "#c63011",
+        "chrome.exe": "#c63011",
+        "vivaldi.exe": "#c63011",
+        "mpc-hc.exe": "#a00808",
+        "YouTube": "#c21212",
+        "Telegram.exe": "#5092c9",
+        "ZBrush64.exe": "#c95089",
+        "foobar2000": "#7d5d73",
+        "HeroesOfTheStorm.exe": "#6122d5",
+        "sublime_text.exe": "#453e35",
+        "Photoshop.exe": "#211f63",
+        "ACDSee": "#3db246"
+    }
+    var getChartColor = function(title){
+        if (fixedColors[title]) {
+            return fixedColors[title]
+        }
+        return rgbToHex(Math.random()*150, Math.random()*150, Math.random()*150)
+        //normally multiplier goes up to 255, but random colors should not be so bright
+    }
+
+    eventSource.addEventListener("ACTIVITY_UPDATE", function(e){
+        console.log(e.event)
+        console.log(e.data)
+        var data = JSON.parse(e.data)
+
+        while (ActivityDoughnutChart.segments.length > 0)
+            ActivityDoughnutChart.removeData()
+
+        var sortingArray = []
+        for(var title in data.log){
+            var seconds = data.log[title]
+            sortingArray.push([title, seconds])
+        }
+        sortingArray.sort(function(a,b){ return a[1] < b[1] })
+        for (var i=0; i < sortingArray.length; i++){
+            var title = sortingArray[i][0]
+            var seconds = sortingArray[i][1]
+            ActivityDoughnutChart.addData({
+                value: seconds,
+                color: getChartColor(title),
+                highlight: "#e88deb",
+                label: title + " " + g_formatTime(seconds)
+            })
+        }
+        ActivityDoughnutChart.update()
+    })
+
+    // Get the context of the canvas element we want to select
+    var ctx = document.getElementById("ActivityChart").getContext("2d");
+    ActivityDoughnutChart = new Chart(ctx).Doughnut([], {
+        //Boolean - Whether we should show a stroke on each segment
+        segmentShowStroke : true,
+        //String - The colour of each segment stroke
+        segmentStrokeColor : "#090909",
+        //Number - The width of each segment stroke
+        segmentStrokeWidth : 2,
+        //Number - The percentage of the chart that we cut out of the middle
+        percentageInnerCutout : 35, // This is 0 for Pie charts
+    });
+
+
+
+    function componentToHex(c) {
+        var hex = c.toString(16);
+        return hex.length == 1 ? "0" + hex : hex;
+    }
+
+    function rgbToHex(r, g, b) {
+        r = parseInt(r)
+        g = parseInt(g)
+        b = parseInt(b)
+        return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+    }
+
+    function rgbToHex2(r, g, b) {
+        r = parseInt(r)
+        g = parseInt(g)
+        b = parseInt(b)
+        return componentToHex(r) + componentToHex(g) + componentToHex(b);
+    }
+
+    var formatTime = function(s){
+            if (s >= 3600) {
+                return Math.ceil(s / 3600)+"h"
+            } else if (s >= 60) {
+                return Math.ceil(s / 60)+"m"
+            } else if (s >= 10) {
+                return Math.floor(s)+"s"
+            }
+            return s.toFixed(1)
+        }
+
+    var formatTime2 = function(ms){
+            if (ms >= 600000) {
+                return Math.ceil(ms / 60000)+"m"
+            } else {
+                var m = parseInt(ms / 60000)
+                var s = parseInt((ms % 60000) / 1000)
+                if (s < 10) { s = "0"+s }
+                // var ms = parseInt((ms % 1000) / 100)
+                return m+":"+s
+            }
+        }
+
+    g_formatTime = formatTime
+
+    var dueTime = function(baseTime, seconds){
+            var date = new Date( baseTime+ (seconds*1000))
+            var hours = date.getHours();
+            var minutes = "0" + date.getMinutes();
+            // console.log(date)
+            // var seconds = "0" + date.getSeconds();
+
+            // will display time in 10:30:23 format
+            var formattedTime = hours + ':' + minutes.substr(-2)
+            return formattedTime
+        }
+
+    var mulColor = function (hex, mul) {
+        // hex to rgb
+        var bigint = parseInt(hex, 16);
+        // console.log(bigint)
+        var r = (bigint >> 16) & 255;
+        var g = (bigint >> 8) & 255;
+        var b = bigint & 255;
+
+        r = parseInt(r*mul);
+        g = parseInt(g*mul);
+        b = parseInt(b*mul);
+
+        return rgbToHex(r,g,b)
+    }
+    var genColor = function(hex){
+        return ["#"+hex, mulColor(hex,0.4)]
+    }
+
+
+    function setCookie(name,value,days) {
+        if (days) {
+            var date = new Date();
+            date.setTime(date.getTime()+(days*24*60*60*1000));
+            var expires = "; expires="+date.toGMTString();
+        }
+        else var expires = "";
+        document.cookie = name+"="+value+expires+"; path=/";
+    }
+    function getCookie(name) {
+        var nameEQ = name + "=";
+        var ca = document.cookie.split(';');
+        for(var i=0;i < ca.length;i++) {
+            var c = ca[i];
+            while (c.charAt(0)==' ') c = c.substring(1,c.length);
+            if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+        }
+        return null;
+    }
+
+    // var defX = function(e) {
+    //     if (!e) e = window.event;
+    //     var hscroll = !document.body.scrollLeft && (browser.ipad || browser.iphone4 || browser.ipod4) ? 0 : (document.all ? document.body.scrollLeft : window.pageXOffset);
+    //     return parseInt(e.clientX + hscroll);
+    // }
+
+    function getXY(obj, forFixed) {
+      if (!obj) return [0,0];
+
+      var left = 0, top = 0, pos, lastLeft;
+      if (obj.offsetParent) {
+        do {
+          left += (lastLeft = obj.offsetLeft);
+          top += obj.offsetTop;
+          pos = obj.style.position
+          if (pos == 'fixed' || pos == 'absolute' || (pos == 'relative')) {
+            left -= obj.scrollLeft;
+            top -= obj.scrollTop;
+            if (pos == 'fixed' && !forFixed) {
+              left += ((obj.offsetParent || {}).scrollLeft || bodyNode.scrollLeft || htmlNode.scrollLeft);
+              top += ((obj.offsetParent || {}).scrollTop || bodyNode.scrollTop || htmlNode.scrollTop);
+            }
+          }
+        } while (obj = obj.offsetParent);
+      }
+      return [left,top];
+    }
+
+    function cancelEvent(event) {
+  event = (event || window.event);
+  if (!event) return false;
+  while (event.originalEvent) {
+    event = event.originalEvent;
+  }
+  if (event.preventDefault) event.preventDefault();
+  if (event.stopPropagation) event.stopPropagation();
+  event.cancelBubble = true;
+  event.returnValue = false;
+  return false;
+}
+
+    function StatusBar(parent, bClickable){
+        'use strict';
+
+        this.parent = parent
+        $('<div draggable="true" class="background"><div class="value"></div></div').appendTo(parent)
+        this.bg = $(parent).find("> div").get(0)
+        this.bar = $(parent).find("> div > div").get(0)
+
+        $(this.bg).css({
+                    "height": "100%",
+                    "width": "100%",
+                    "border-radius": "3px",
+                    "background": "#660000",
+                    "position": "relative"
+                })
+
+        $(this.bar).css({
+                    "height": "100%",
+                    "width": "100%",
+                    "border-radius": "3px",
+                    "background": "#aa0000",
+                    "position": "absolute",
+                    "bottom": "0px"
+                })
+
+
+        // var self = this
+
+        // if (bClickable) {
+        //     var barClick = function(e){
+        //         self.newvalueHandler(e)
+        //         cancelEvent(e)
+        //     }
+
+        //     var removeHandlers = function(e){
+        //         $(this).off("mousemove")
+        //         $(this).off("mouseup")
+        //     }
+
+        //     $(this.bg).on("mousedown", function(e){
+        //         barClick(e)
+        //         $(this).on("mousemove", barClick)
+        //         $(this).on("mouseup", removeHandlers)
+        //     })
+        // }
+
+        this.setColor("00BB00")
+        // this.setMinMaxValues(0,100)
+        this.setValue(0.5)
+    }
+
+    StatusBar.prototype.min = 0
+    StatusBar.prototype.max = 1
+    StatusBar.prototype.value = 0
+    StatusBar.prototype.orientation = "horizontal"
+    StatusBar.prototype.newvalueHandler = function(){}
+
+    StatusBar.prototype.onnewvalue = function(f){
+        this.newvalueHandler = f
+    }
+
+    StatusBar.prototype.setOrientation = function(orientation, attachPoint){
+        this.orientation = orientation
+        var bar = $(this.bar)
+        bar.css("width", 100+"%")
+        bar.css("height", 100+"%")
+        if (orientation == "vertical" && attachPoint == "top"){
+            bar.css("bottom", "")
+            bar.css("top", "0px")
+            bar.css("left", "0px")
+        } else {
+            bar.css("bottom", "0px")
+            bar.css("top", "")
+            bar.css("left", "0px")
+        }
+        this.setValue(this.value)
+    }
+
+    StatusBar.prototype.setColor = function(hex){
+        $(this.bar).css("background", "#"+hex)
+        $(this.bg).css("background", mulColor(hex, 0.5))
+    }
+
+    StatusBar.prototype.getValue = function(){
+        return this.value
+    }
+    StatusBar.prototype.setValue = function(val){
+        this.value = val
+        var p = 100* ((val - this.min) / (this.max - this.min))
+        if (p>100) { p = 100 }
+        if (p<0) { p = 0 } // it looks ugly if any less
+        if (this.orientation == "horizontal") {
+            $(this.bar).css("width", p+"%")
+        } else {
+            $(this.bar).css("height", p+"%")
+        }
+    }
+    StatusBar.prototype.setMinMaxValues = function(min,max){
+        this.min = min
+        this.max = max
+        this.setValue(this.value)
+    }
+
+
+
+
+    var wb = new StatusBar($("#waterblock > .barcont").get(0), true)
+    wb.setOrientation("vertical")
+    wb.setColor("1c56a6")
+    wb.setMinMaxValues(0,3)
+    var initial_water = {{ userdata.water_level }}
+    wb.setValue(initial_water)
+
+    wb.saveTimer = new MiniDaemon(wb, function(){
+        $.post("/api/userdata/water_level", { water_level: wb.getValue() })
+                .done(function(resp){
+                    console.log(resp)
+                })
+        
+        this.saveTimer.pause()
+    }, 2000, Infinity);
+
+    wb._setValue = wb.setValue
+    wb.setValue = function(v){
+        this._setValue(v)
+        wb.saveTimer.pause()
+        wb.saveTimer.start()
+    }
+
+
+    var water = $("#waterblock")
+    water.find(".small").click(function(e){
+            wb.setValue(wb.getValue()+0.1)
+            e.preventDefault()
+        })
+    water.find(".big").click(function(e){
+            wb.setValue(wb.getValue()+0.25)
+            e.preventDefault()
+        })
+    water.find(".reset").click(function(e){
+            wb.setValue(0)
+            e.preventDefault()
+        })
+
+
+    var sound = water.find("audio").get(0)
+    sound.setAttribute('src', '/static/water_loop2.mp3');
+    sound.volume = 0.02
+    // sound.setAttribute('loop', 'true')
+
+    var waterTimer = new MiniDaemon(wb, function(){
+        var now = Date.now()
+        var elapsed = now - DayStartButton.day_start_date
+        var day_progress = elapsed / (16*60*60*1000)
+        var water_progress = wb.getValue()/2 //2 liters
+
+        if (water_progress + 0.1 < day_progress){
+            sound.play()
+        }
+
+    }, 60*60*1000, Infinity);
+    waterTimer.start()
+
+
+    eventSource.addEventListener("WATER_UPDATE", function(e){
+        var data = JSON.parse(e.data)
+        if (data.amount) {
+            wb.setValue(wb.getValue()+data.amount)
+        }
+    })
+
+
+    
+
+    var DayStartButton = $("#startDayButton")
+    DayStartButton.click(function(e){
+        DayStartButton.day_start()
+    })
+
+    eventSource.addEventListener("LEAVING_SLEEP", function(e){
+        console.log(e.event)
+        globalAudio.setAttribute('src', '/static/VO_GVG_085_Play_01.mp3');
+        globalAudio.play()
+        DayStartButton.day_start()
+    })
+
+    DayStartButton.day_start_date = {{ userdata.day_start_date.strftime("%s") }}*1000
+
+    // $.getJSON("/api/userdata/day_start")
+    //             .done(function(resp){
+    //                 // console.log(resp)
+    //                 var data = resp.data
+    //                 DayStartButton.day_start_date = data.day_start_date*1000
+    //             })
+
+    DayStartButton.day_start = function (){
+        var now = Date.now()/1000
+
+        $.post("/api/userdata/day_start", { day_start_date: now })
+                .done(function(resp){
+                    console.log(resp)
+                    var data = resp.data
+                    DayStartButton.day_start_date = data.day_start_date*1000
+                    $(".task").each( function(index){
+                        this.reset()
+                        $(this).find(".duration").text(formatTime(this.taskLength) + " @"+dueTime(DayStartButton.day_start_date, this.suggestedStartTime))
+                    })
+                    wb.setValue(0)
+                    timeline.update()
+                })
+
+    }
+
+    timeline = new StatusBar($("#timeline > .bar").get(0), true)
+    timeline.setOrientation("vertical", "top")
+    timeline.setColor("431c5b")
+    timeline.setMinMaxValues(0, 16*60*60*1000) // 16 hours
+    timeline.setValue(0.5)
+
+    timeline.update = function(){
+        var now = Date.now()
+        var elapsed = now - DayStartButton.day_start_date
+        this.setValue(elapsed)
+    }
+
+    var timelineTimer = new MiniDaemon(timeline, function(){
+        this.update()
+    }, 60000, Infinity);
+    timeline.update()
+    timelineTimer.start()
+
+
+    var Tasks = []
+
+    var DayStartTime = 0
+    var DayDaemon = new MiniDaemon($("task_container"), function(){
+        if (!DayStartButton.day_start_date) return;
+        for (var i=0; i<Tasks.length; i++) {
+            var task = Tasks[i]
+            task.warning_check()
+        }
+    }, 600000, Infinity);
+    DayDaemon.start()
+
+
+    $(".task").each( function(index){
+
+        var idattr = $(this).attr('id')
+        var id = parseInt(idattr.match(/\d+/)[0])
+        this.taskId = id
+        var task = this
+
+        task.taskState = "INACTIVE"
+        task.pomoState = "INACTIVE"
+        task.pomoTime = 0
+        task.pomoLength = 25
+        // task.taskStartTime = 0
+
+        if (id) Tasks.push(this);
+
+
+        // var pbDiv = $("<div></div>", { id: "progressbar"+id }) //createElement with attributes
+        // pbDiv.appendTo(this) // append to #taskN
+        var pbDiv = $(this).find('.progressbar')
+        var progress = new ProgressBar.Line(pbDiv[0], {
+            color: '#FCB03C',
+            strokeWidth: 6.7,
+            trailColor: "#151515",
+        });
+        this.progress = progress
+        this.normalTimer = new MiniDaemon(this, function(){
+            this._update()
+        },50, Infinity)
+
+        var audioElement = $("audio").get(0)//document.createElement('audio');
+        audioElement.setAttribute('src', '/static/RadioStartFaded.wav');
+
+
+        var clockDiv = $(this).find('.clock')
+        var clock = new ProgressBar.Circle(clockDiv[0], {
+            color: "#33FF33",
+            // fill: '#000',
+            strokeWidth: 7,
+            trailWidth: 1,
+            trailColor: "#151515",
+        });
+        var clockText = $("<span></span>")
+        clockText.appendTo(clockDiv)
+        clockText.text("0")
+        clock.text = clockText
+        clock.task = task
+        this.clock = clock
+        this.clockDiv = clockDiv
+        this.warningDiv = $(this).find(".warning")
+        this.warningDiv.hide()
+
+        this.clock.show = function() {
+            this.fadeTimer.pause()
+            clockDiv.css("visibility", "visible")
+        }
+        this.clock.hide = function(){ clockDiv.css("visibility", "hidden") }
+        this.clock.is_visible = function() { return clockDiv.is(":visible") }
+        this.clock.hide()
+
+
+        this.clock.fadeTimer = new MiniDaemon(this.clock, function(){
+            this.hide()
+            this.task._update()
+            this.fadeTimer.pause()
+        }, 5000, Infinity);
+
+
+
+
+        this.progress.setColor = function(color){
+            this.path.setAttribute('stroke', color[0]);
+            this.trail.setAttribute('stroke', color[1]);
+        }
+
+
+        this.clock.setColor = function(color){
+            this.path.setAttribute('stroke', color[0]);
+            this.trail.setAttribute('stroke', "#222222");
+        }
+
+
+        this.warning_check = function(){
+            var now = Date.now()
+            var task = this
+            // var elapsed = (now - DayStartTime ) / 1000
+            var elapsed = (now - DayStartButton.day_start_date)/1000
+            // console.log(Tasks)
+            if (task.suggestedStartTime != null) {
+                // console.log(elapsed, now, DayStartButton.day_start_date, task.suggestedStartTime, task.taskState, task.pomoState)
+                if ((elapsed > task.suggestedStartTime) &&
+                    (task.taskState == "INACTIVE" && task.pomoState == "INACTIVE" && task.clock.is_visible())) {
+                        task.warningDiv.show()
+                        audioElement.setAttribute('src', '/static/Curse.ogg');
+                        audioElement.play()
+                        for (var i=0; i<20; i++){
+                            task.warningDiv.animate({opacity: 1 }, 500)
+                            task.warningDiv.animate({opacity: 0.3 }, 500)
+                        }
+                } else {
+                    task.warningDiv.hide()
+                }
+                    // console.log(task.id, "wake UP!")
+            }
+        }
+
+        var colors = {
+            break: genColor("8888FF"),
+            active: genColor("33BB33"),
+            inactive: genColor("995555"),
+            complete: genColor("005500"),
+            inprogress: genColor("d16a1e")
+        }
+        this.progress.setColor(colors.inactive)
+
+        this.pomoTimer = new MiniDaemon(this, function(){
+            this._updatePomo()
+        },50, Infinity)
+
+
+        var WarningDaemon = new MiniDaemon(containerElement, function(){
+            
+        }, 1000, Infinity);    
+
+
+        this._update = function(bNoSync, bAnimate){
+
+            var now = Date.now()
+            var elapsed = (now - this.taskStartTime ) / 1000
+            if (bNoSync) elapsed = 0;
+            if (this.taskStartTime == undefined) elapsed = 0;
+            var p = (elapsed + this.taskTime) / this.taskLength
+            console.log(this.taskId, this.taskStartTime, elapsed, this.taskTime, elapsed + this.taskTime, this.taskLength)
+            var remains = this.taskLength - elapsed
+            if (remains <= 0) remains = 0;
+            if (p>=1) {
+                p = 1;
+                this.normalTimer.pause()
+                if (!bNoSync) this.updateServer("add_time", (this.taskLength - this.taskTime).toFixed(0) );
+                this.progress.setColor(colors.complete)
+                this.taskState = "COMPLETE"
+            } else if (elapsed > this.taskSyncPeriod) {
+                if (!bNoSync) {
+                    this.updateServer("add_time", this.taskSyncPeriod);
+                    // if server is not available should for for the next period and not spam
+                    this.taskStartTime = this.taskStartTime + this.taskSyncPeriod*1000
+                }
+                this.progress.setColor(colors.inprogress)
+            }
+            
+
+            if (bAnimate) {
+                this.progress.animate(p)
+            } else {
+                this.progress.set(p)
+            }
+
+            this.warning_check()
+        }
+
+
+        this._updatePomo = function(){
+            var now = Date.now()
+            var elapsed = (now - this.pomoStartTime ) / 1000
+            var p = elapsed / this.pomoDuration
+            var remains = this.pomoDuration - elapsed
+            if (remains <= 0) remains = 0;
+
+
+            var rmins = Math.ceil(remains/60)
+            if ((rmins % 5 == 0) && (rmins != this._prevSoundTime) && elapsed > 60){
+                if (rmins == 0) {
+                    audioElement.setAttribute('src', '/static/DevotionAura.ogg');
+                } else {
+                    audioElement.setAttribute('src', '/static/Deathknight_PlagueStrike2.ogg');
+                }
+                
+                audioElement.play()
+                this._prevSoundTime = rmins
+            }
+            // console.log((now - this.pomoStartTime ), this.pomoDuration)
+            if (p>=1) {
+                p = 1
+                elapsed = this.pomoDuration
+                this.pomoTimer.pause()
+                if (this.pomoState == "BREAK" || this.pomoState == "LONGBREAK"){
+                    audioElement.setAttribute('src', '/static/ConcussiveShotImpact.ogg');
+                    audioElement.play()
+                    this.stop_break()
+                } else if (this.pomoState == "ACTIVE") {
+                    this.updateServer("add_time", this.pomoLength)
+                    this.taskTime = this.taskTime + this.pomoLength
+                    this._update(true, true)
+                    this.start_break()
+                }
+            }
+
+            this.clock.set(p)
+
+            if (remains <= 0) {
+                this.clock.text.text("")
+            } else {
+                this.clock.text.text(formatTime(remains))
+            }
+        }
+
+        this.start_pomo = function(){
+            if (this.pomoState != "ACTIVE"){
+                this.taskState = "POMO"
+                this.pomoState = "ACTIVE"
+
+                this.pomoStartTime = Date.now()
+                // this.pomoEndTime = pomoStartTime + this.pomoLength
+                this.pomoDuration = this.pomoLength
+
+                this.clock.setColor(colors.active);
+                this.progress.setColor(colors.inprogress);
+                this._update(true)
+                this._updatePomo()
+                this.clock.show()
+                this.normalTimer.pause()
+                this.pomoTimer.start()
+            }
+        }
+
+
+        this.start_task = function(){
+            if (this.taskState != "ACTIVE"){
+                this.taskState = "ACTIVE"
+                this.clock.hide()
+
+                this.taskStartTime = Date.now()
+                this.taskLastSync = Date.now()
+                this.taskSyncPeriod = 1*60
+
+                this.progress.setColor(colors.inprogress)
+
+                this._update()
+                this.normalTimer.start()
+                this.pomoTimer.pause()
+            }
+        }
+        this.stop_task = function(){
+            // console.log(this.taskState)
+            if (this.taskState == "ACTIVE" || this.taskState == "POMO"){
+                this.taskState = "INACTIVE"
+                this.pomoState= "INACTIVE"
+
+                // this.taskStartTime = Date.now()
+                // this.taskLastSync = Date.now()
+                // this.taskSyncPeriod = 1*60
+
+                this._update(true)
+                this.progress.setColor(colors.inactive)
+                this.normalTimer.pause()
+                this.pomoTimer.pause()
+                this.clock.hide()
+            }
+        }
+
+
+        this.start_break = function(){
+            this.taskState = "INACTIVE"
+            // this.taskTime += this.pomoLength
+            this.progress.setColor(colors.inactive)
+
+            // if this.taskTime >= this.taskLength:
+            //     this.taskTime = this.taskLength
+            //     this.taskState = "COMPLETED"
+
+            this.pomoStartTime = Date.now()
+            this.pomoDuration = this.pomoBreakLength
+            this.pomoCompleted += 1
+            this.pomoState = "BREAK"
+
+            this.clock.setColor(colors.break);
+            // this._update(true)
+            this._updatePomo()
+            this.pomoTimer.start()
+        }
+
+
+        this.stop_break = function(){
+            this.pomoTime = this.pomoDuration
+            this.pomoState= "INACTIVE"
+
+            this._update()
+            this._updatePomo()
+            this.pomoTimer.pause()
+            this.clock.fadeTimer.start()
+
+            $(this).find(".start").show()
+            $(this).find(".stop").hide()
+        }
+
+        this.reset = function(){
+            task.updateServer("reset")
+            this.pomoTimer.pause()
+            this.normalTimer.pause()
+            this.clock.hide()
+
+            this.taskTime = 0
+            this.taskStartTime = Date.now()
+            this.taskState = "INACTIVE"
+            this.pomoTime = 0
+            this.pomoState = "INACTIVE"
+            this.pomoCompleted = 0
+            this.progress.setColor(colors.inactive)
+
+            this._update(true)
+            this._updatePomo()            
+        }
+        
+
+        $(this).find(".start").click(function(){
+            task.start_task()
+            $(this).hide()
+            $(this).siblings(".stop").show()
+        });
+        $(this).find(".stop").click(function(){
+            task.stop_task()
+            $(this).hide()
+            $(this).siblings(".start").show()
+        }).hide();
+
+        $(this).find(".reset").click(function(){
+            task.reset()
+            $(this).siblings(".start").show()
+            $(this).siblings(".stop").hide()
+        });
+
+        $(this).find(".pomo").click(function(){
+            task.start_pomo()
+            $(this).siblings(".start").hide()
+            $(this).siblings(".stop").show()
+        });
+
+
+        
+
+        this.restore = function(){
+            $(this).find(".title").text(this.title)
+            $(this).find(".duration").text(formatTime(this.taskLength) + " @"+dueTime(DayStartButton.day_start_date, this.suggestedStartTime))
+            this._update(true)
+        }
+
+        this.synchronize = function(){
+            var id = this.taskId
+            var task = this
+            $.getJSON("/api/task/"+id+"/")
+                .done(function(resp){
+                    console.log(resp)
+                    var data = resp.data
+                    task.title = data.title
+                    task.taskLength = data.task_length
+                    task.taskTime = data.task_time
+                    // task.taskState = data.task_state;
+                    task.pomoTime = data.pomo_time
+                    task.pomoLength = data.pomo_length
+                    task.pomoBreakLength = data.pomo_break_length
+                    var hms = data.task_start_time
+                    var a = hms.split(':'); // split it at the colons
+
+                    var seconds = (+a[0]) * 60 * 60 + (+a[1]) * 60 + (+a[2]); 
+                    task.suggestedStartTime = seconds
+                    // task.pomoState = data.pomoState
+
+                    task.restore()
+                })
+        }
+        this.synchronize()
+
+
+        this.updateServer = function(cmd, value){
+            var id = this.taskId
+            value = value || 0
+            var task = this
+            $.post("/api/task/"+id+"/", { cmd: cmd, value: value })
+                .done(function(resp){
+                    console.log(resp)
+                    var data = resp.data
+                    // var result = data.result
+                    // var cmd = data.cmd
+                    // var param = data.params
+
+
+                    task.taskLength = data.task_length
+                    task.taskTime = data.task_time
+                    // task.taskState = data.task_state
+                    task.pomoTime = data.pomo_time
+                    task.pomoLength = data.pomo_length
+                    task.pomoBreakLength = data.pomo_break_length
+                    // task.pomoState = data.pomoState
+                })
+        }
+    });
+
+    var gray = [ 50, 50, 50 ]
+    var yellow = [ 200, 100, 40 ]
+    var red = [ 230, 50, 50 ]
+
+    function GetGradientColor(v){
+        if (v > 1){ v = 1 }
+        var c1,c2
+        if (v < 0.6) {
+            v = v/0.6
+            c1 = gray
+            c2 = yellow
+        } else {
+            v = (v - 0.6)/0.4
+            c1 = yellow
+            c2 = red
+        }
+
+        var r = c1[0] + v*(c2[0]-c1[0])
+        var g = c1[1] + v*(c2[1]-c1[1])
+        var b = c1[2] + v*(c2[2]-c1[2])
+        return rgbToHex(r,g,b)
+    }
+
+
+    var ltc = $("#listtask_container > div")
+
+    var lt_template = $("#listtask_template").detach()
+    lt_template.css("visibility", "visible")
+    lt_template.removeAttr("hidden")
+
+
+    function createListTask(data){
+        lt = lt_template.clone()
+        lt.attr("id", "listtask"+data.id)
+        lt.find(".todopriority > span").text(data.priority)
+        lt.find(".todotitle > span").text(data.title)
+        return lt.get(0)
+    }
+
+
+    var extract_prio = function(element){
+        return parseInt($(element).find(".todopriority span").text())
+    }
+    var compare_priorities = function(a, b) {
+        var ap = extract_prio(a)
+        var bp = extract_prio(b)
+        if (ap > bp) {
+            return -1;
+        }
+        if (ap < bp) {
+            return 1;
+        }
+        return 0;
+    }
+
+    function sortTasks(order_by){
+        var L = $("#listtask_container .listtask").detach().toArray()
+        L.sort(compare_priorities)
+        $.each(L, function(index, element){
+            $(element).appendTo(ltc) // to listtask container
+        })   
+    }
+
+    var currentlyEditing
+    var expandedBeforeEdit
+
+
+    var containerElement = ltc.get(0)
+    containerElement.sortTimer = new MiniDaemon(containerElement, function(){
+        sortTasks()
+        this.sortTimer.pause()
+    }, 1300, Infinity);    
+
+
+
+    function makeListTask(element){
+        var lt = $(element)
+        var self = element
+        lt.buttons = lt.find(".buttons")
+        lt.pbuttons = lt.find(".todopriority > a")
+        var id = parseInt(lt.attr("id").match(/\d+/)[0])
+
+        lt.find(".buttons .remove").click(function(e){
+            if (confirm("Remove '"+lt.find(".todotitle > span").text()+"'?")){
+                $.post("/api/listtask/"+id+"/delete", function(data){
+                    lt.remove()
+                })
+            }
+            e.preventDefault()
+        })
+
+
+        lt.mouseenter(function(e){
+            lt.buttons.css("visibility", "visible")
+            lt.buttons.css("display", "inline-block")
+            lt.pbuttons.css("visibility", "visible")
+        }).mouseleave(function(e){
+            lt.buttons.css("visibility", "hidden")
+            lt.buttons.css("display", "none")
+            lt.pbuttons.css("visibility", "hidden")
+        })
+
+        self.getPriority = function(){
+            var pe = $(this).find(".todopriority > span")
+            var p = parseInt(pe.text())
+            return p
+        }
+        
+
+        lt.updatePriority = function(){
+            var pe = $(this).find(".todopriority > span")
+            var p = parseInt(pe.text())
+            pe.css("color", GetGradientColor(p/100))
+        }
+
+        lt.setPriority = function(v){
+            $(this).find(".todopriority > span").text(v)
+            this.updatePriority()
+        }
+
+        lt.updatePriority()
+
+        lt.find(".todopriority .plus").click(function(e){
+            var p = lt.get(0).getPriority()
+            // var prev = lt.prev().get(0)
+            // if (prev != undefined){
+            //     p = prev.getPriority()+1;
+            // } else {
+                p += 10;
+            // }
+            if (p>100) { p = 100 }
+            lt.setPriority(p)
+            $.post("/api/listtask/"+id, { priority: p })
+                .done(function(data){
+                    // sortTasks()
+                    containerElement.sortTimer.pause()
+                    containerElement.sortTimer.start()
+                })
+        })
+
+        lt.find(".todopriority .minus").click(function(e){
+            var p = lt.get(0).getPriority()
+            console.log(lt.get(0), p, id)
+            // var next = lt.next().get(0)
+            // if (next != undefined){
+            //     p = next.getPriority()-1;
+            // } else {
+                p -= 10;
+            // }
+            if (p<0) { p = 0 }
+            lt.setPriority(p)
+            $.post("/api/listtask/"+id, { priority: p })
+                .done(function(data){
+                    // sortTasks()
+                    containerElement.sortTimer.pause()
+                    containerElement.sortTimer.start()
+                })
+        })
+
+        lt.expanded = false
+        lt.toggleExpand = function(force){
+            if (this == currentlyEditing) { return }
+            if (force != undefined) { this.expanded = !force }
+            if (this.expanded) {
+                this.find(".exp").css("display", "none")
+            } else {
+                this.find(".exp").css("display", "block")
+            }
+            this.expanded = !this.expanded
+        }
+        lt.find(".todotitle").click(function(e){
+            lt.toggleExpand()
+            e.preventDefault()
+        })
+
+
+        lt.cancelEdit = function() {
+            lt.toggleExpand(true)
+            lt.find(".edit_show").css("display", "none")
+            lt.find(".edit_hide").css("display", "block")
+        }
+
+        lt.find(".color").spectrum({
+            allowEmpty: true,
+            preferredFormat: "hex",
+            showPaletteOnly: true,
+            change: function(c){
+                lt.find(".todotitle > input[name=title]").css("color", c.toHexString())
+            },
+            palette: [
+                ["#777","#444","#666","#999","#ccc","#eee","#f3f3f3","#fff"],
+                ["#f00","#f90","#ff0","#0f0","#0ff","#00f","#90f","#f0f"],
+                ["#f4cccc","#fce5cd","#fff2cc","#d9ead3","#d0e0e3","#cfe2f3","#d9d2e9","#ead1dc"],
+                ["#ea9999","#f9cb9c","#ffe599","#b6d7a8","#a2c4c9","#9fc5e8","#b4a7d6","#d5a6bd"],
+                ["#e06666","#f6b26b","#ffd966","#93c47d","#76a5af","#6fa8dc","#8e7cc3","#c27ba0"],
+                ["#c00","#e69138","#f1c232","#6aa84f","#45818e","#3d85c6","#674ea7","#a64d79"],
+                ["#900","#b45f06","#bf9000","#38761d","#134f5c","#0b5394","#351c75","#741b47"],
+                ["#600","#783f04","#7f6000","#274e13","#0c343d","#073763","#20124d","#4c1130"]
+            ]
+        });
+
+        lt.find(".edit").click(function(e){
+            if (currentlyEditing == lt) {
+                lt.cancelEdit()
+                currentlyEditing = null
+                return
+            }
+            // console.log("EDIT")
+            $.getJSON("/api/listtask/"+id+"/edit")
+                .done(function(resp){
+                    if (resp.status != "ok") { return }
+                    var data = resp.data
+
+                    lt.find(".editpanel textarea").text(data.description_body)
+                    lt.find(".todotitle input[name=title]").val(data.title)
+                    lt.find(".editpanel input[name=priority]").val(data.priority)
+                    var p = data.priority/100
+                    lt.statusbar.setValue(p)
+                    var newcolor = GetGradientColor(p).substring(1) // strip leading #
+                    lt.statusbar.setColor(newcolor)
+                    if (data.color != "") {
+                        data.color = "#"+data.color
+                    }
+                    lt.find(".color").spectrum("set", data.color)
+                    lt.find(".todotitle > input[name=title]").css("color", data.color)
+
+                    lt.toggleExpand(true)
+                    lt.find(".edit_show").css("display", "block")
+                    lt.find(".edit_hide").css("display", "none")
+
+                    if (currentlyEditing){
+                        currentlyEditing.cancelEdit()
+                    }
+                    currentlyEditing = lt
+                })
+        })
+
+
+
+        var editpanel_submit = function(form){
+            var formdata = {}
+            $(form).serializeArray().map(function(item) {
+                formdata[item.name] = item.value;
+            }); 
+
+            if (formdata["title"].length == 0) { return }
+            if (formdata["color"] == "#777777") { formdata["color"] = "" }
+            formdata["color"] = formdata["color"].substring(1) // strip leading #
+
+            $.post("/api/listtask/"+id+"/edit", formdata)
+                .done(function(resp){
+                    console.log(resp)
+                    if (resp.status == "ok") {
+
+                        $(form).get(0).reset()
+                        
+                        var data = resp.data
+                        lt.find(".descpanel .description").html(data.description)
+                        lt.setPriority(data.priority)
+                        if (data.color != "") { data.color = "#"+data.color }
+                        // lt.find(".todotitle > input").css("color", "#"+data.color)
+                        lt.find(".todotitle > span").css("color", data.color)
+                        lt.find(".todotitle span").text(data.title)
+                        sortTasks()
+
+                        lt.find(".edit_show").css("display", "none")
+                        lt.find(".edit_hide").css("display", "block")
+
+                        currentlyEditing = null
+                    }
+                })
+        }
+        lt.find("form").submit(function(e){
+            editpanel_submit(this)
+            e.preventDefault()
+        })
+        lt.find(".editpanel .save").click(function(e){
+            editpanel_submit(lt.find("form").get(0))
+            e.preventDefault()
+        })
+
+
+        var sb = new StatusBar(lt.find(".priobar").get(0), true)
+        lt.statusbar = sb
+        // sb.onnewvalue()
+
+        var areaElement = lt.find(".exp")
+
+        var draggingElement = null
+
+        var func = function(e){
+            var el = draggingElement // e.currentTarget
+            var ex = el._globaloffsetX || getXY(el)[0]
+            el._globaloffsetX = ex
+            var val = e.clientX - ex
+            var width = el.offsetWidth
+
+            var p = val/width
+            // console.log(val, width, p, ex)
+            sb.setValue(p)
+            var newcolor = GetGradientColor(p).substring(1) // strip leading #
+            sb.setColor(newcolor)
+            lt.find("input[name=priority]").val(parseInt(p*100))
+        }
+
+        var barClick = function(e){
+            // self.newvalueHandler(e)
+            func(e)
+            cancelEvent(e)
+        }
+
+        var removeHandlers = function(e){
+                areaElement.off("mousemove")
+                areaElement.off("mouseup")
+                draggingElement = null
+            }
+
+        $(sb.bg).on("mousedown", function(e){
+            draggingElement = e.currentTarget
+            barClick(e)
+            areaElement.on("mousemove", barClick)
+            areaElement.on("mouseup", removeHandlers)
+        })
+
+    }
+
+    var add_form_submit = function(form){
+        var formdata = {}
+        var url = form.action
+        $(form).serializeArray().map(function(item) {
+            formdata[item.name] = item.value;
+        }); 
+
+        if (formdata["title"].length == 0) { return }
+
+
+        $.post("/api/listtask/add", formdata)
+            .done(function(resp){
+                console.log(resp)
+                if (resp.status == "ok") {
+                    var data = resp.data
+                    var lt = createListTask(data)
+                    $(lt).appendTo(ltc)
+                    makeListTask(lt)
+                    sortTasks()
+                    $(form).find("input").val("")
+                    $("#addform > input").fadeOut()
+                }
+            })
+    }
+    $("#listtask_container > form").submit(function(e){
+        add_form_submit(this)
+        e.preventDefault()
+    })
+
+
+    $("#addbtn").click(function(e){
+        var addfield = $("#addform > input")
+        if (!addfield.is(":visible")){
+            addfield.fadeIn(400)
+        } else {
+            add_form_submit($("#addform").get(0))
+        }
+    })
+    // $("#listtask_container > form > input")
+    //     .mouseenter(function(e){
+    //         $(this).fadeTo(100, 1)
+    //     })
+    //     .mouseleave(function(e){
+    //         $(this).delay( 2000 ).fadeTo(600, 0.2)
+    //     })
+    //     .fadeTo(0, 0.2)
+
+
+    
+
+    $(".listtask").each( function(index, element){
+        makeListTask(element)
+    })
+    sortTasks()
+
+
+    var updateVolumeIcon = function(vol, p){
+        var icon = $(vol.icon)
+        icon.removeClass()
+        if (p > 0.66) {
+            return icon.addClass("level3")
+        } else if (p > 0.33) {
+            return icon.addClass("level2")
+        } else if (p > 0) {
+            return icon.addClass("level1")
+        } else {
+            return icon.addClass("mute")
+        }
+    }
+
+    var vol = new StatusBar($("#volumeControl").get(0))
+    vol.icon = $("#volumeIcon").get(0)
+    vol.container = $("#volumeContainer").get(0)
+    vol.container.vol = vol
+    vol.setColor("151515")
+    var areaElement = $("body")
+    var draggingElement = null
+
+    var p = getCookie('audio_vol') || 100
+    p = p/100
+    vol.setValue(p)
+    updateVolumeIcon(vol, p)
+
+    var globalAudio = $("audio").get(0)
+    globalAudio.volume = p
+
+    var barClick = function(e){
+        var el = draggingElement // e.currentTarget
+        var ex = el._globaloffsetX || getXY(el)[0]
+        el._globaloffsetX = ex
+        var val = e.clientX - ex
+        var width = el.offsetWidth
+        var p = val/width
+        vol.setValue(p)
+        updateVolumeIcon(vol, p)
+        $("audio").get(0).volume = p
+        setCookie('audio_vol', Math.round(p*100), 365);
+        cancelEvent(e)
+    }
+
+    var removeHandlers = function(e){
+        areaElement.off("mousemove")
+        areaElement.off("mouseup")
+        draggingElement = null
+    }
+
+    var onmousedown = function(e){
+        if (e.currentTarget.className != "background") {
+            draggingElement = $(e.currentTarget).find(".background").get(0)
+        } else {
+            draggingElement = e.currentTarget
+        }
+        barClick(e)
+        areaElement.on("mousemove", barClick)
+        areaElement.on("mouseup", removeHandlers)
+    }
+
+    $(vol.bg).on("mousedown", onmousedown) 
+    $(vol.container).on("mousedown", onmousedown) 
+
+
+    $("#daystrip > div").each(function(){
+        $(this).click(function(e){
+            var self = $(this)
+            // console.log(self.data("date"))
+            if (self.hasClass("MISSED")){
+                self.removeClass("MISSED")
+                self.addClass("COMPLETE")
+                $.post("/api/day/"+self.data("date")+"/", { "state": "COMPLETE" })
+                    .done(function(e){
+                    })
+            } else if (self.hasClass("COMPLETE")){
+                self.removeClass("COMPLETE")
+                self.addClass("REST")
+                $.post("/api/day/"+self.data("date")+"/", { "state": "REST" })
+                    .done(function(e){
+                    })
+            } else if (self.hasClass("REST")){
+                self.removeClass("REST")
+                self.addClass("MISSED")
+                $.post("/api/day/"+self.data("date")+"/", { "state": "MISSED" })
+                    .done(function(e){
+                    })
+            }
+        })
+    })
+
+
+
+
+    var tcont = $("#TimerContainer")
+    var tcount = 1
+    makeTimer = function(timecode){
+        var min = parseInt(timecode / 100)
+        var sec = timecode % 100
+        var total_time = min * 60 + sec
+
+
+        var timer = $('<div> <span></span> <div class="buttons"> \
+             <a class="small">100ml</a> \
+             <a class="big">250ml</a> \
+             <a class="reset">Reset</a> \
+        </div> </div>') //createElement with attributes
+        timer.addClass("usertimer")
+        tcount++;
+        timer.appendTo(tcont)
+
+
+        timer.text = timer.find("span")
+        timer.time_goal = total_time*1000
+        timer.elapsed = 0
+
+        var lastTickTime = 0;
+        timer.daemon = new MiniDaemon(timer, function(){
+            var now = Date.now()
+            this.elapsed += ( now - lastTickTime)
+            lastTickTime = now
+
+            var remains = this.time_goal - this.elapsed
+            // console.log(remains
+
+            if (remains <= 0) {
+                this.addClass("expired")
+                this.text.text("-"+formatTime2(-remains))
+                // this.daemon.pause()
+                //glow now
+            } else {
+                this.text.text(formatTime2(remains))
+            }
+        }, 100)
+
+        timer.start = function(){
+            this.removeClass("expired")
+            var now = Date.now()
+            lastTickTime = now
+            this.daemon.start()
+        }
+
+        timer.start()
+
+        return timer
+    }
+
+
+    // var quoteElement = $("#quote_cont > blockquote")
+    // var quotes = [
+    // ]
+    // quoteElement.update = function(){
+    //     var quote = quotes[Math.floor(Math.random()*quotes.length)];
+    //     $(this).text(quote)
+    // }
+    // var quoteUpdateTimer = new MiniDaemon(quoteElement, function(){
+    //     quoteElement.update()
+    // }, 6*60*60*1000)
+    // // quoteElement.hide()
+    // quoteElement.update()
+    // quoteUpdateTimer.start()
+
+});
+</script>
+<style>
+
+</style>
+{% endblock%}
+
+
+{% block content %}
+
+<audio></audio>
+<div id="volumeContainer">
+    <div id="volumeIcon" class="level3"></div>
+    <div id="volumeControl">
+    </div>
+</div>
+<div id="task_container">
+<a id="startDayButton">Start the Day</a>
+{% for task in tasks %}
+    <div id="task{{ task.id }}" class="task">
+        <div class="pbcont">
+            <div><span class="title">{{task.title}}</span><span class="duration"></span></div>
+            <div class="progressbar"></div>
+            <a src="" class="reset"><span>Reset</span></a>
+            <a src="" class="start"><span>Start</span></a>
+            <a src="" class="stop"><span>Stop</span></a>
+            <a src="" class="pomo"><span>Pomodoro</span></a>
+        </div>
+        <div class="clock">
+        </div>
+        <div class="warning">
+        </div>
+    </div>
+
+{% endfor %}
+</div>
+<div id="timeline">
+    <div class="bar"></div>
+</div>
+<div id="listtask_container">
+    <form id="addform" action="/api/listtask/add" method="post">
+        <a id="addbtn"></a>
+        <!-- <input type="range" name="priority" min="0" max="100"> -->
+        <input type="text" name="title" tabindex="-1"></input>
+    </form>
+    <div>
+    {% for listtask in listtasks %}
+        <div id="listtask{{ listtask.id }}" data-created="" class="listtask">
+            <form action="" method="post">
+            <div class="todopriority">
+                <a class="minus"></a>
+                <a class="plus"></a>
+                <span>{{ listtask.priority }}</span>
+            </div>
+            <div class="todotitle">
+                <span class="edit_hide" {% if listtask.color %}style="color:#{{ listtask.color }};"{% endif %} >{{ listtask.title }}</span>
+                <input class="edit_show" type="text" name="title"></input>
+            </div>
+            <div class="buttons">
+                <a class="edit"></a>
+                <a class="complete"></a>
+                <a class="uncomplete"></a>
+                <a class="remove"></a>
+            </div>
+            <div class="exp">
+                <div class="descpanel edit_hide">
+                    <span class="description">{{ listtask.description_markdown }}</span>
+                </div>
+                <div class="editpanel edit_show">
+                    
+                        <textarea name="descbody"></textarea>
+                        <div>
+                            <input type="hidden" name="priority"></input>
+                            <div class="priobar"></div>
+                            <div>
+                                <input class="color" type="text" name="color"></input>
+                                <a class="save">Save</a>
+                            </div>
+                        </div>
+                    
+                </div>
+            </div>
+            </form>
+        </div>
+    {% endfor %}
+    </div>
+</div>
+        <div hidden="hidden" style="visibility: hidden" id="listtask_template" data-created="" class="listtask">
+            <form action="" method="post">
+            <div class="todopriority">
+                <a class="minus"></a>
+                <a class="plus"></a>
+                <span></span>
+            </div>
+            <div class="todotitle">
+                <span class="edit_hide"></span>
+                <input class="edit_show" type="text" name="title"></input>
+            </div>
+            <div class="buttons">
+                <a class="edit"></a>
+                <a class="complete"></a>
+                <a class="uncomplete"></a>
+                <a class="remove"></a>
+            </div>
+            <div class="exp">
+                <div class="descpanel edit_hide">
+                    <span class="description"></span>
+                </div>
+                <div class="editpanel edit_show">
+                    
+                        <textarea name="descbody"></textarea>
+                        <div>
+                            <!-- <input type="range" name="priority"></input> -->
+                            <!-- <input type="text" name="priority"></input> -->
+                            <input type="hidden" name="priority"></input>
+                            <div class="priobar"></div>
+                            <!-- <input type="checkbox" name="use_markup"></input> -->
+                            <div>
+                                <input class="color" type="text" name="color"></input>
+                                <a class="save">Save</a>
+                            </div>
+                        </div>
+                    
+                </div>
+            </div>
+            </form>
+        </div>
+
+
+<div id="daystrip">
+{% for date, daydata in days %}
+    <div class="{% if daydata %} {{daydata.state}} {% else %} MISSED {% endif %}" data-date="{{date.isoformat()}}">
+        <span onselectstart="return false">{{date.day}}</span>
+    </div>
+{% endfor %}
+</div>
+
+
+<div id="waterblock">
+    <audio></audio>
+    <div class="barcont" style="">
+    </div>
+    <div class="buttons">
+         <a class="small">100ml</a>
+         <a class="big">250ml</a>
+         <a class="reset">Reset</a>
+    </div>
+</div>
+
+<canvas id="ActivityChart" width="300" height="300"></canvas>
+
+<div id="TimerContainer"></div>
+<!-- <div id="quote_cont"> -->
+    <!-- <blockquote>
+        Fear is the mind killer
+    </blockquote> -->
+<!-- </div> -->
+
+{% endblock %}

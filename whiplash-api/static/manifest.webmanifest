@@ -1,0 +1,13 @@
+{
+    "name": "Whiplash",
+    "short_name": "Whiplash",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#000",
+    "description": "An App.",
+    ​​"orientation": "portrait",
+    "icons": [{
+        "src": "av_immo_184.png",
+        "sizes": "72x72 96x96 128x128 192x192 256x256"
+    }]
+  }

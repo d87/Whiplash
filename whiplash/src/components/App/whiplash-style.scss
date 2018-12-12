@@ -1,0 +1,114 @@
+@import url('http://fonts.googleapis.com/css?family=Ubuntu+Condensed&subset=cyrillic-ext,latin');
+@import url('http://fonts.googleapis.com/css?family=Roboto+Condensed&subset=latin,cyrillic');
+
+// "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif
+
+
+:root {
+    --primary: #723f5e;
+    --accent1: #705977;
+    --accent2: #a14d8c;
+    --accent3: #1b171a;
+    --background: #000000;
+    --normal-text: #777777;
+    --normal-text-hover: #aaaaaa;
+    --normal-text-active: #eeeeee;
+    --pretty-font: "Ubuntu Condensed", "Segoe UI", Roboto, Oxygen, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    --pretty2-font: "PT Sans Narrow", sans-serif;
+    --normal-font: arial, sans-serif;
+    --monospace-font: "Consolas", "Courier New", monospace;
+    --prio-red: rgba(151, 10, 10, 0.87);
+    --prio-orange: rgb(236, 97, 4);
+    --prio-yellow: rgb(255, 166, 49);
+    --prio-green: rgb(51, 75, 20);
+}
+
+// *, *::before, *::after {
+//     box-sizing: border-box;
+// }
+
+body {
+    background-color: var(--background);
+    font-family: arial;
+    // font-size: 12px;
+    color:  var(--normal-text);
+    margin: 0;
+}
+
+:global .App {
+    padding-top: 60px;
+
+    // display: grid;
+    // place-items: center;
+}
+
+:global .clickable {
+    user-select: none;
+    cursor: pointer;
+}
+:global .clickable:hover {
+    color: var(--normal-text-hover);
+}
+:global .clickable:active {
+    color: var(--normal-text-active);
+}
+
+:global .xlText {
+    font-size: 3em;
+}
+
+:global .largeText {
+    font-size: 2em;
+}
+
+:global .mediumText {
+    font-size: 1em;
+}
+
+:global .smallText {
+    font-size: 0.7em;
+}
+
+:global .marginBottom30 {
+    margin-bottom: 30px;
+}
+
+:global .marginTop10 {
+    margin-top: 10px;
+}
+
+:global .marginLeft10 {
+    margin-left: 10px;
+}
+
+:global .paperButton {
+    display: inline-flex;
+    background-color: var(--accent3);
+    font-family: var(--pretty-font);
+    color: var(--normal-text);
+    // font-weight: bold;
+    border-radius: 4px;
+    height: 2rem;
+    padding: 0px 10px;
+    margin-right: 0.5em;
+    margin-left: 0.5em;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+}
+
+:global .thinButton {
+    height: 1.3em;
+}
+
+:global .paperButton:hover {
+    background-color: var(--accent1);
+    color: var(--normal-text-active);
+}
+:global .paperButton:active {
+    background-color: var(--accent2);
+}
+
+:global .stretch {
+    width: 100%;
+}

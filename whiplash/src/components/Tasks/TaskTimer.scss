@@ -1,0 +1,56 @@
+:global .clock {
+    position: relative;
+    // height: 100px;
+    // width: 100px;
+    margin: 0px 40px 20px 40px;
+}
+
+.clockControls {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    user-select: none;
+}
+
+.clockControls > span {
+    display: block;
+    font-size: 3em;
+    font-weight: normal;
+    font-family: var(--pretty2-font);
+    text-align: center;
+}
+
+.clockControls > small {
+    display: block;
+    font-size: 1.2em;
+    position: absolute;
+    font-family: var(--pretty2-font);
+    left: 50%;
+    bottom: -1.2em;
+    transform: translate(-50%, 0%);
+}
+
+
+// :global .clock-appear,
+:global .clock-enter {
+    opacity: 0.01;
+    transform-origin: 50% 100%;
+    transform: scale(0.1);
+}
+// :global .clock-appear-active,
+:global .clock-enter-active {
+    opacity: 1;
+    transform: scale(1);
+    transition: all 1000ms ease-out;
+}
+:global .clock-exit {
+    opacity: 1;
+    // transform: scale(1) translateY(0%);
+    transform-origin: 50% 0%;
+}
+:global .clock-exit-active {
+    opacity: 0.01;
+    // transform: scale(0.1);
+    transition: all 200ms ease-out;
+}

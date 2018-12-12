@@ -1,0 +1,29 @@
+{% extends 'base_react.html' %}
+{% block title %}Login{% endblock %}
+
+{% block head %}{% endblock %}
+{% block content %}
+    <form method="post" action="/users/register">
+        <div>
+            <label>Name</label>
+            <input type="text" placeholder="Name" name="name"/>
+        </div>
+        <div>
+            <label>Username</label>
+            <input type="text" placeholder="Username" name="username"/>
+        </div>
+        <div>
+            <label>Email</label>
+            <input type="email" placeholder="E-Mail" name="email"/>
+        </div>
+        <div>
+            <label>Password</label>
+            <input type="password" placeholder="Username" name="password"/>
+        </div>
+        <div>
+            <label>Confirm Password</label>
+            <input type="password" placeholder="Username" name="password2"/>
+        </div>
+        <input type="submit" />
+    </form>
+{% endblock %}

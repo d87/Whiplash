@@ -1,0 +1,14 @@
+{% extends 'base_react.html' %}
+{% block title %}Whiplash{% endblock %}
+
+{% block head %}{% endblock %}
+{% block content %}
+    <script>
+        window.__PRELOADED_STATE__ = {{ preloadedState|safe }}
+    </script>
+    <div id="root">
+        {{ html|safe }}
+    </div>
+    <!-- <link rel="stylesheet" type="text/css" href="/{{ bundle_css }}" /> -->
+    <script type="text/javascript" src="/static{{ bundle_js }}"></script>
+{% endblock %}
