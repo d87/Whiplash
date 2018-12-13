@@ -70,6 +70,7 @@ export const reducer = (state: ITaskState = initialState, action: AnyAction): IT
             }
         }
         case TASK_START: {
+            if (state.activeID !== null) return state
             return {
                 ...state,
                 list: state.list.map(task => {
@@ -80,7 +81,8 @@ export const reducer = (state: ITaskState = initialState, action: AnyAction): IT
                             isStarted: true,
                         }
                     else return task
-                })
+                }),
+                activeID: action._id
             }
         }
         case TASK_STOP: {
@@ -94,7 +96,8 @@ export const reducer = (state: ITaskState = initialState, action: AnyAction): IT
                             isStarted: false,
                         }
                     else return task
-                })
+                }),
+                activeID: null
             }
         }
         case TASK_TOGGLE_EXPAND: {

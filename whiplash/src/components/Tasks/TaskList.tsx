@@ -70,9 +70,7 @@ export class TaskList extends React.Component<ITaskListProps,ITaskListState> {
     }
 
     render() {
-        const { tasks, startedTasks, flipKey } = this.props
-        const activeTask = startedTasks[0]
-        console.log("STARTED TASKS: ", startedTasks)
+        const { tasks, activeTask, flipKey } = this.props
         return (
             <div>
                 {/* <button onClick={this.openModal}>Open Modal</button>
@@ -164,15 +162,14 @@ const getStartedTasks = (tasks) => tasks.filter(t => {
 
 const mapStateToProps = (state, props) => {
     const tasks = getSortedVisibleTodos(state, props)
+    const activeTask = tasks.find(task => task._id === state.tasks.activeID)
     const flipKey = makeFlipKey(tasks)
-    console.log("mapping", state.tasks.list, getStartedTasks(state.tasks.list))
-    console.log("new Flip Key", flipKey, tasks)
     return {
         tasks,
         flipKey,
         filter: getVisibilityFilter(state, props),
         selectedTaskID: state.tasks.selectedID,
-        startedTasks: getStartedTasks(state.tasks.list)
+        activeTask 
     }
 }
 
