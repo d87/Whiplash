@@ -14,54 +14,23 @@ import { Dispatch } from '../../store';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { getTasks } from '../../api/api'
 
-// import Modal from "react-modal"
-// import styles from './Modal.scss'
 import styles from './Task.scss'
 
 interface ITaskListProps {
     dispatch: Dispatch
     flipKey?: any
     tasks: ITask[]
-    startedTasks: ITask[]
+    activeTask: ITask
     filter: string
-    onAddClick: (title: string) => void
-}
-interface ITaskListState {
-    title: string
+    onAddClick: () => void
+    onFilterToggle: () => void
 }
 
-export class TaskList extends React.Component<ITaskListProps,ITaskListState> {
-    private dispatch: Dispatch;
-    private client: ApolloClient<any>;
-
-    constructor(props) {
-        super(props);
-        this.dispatch = props.dispatch
-        this.client = props.client
-        this.state = {
-            title: ""
-        }
-
-        this.handleAddTitleChange = this.handleAddTitleChange.bind(this);
-        this.handleAddSubmit = this.handleAddSubmit.bind(this);
-    }
-
-    private handleAddSubmit(event) {
-        event.preventDefault();
-        this.setState({ title: "" })
-        // if (this.state.title !== "")
-        return this.props.onAddClick(this.state.title)
-    }
-
-    private handleAddTitleChange(event) {
-        this.setState({ title: event.target.value })
-    }
-
-
+export class TaskList extends React.Component<ITaskListProps,{}> {
     componentDidMount() {
         getTasks()
             .then(response => {
-                this.dispatch({
+                this.props.dispatch({
                     type: "TASK_INIT",
                     newState: response.data.tasks
                 })
@@ -70,25 +39,12 @@ export class TaskList extends React.Component<ITaskListProps,ITaskListState> {
     }
 
     render() {
-        const { tasks, activeTask, flipKey } = this.props
+        const { tasks, activeTask, flipKey, onAddClick, onFilterToggle } = this.props
         return (
             <div>
-                {/* <button onClick={this.openModal}>Open Modal</button>
-                <Modal
-                    isOpen={this.state.modalIsOpen}
-                    // onAfterOpen={this.afterOpenModal}
-                    // onRequestClose={this.closeModal} //-- action
-                    styleName="modal"
-                    overlayClassName={styles.overlay}
-                    // style={customStyles}
-                    contentLabel="Example Modal"
-                >
-                    <TaskEditor />
-                </Modal> */}
-
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginLeft: "0.2em" }}>
-                    <a className="material-icons clickable largeText" onClick={this.props.onAddClick}>add_box</a>
-                    <a className={`material-icons ${this.props.filter === "completed" ? "iconOn" : "" } ${styles.filterIcon}`} onClick={this.props.onFilterToggle}>done_all</a>
+                    <a className="material-icons clickable largeText" onClick={onAddClick}>add_box</a>
+                    <a className={`material-icons ${this.props.filter === "completed" ? "iconOn" : "" } ${styles.filterIcon}`} onClick={onFilterToggle}>done_all</a>
                 </div>
                 
                 
@@ -107,7 +63,6 @@ export class TaskList extends React.Component<ITaskListProps,ITaskListState> {
     }
 }
 
-// Connecting
 const toInt = (b: boolean|undefined): number => b ? 1: 0
 const checkStarted = (a: ITask, b: ITask) => toInt(b.isStarted) - toInt(a.isStarted)
 const checkDraft = (a: ITask, b: ITask) => toInt(b.isDraft) - toInt(a.isDraft)
@@ -132,8 +87,6 @@ const sortFunc = makeSortChain([
     comparePriorities,
     compareCreatedDate
 ])
-
-// const sortCompletedFunc = compareCompletedDate
 
 
 const makeFlipKey = (tasks) => {
@@ -177,7 +130,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
     return {
         dispatch,
 
-        onAddClick: (a?: any) => {
+        onAddClick: () => {
             dispatch(taskAdd())
         },
         onFilterToggle: () => {
