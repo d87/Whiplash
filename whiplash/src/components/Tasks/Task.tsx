@@ -453,6 +453,7 @@ class Task extends React.Component<ITaskProps, ITaskComponentState> {
 
         let percent
         if (progress > 0 && duration > 0) percent = (progress/duration*100).toFixed(0)
+        if (percent > 100) percent = 100
 
         // const priorityColor = GetGradientColor(this.state.priority / 100)
         // console.log("render task", this.props)

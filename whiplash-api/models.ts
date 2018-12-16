@@ -14,12 +14,14 @@ const TaskSchema = new mongoose.Schema(
 
         priority: { type: Number, default: 1 },
         state: { type: String, default: "active", enum: ['active', 'completed', 'archived'] },
-        isRecurring: { type: Boolean, default: false },
+        isRecurring: { type: Boolean, default: false }, // merge into resetMode?
 
         dueTime: { type: Number, default: 0 },
         segmentDuration: { type: Number, default: 0 },
         duration: { type: Number, default: 3600 },
         progress: { type: Number, default: 0 },
+        resetMode: { type: String, enum: ['atDays', 'inDays'], default: "inDays"},
+        resetTime: { type: Number, default: 1 },
         // startTime: { type: Number, default: 0 },
         
         color: { type: String, default: () => "" },
@@ -60,11 +62,45 @@ export const Task = mongoose.model("Task", TaskSchema);
 
 // Run this cron job every day at 7:00:00
 const cronJob = new CronJob("00 00 7 * * *", () => {
-    Task.updateMany({ isRecurring: true, state: "completed" }, { state: "active" }, { multi: true }, function (err, raw) {
-        if (err) return console.error(err);
-        console.log('Mongo Response: ', raw);
-        console.log("Successfully reset recurring tasks")
-    })
+    // Task.updateMany(
+    //     {
+    //         isRecurring: true,
+    //         $or: [ { progress: { $gt: 0 }}, { state: "completed" }]
+    //     },
+    //     {
+    //         state: "active",
+    //         progress: 0
+    //     },
+    //     { multi: true },
+    //     (err, raw) => {
+    //         if (err) return console.error(err);
+    //         console.log('Mongo Response: ', raw);
+    //         console.log("Successfully reset recurring tasks")
+    // })
+    const now = Date.now();
+    const dayLength = 24*3600*1000
+    console.log("Starting reset...")
+    Task.find({
+                isRecurring: true,
+                $or: [ { progress: { $gt: 0 }}, { state: "completed" }]
+            }).exec((err, tasks) => {
+                if (err) return console.error(err);
+                tasks.map(task => {
+
+                    task.progress = 0
+
+                    if (task.state === "completed") {
+                        if (task.resetMode === "inDays") {
+                            const nDays = task.resetTime
+                            if (task.completedAt.getTime() < now - (nDays-1)*dayLength ) {
+                                task.state = "active"
+                            }
+                        }
+                    }
+
+                    task.save()
+                })
+            })
 }, null, true, "Asia/Novosibirsk");
 
 

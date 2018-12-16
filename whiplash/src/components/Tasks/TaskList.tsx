@@ -14,7 +14,7 @@ import { Dispatch } from '../../store';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { getTasks } from '../../api/api'
 
-import styles from './Task.scss'
+import './Task.scss'
 
 interface ITaskListProps {
     dispatch: Dispatch
@@ -44,7 +44,7 @@ export class TaskList extends React.Component<ITaskListProps,{}> {
             <div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginLeft: "0.2em" }}>
                     <a className="material-icons clickable largeText" onClick={onAddClick}>add_box</a>
-                    <a className={`material-icons ${this.props.filter === "completed" ? "iconOn" : "" } ${styles.filterIcon}`} onClick={onFilterToggle}>done_all</a>
+                    <a className={`material-icons marginRight10 toggleable ${this.props.filter === "completed" ? "toggled" : "" }`} onClick={onFilterToggle}>done_all</a>
                 </div>
                 
                 

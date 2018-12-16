@@ -44,6 +44,7 @@ body {
 
 :global .clickable {
     user-select: none;
+    -moz-user-select: none;
     cursor: pointer;
 }
 :global .clickable:hover {
@@ -52,6 +53,19 @@ body {
 :global .clickable:active {
     color: var(--normal-text-active);
 }
+
+:global .toggleable {
+    user-select: none;
+    -moz-user-select: none;
+    cursor: pointer;
+}
+// :global .toggleable:active {
+//     color: var(--normal-text-active);
+// }
+:global .toggled {
+    color: var(--normal-text-active);
+}
+
 
 :global .xlText {
     font-size: 3em;
@@ -79,6 +93,10 @@ body {
 
 :global .marginLeft10 {
     margin-left: 10px;
+}
+
+:global .marginRight10 {
+    margin-right: 10px;
 }
 
 :global .paperButton {
@@ -110,5 +128,5 @@ body {
 }
 
 :global .stretch {
-    width: 100%;
+    display: flex;
 }
