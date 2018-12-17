@@ -21,6 +21,8 @@ export interface ITask {
     isRecurring: boolean
     createdAt: number
     completedAt?: number
+    resetMode: string
+    resetTime: number
 
     isDraft?: boolean
     isEditing?: boolean

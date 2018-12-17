@@ -6,6 +6,8 @@ fragment taskFields on Task {
     dueTime
     duration
     segmentDuration
+    resetMode
+    resetTime
     progress
     state
     color

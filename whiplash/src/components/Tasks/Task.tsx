@@ -141,7 +141,7 @@ const TaskEditableHeader = ({ isRecurring, priority, color, title, onTitleChange
     )
 }
 
-const EditableDescription = ({ description, onBodyChange, color, onColorChange, segmentDuration, onSegmentDurationChange, duration, onDurationChange, onSave }) => {
+const EditableDescription = ({ description, onBodyChange, color, onColorChange, resetTime, onResetTimeChange, segmentDuration, onSegmentDurationChange, duration, onDurationChange, onSave }) => {
     return (
         <div styleName="desc_edit">
             <textarea name="descbody" onChange={onBodyChange} value={description} />
@@ -161,6 +161,7 @@ const EditableDescription = ({ description, onBodyChange, color, onColorChange, 
                 value={duration}
             />
             <input styleName="shortInput" type="text" name="color" onChange={onColorChange} value={color} />
+            <input styleName="shortInput" type="text" name="resetTime" onChange={onResetTimeChange} value={resetTime} />
             <a styleName="save" onClick={onSave}>
                 Save
             </a>
@@ -205,29 +206,12 @@ const NormalExpand = ({ description, onEdit }) => (
 
 
 const EditableExpand = (props) => {
-    const { description, onBodyChange, color, onColorChange, segmentDuration, onSegmentDurationChange, duration, onDurationChange, onSave } = props
-    const { onRerollColor, isRecurring, onToggleRecurring, isUrgent, onToggleUrgent, isImportant, onToggleImportant } = props
+    // const { description, onBodyChange, color, onColorChange, segmentDuration, onSegmentDurationChange, duration, onDurationChange, onSave } = props
+    // const { onRerollColor, isRecurring, onToggleRecurring, isUrgent, onToggleUrgent, isImportant, onToggleImportant } = props
     return (
         <div styleName="expanded">
-            <EditableFlags
-                onRerollColor={onRerollColor}
-                isRecurring={isRecurring}
-                onToggleRecurring={onToggleRecurring}
-                isUrgent={isUrgent}
-                onToggleUrgent={onToggleUrgent}
-                isImportant={isImportant}
-                onToggleImportant={onToggleImportant}
-            />
-            <EditableDescription
-                description={description}
-                onBodyChange={onBodyChange}
-                color={color}
-                onColorChange={onColorChange}
-                onSave={onSave}
-                segmentDuration={segmentDuration}
-                onSegmentDurationChange={onSegmentDurationChange}
-                duration={duration}
-                onDurationChange={onDurationChange}
+            <EditableFlags {...props}/>
+            <EditableDescription {...props}
             />
         </div>
     )
@@ -269,6 +253,7 @@ interface ITaskComponentState {
     state: string
     segmentDuration: number
     duration: number
+    resetTime: number
     isRecurring: boolean
     isHovering: boolean
     isImportant: boolean
@@ -280,7 +265,7 @@ interface ITaskComponentState {
 const prioTable = [null, [false, false], [true, false], [false, true], [true, true]]
 
 class Task extends React.Component<ITaskProps, ITaskComponentState> {
-    constructor(props) {
+    constructor(props: ITaskProps) {
         super(props)
         const [isUrgent, isImportant] = prioTable[props.priority]
         this.state = {
@@ -292,6 +277,7 @@ class Task extends React.Component<ITaskProps, ITaskComponentState> {
             segmentDuration: props.segmentDuration,
             duration: props.duration,
             isRecurring: props.isRecurring,
+            resetTime: props.resetTime,
             isHovering: false,
             isImportant: isUrgent,
             isUrgent: isImportant,
@@ -346,12 +332,15 @@ class Task extends React.Component<ITaskProps, ITaskComponentState> {
     handlePriorityChange(newPrio) {
         // this.setState({ priority: newPrio })
     }
+
+
     handleSegmentDurationChange = (event: React.FormEvent<HTMLInputElement>) => {
         const element = event.target as HTMLInputElement
         const newSD = element.value
-        const value = parseInt(newSD, 10)
+        let value = parseInt(newSD, 10)
 
         if (value > 0 || element.value === "") {
+            if (element.value === "") value = 0
             this.setState({
                 segmentDuration: value
             })
@@ -361,14 +350,30 @@ class Task extends React.Component<ITaskProps, ITaskComponentState> {
     handleDurationChange = (event: React.FormEvent<HTMLInputElement>) => {
         const element = event.target as HTMLInputElement
         const newSD = element.value
-        const value = parseInt(newSD, 10)
+        let value = parseInt(newSD, 10)
 
         if (value > 0 || element.value === "") {
+            if (element.value === "") value = 0
             this.setState({
                 duration: value
             })
         }
     }
+
+    handleResetTimeChange = (event: React.FormEvent<HTMLInputElement>) => {
+        const element = event.target as HTMLInputElement
+        const newSD = element.value
+        let value = parseInt(newSD, 10)
+
+        if (value > 0 || element.value === "") {
+            if (element.value === "") value = 0
+            this.setState({
+                resetTime: value
+            })
+        }
+    }
+
+    
 
     // handleTitleClick = (e: React.MouseEvent<any>) => {
     //     this.props.dispatch(taskSelect(this.props._id))
@@ -517,6 +522,8 @@ class Task extends React.Component<ITaskProps, ITaskComponentState> {
                             onSegmentDurationChange={this.handleSegmentDurationChange}
                             duration={this.state.duration}
                             onDurationChange={this.handleDurationChange}
+                            resetTime={this.state.resetTime}
+                            onResetTimeChange={this.handleResetTimeChange}
                             onSave={this.handleSubmit}
                         />
                         :

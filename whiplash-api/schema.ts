@@ -24,6 +24,8 @@ const typeDefs = [gql`
         title: String!
         description: String
         priority: Int
+        resetMode: String
+        resetTime: Int
 
         dueTime: Int
         duration: Int
@@ -45,6 +47,8 @@ const typeDefs = [gql`
         priority: Int
         dueTime: Int
         duration: Int
+        resetTime: Int
+        resetMode: String
         segmentDuration: Int
         progress: Int
         state: String
@@ -136,6 +140,8 @@ const resolvers = {
                 task.dueTime = data.dueTime
                 task.duration = data.duration
                 task.segmentDuration = data.segmentDuration
+                task.resetMode = data.resetMode
+                task.resetTime = data.resetTime
                 // task.state = data.state
                 task.isRecurring = data.isRecurring
                 task.color = data.color
