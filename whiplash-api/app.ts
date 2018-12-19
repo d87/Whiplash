@@ -3,7 +3,7 @@ import express from "express"
 import path from "path"
 import cookieParser from "cookie-parser"
 
-import logger from "morgan"
+import morgan from "morgan"
 // import jsend from "jsend"
 // import jwt from 'jsonwebtoken'
 import session from "express-session"
@@ -18,9 +18,11 @@ import indexRouter from "./routes/index"
 // import scheduleTaskRouter from './routes/tasks'
 import todoRouter from "./routes/todos"
 import usersRouter from "./routes/users"
+import { startDailyResetJob } from './cronjobs'
 
 import { schema } from "./schema"
 import { authStrategy, jwtStrategy, serializeUser, deserializeUser } from "./auth"
+
 
 const app = express()
 
@@ -33,7 +35,7 @@ nunjucks.configure("views", {
 })
 app.set("view engine", "html")
 
-app.use(logger("dev"))
+app.use(morgan("dev"))
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 app.use(express.json())
@@ -70,6 +72,7 @@ app.use((req, res, next) => {
 
 app.use("/", indexRouter)
 app.use("/users", usersRouter)
+startDailyResetJob()
 // app.use('/users', passport.authenticate('jwt', {session: false}), usersRouter);
 
 app.use(

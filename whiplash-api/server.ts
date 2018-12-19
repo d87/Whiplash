@@ -1,8 +1,12 @@
 import fs from "fs"
 import http from "http"
 import app from "./app"
-import createDebug from 'debug'
-const debug = createDebug('whiplash-api:server')
+import { startSubscriptionServer } from './subscriptionServer'
+import { logger } from './logger'
+// import createDebug from 'debug'
+// const debug = createDebug('whiplash-api:server')
+
+
 
 const normalizePort = (portStr: string) => parseInt(portStr, 10)
 const port = normalizePort(process.env.PORT || "3000")
@@ -22,11 +26,11 @@ function onError(error) {
     // handle specific listen errors with friendly messages
     switch (error.code) {
         case "EACCES":
-            console.error(bind + " requires elevated privileges")
+            logger.error(bind + " requires elevated privileges")
             process.exit(1)
             break
         case "EADDRINUSE":
-            console.error(bind + " is already in use")
+            logger.error(bind + " is already in use")
             process.exit(1)
             break
         default:
@@ -37,7 +41,7 @@ function onError(error) {
 function onListening() {
     const addr = server.address()
     const bind = typeof addr === "string" ? "pipe " + addr : "port " + addr.port
-    debug("Listening on " + bind)
+    logger.info("Listening on " + bind)
 }
 
 const server = http.createServer(app)
@@ -45,4 +49,5 @@ const server = http.createServer(app)
 server.listen(port)
 server.on("error", onError)
 server.on("listening", onListening)
-// app.listen(port)
+const subsServer = startSubscriptionServer()
+

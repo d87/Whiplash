@@ -1,12 +1,15 @@
 import gql from "graphql-tag"
 import { ApolloClient, ApolloQueryResult } from "apollo-client"
 import { HttpLink } from "apollo-link-http"
-import { ApolloLink, concat } from "apollo-link"
+import { WebSocketLink } from 'apollo-link-ws'
+import { ApolloLink, concat, split } from "apollo-link"
+import { getMainDefinition } from 'apollo-utilities';
 import { InMemoryCache } from "apollo-cache-inmemory"
+import { SubscriptionClient } from "subscriptions-transport-ws";
 import { getBearerToken } from "../auth/auth"
 import { ITask } from "../components/Tasks/TaskActions"
 
-import { GetTasks,  NewTask, SaveTask, CompleteTask, UncompleteTask, AddProgress } from './task.gql'
+import { GetTasks, UpdateTasks, NewTask, SaveTask, CompleteTask, UncompleteTask, AddProgress } from './task.gql'
 
 import config from "../config"
 
@@ -32,15 +35,36 @@ const authMiddlewareCookies = new ApolloLink((operation, forward) => {
     return forward(operation)
 })
 
+const wsLink = new WebSocketLink({
+    // document.location.host
+    uri: `ws://nevihta.d87:3001/api/subscriptions`,
+    options: {
+      reconnect: true
+    }
+});
+
 const httpLink = new HttpLink({
     uri: `${config.apiUrl}/api/graphql`,
     fetch
 })
-
 const authHttpLink = concat(authMiddlewareCookies, httpLink)
 
+
+// using the ability to split links, you can send data to each link
+// depending on what kind of operation is being sent
+const link = split(
+    // split based on operation type
+    ({ query }) => {
+      const { kind, operation } = getMainDefinition(query);
+      return kind === 'OperationDefinition' && operation === 'subscription';
+    },
+    wsLink,
+    httpLink,
+);
+
+
 export const client = new ApolloClient({
-    link: authHttpLink,
+    link: link,
     cache: new InMemoryCache()
 })
 
@@ -49,6 +73,24 @@ export const getTasks = (): Promise<ApolloQueryResult<{ tasks: Array<Partial<ITa
         query: GetTasks
     })
 }
+
+export const subscribeToResets = (userID: string) => {
+    return client.subscribe({
+        query: UpdateTasks,
+        variables: { channelID: userID }
+    })
+}
+
+// https://github.com/apollographql/subscriptions-transport-ws
+const subscriptionObserver = subscribeToResets("5bed9cc91f633d12673a08ae")
+subscriptionObserver.subscribe({
+    next(data) {
+        console.log("obsever got data ", data)
+        // ... call updateQuery to integrate the new comment
+        // into the existing list of comments
+    },
+    error(err) { console.error('err', err); },
+});
 
 interface ITaskServerData {
     _id?: string

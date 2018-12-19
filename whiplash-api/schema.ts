@@ -2,6 +2,8 @@ import mongoose from 'mongoose'
 import { Task, Todo } from './models'
 import {makeExecutableSchema} from 'graphql-tools'
 import gql from 'graphql-tag'
+import { withFilter } from 'graphql-subscriptions';
+import { pubsub } from './subscriptionServer'
 
 const ObjectId = mongoose.Types.ObjectId
 ObjectId.prototype.valueOf = function () {
@@ -77,9 +79,14 @@ const typeDefs = [gql`
         addProgress(id: String!, time: Int!): Task
     }
 
+    type Subscription {
+        taskReset: [Task]
+    }
+
     schema {
         query: Query
         mutation: Mutation
+        subscription: Subscription
     }
 `];
 
@@ -155,7 +162,7 @@ const resolvers = {
             try {
                 const task = await Task.findById(id)
                 task.state = "completed"
-                task.completedAt = Date.now()
+                task.completedAt = new Date()
                 return await task.save()
             } catch(err) {
                 console.error(err)
@@ -180,7 +187,7 @@ const resolvers = {
                 task.progress += args.time
                 if (task.progress >= task.duration) {
                     task.state = "completed"
-                    task.completedAt = Date.now()
+                    task.completedAt = new Date()
                 }
                 return await task.save()
             } catch(err) {
@@ -188,10 +195,24 @@ const resolvers = {
             }
         },
     },
+    Subscription: {
+        taskReset: {
+            resolve: (payload, variables, context, info) => {
+                // Manipulate and return the new value
+                console.log("resolving sub")
+                return []
+            },
+            subscribe: // (_, args) => pubsub.asyncIterator("TASKS_UPDATE")
+                withFilter(
+                    () => pubsub.asyncIterator("TASKS_UPDATE"),
+                    // payload from pubsub event, variables from client query
+                    (payload, variables, context, info) => {
+                        return payload.channelID === variables.channelID;
+                    }
+                )
+        }
+    }
 }
-
-
-
         
 
 export const schema = makeExecutableSchema({

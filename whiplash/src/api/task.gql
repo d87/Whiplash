@@ -31,6 +31,12 @@ query GetTasks {
     }
 }
 
+subscription UpdateTasks($channelID: String!) {
+    updateTasks(channelID: $channelID) {
+      ...taskFields
+    }
+}
+
 
 mutation NewTask($input: TaskInput) {
     createTask(input: $input) {

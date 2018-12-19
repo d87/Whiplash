@@ -1,9 +1,31 @@
-import mongoose from "mongoose";
 import './db';
 import crypto from 'crypto'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import { CronJob } from 'cron'
+import mongoose, { Document, Schema, Model, model} from "mongoose";
+
+
+export interface ITask {
+    userID: string
+    title: string
+    description: string
+    priority: number
+    state: string
+    isRecurring: boolean
+
+    dueTime: number
+    segmentDuration: number
+    duration: number
+    progress: number
+    resetMode: string
+    resetTime: number
+    color: string
+    completedAt: Date
+    createdAt: Date
+    updatedAt: Date
+}
+
+export interface ITaskModel extends ITask, mongoose.Document { }
 
 const TaskSchema = new mongoose.Schema(
     {
@@ -16,6 +38,7 @@ const TaskSchema = new mongoose.Schema(
         state: { type: String, default: "active", enum: ['active', 'completed', 'archived'] },
         isRecurring: { type: Boolean, default: false }, // merge into resetMode?
 
+        // resetTasksAt - custom daily reset time / or day start time
         dueTime: { type: Number, default: 0 },
         segmentDuration: { type: Number, default: 0 },
         duration: { type: Number, default: 3600 },
@@ -58,51 +81,7 @@ const TaskSchema = new mongoose.Schema(
 
 // TaskSchema.methods.reset = () => {};
 
-export const Task = mongoose.model("Task", TaskSchema);
-
-// Run this cron job every day at 7:00:00
-const cronJob = new CronJob("00 00 7 * * *", () => {
-    // Task.updateMany(
-    //     {
-    //         isRecurring: true,
-    //         $or: [ { progress: { $gt: 0 }}, { state: "completed" }]
-    //     },
-    //     {
-    //         state: "active",
-    //         progress: 0
-    //     },
-    //     { multi: true },
-    //     (err, raw) => {
-    //         if (err) return console.error(err);
-    //         console.log('Mongo Response: ', raw);
-    //         console.log("Successfully reset recurring tasks")
-    // })
-    const now = Date.now();
-    const dayLength = 24*3600*1000
-    console.log("Starting reset...")
-    Task.find({
-                isRecurring: true,
-                $or: [ { progress: { $gt: 0 }}, { state: "completed" }]
-            }).exec((err, tasks) => {
-                if (err) return console.error(err);
-                tasks.map(task => {
-
-                    task.progress = 0
-
-                    if (task.state === "completed") {
-                        if (task.resetMode === "inDays") {
-                            const nDays = task.resetTime
-                            if (task.completedAt.getTime() < now - (nDays-1)*dayLength ) {
-                                task.state = "active"
-                            }
-                        }
-                    }
-
-                    task.save()
-                })
-            })
-}, null, true, "Asia/Novosibirsk");
-
+export const Task = mongoose.model<ITaskModel>("Task", TaskSchema);
 
 const TodoSchema = new mongoose.Schema(
     {
@@ -123,6 +102,16 @@ const TodoSchema = new mongoose.Schema(
 );
 
 export const Todo = mongoose.model("Todo", TodoSchema);
+
+export interface IUser extends Document {
+    username: string
+    name: string
+    email: string
+    hash: string
+    // ...
+}
+
+export interface IUserModel extends IUser, mongoose.Document { }
 
 const UserSchema = new mongoose.Schema(
     {
@@ -223,4 +212,4 @@ UserSchema.methods.toUserDataJSON = function() {
     };
 };
 
-export const User = mongoose.model("User", UserSchema);
+export const User = mongoose.model<IUserModel>("User", UserSchema);

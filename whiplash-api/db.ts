@@ -1,11 +1,12 @@
 import mongoose from 'mongoose'
+import { logger } from './logger'
 
 const makeDB = async () => {
     try{
         await mongoose.connect('mongodb://localhost:27017/whiplash', { useNewUrlParser: true })
     }
     catch(err){
-        console.error(err)
+        logger.error(err)
     }
     return mongoose.connection
 }
@@ -13,7 +14,7 @@ const makeDB = async () => {
 const dba = mongoose.connection;
 dba.on('error', console.error.bind(console, 'Connection error:'));
 dba.once('open', () => {
-    console.log("Connected to database")
+    logger.info("Connected to database")
 });
 
 makeDB()
