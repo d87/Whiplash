@@ -39,7 +39,8 @@ const wsLink = new WebSocketLink({
     // document.location.host
     uri: `ws://nevihta.d87:3001/api/subscriptions`,
     options: {
-      reconnect: true
+      reconnect: true,
+      reconnectionAttempts: 5
     }
 });
 
@@ -65,7 +66,8 @@ const link = split(
 
 export const client = new ApolloClient({
     link: link,
-    cache: new InMemoryCache()
+    cache: new InMemoryCache(),
+    connectToDevTools: true
 })
 
 export const getTasks = (): Promise<ApolloQueryResult<{ tasks: Array<Partial<ITask>> }>> => {

@@ -45,18 +45,17 @@ app.use("/static", express.static(path.join(__dirname, 'static')))
 const halfYear = 31536000 * 0.5 * 1000
 
 const RedisStore = connectRedis(session)
-app.use(
-    session({
-        secret: "ripp0-in-pepproni",
-        store: new RedisStore({}),
-        saveUninitialized: true,
-        resave: true,
-        cookie: {
-            httpOnly: true,
-            maxAge: halfYear
-        }
-    })
-)
+export const sessionParser = session({
+    secret: "ripp0-in-pepproni",
+    store: new RedisStore({}),
+    saveUninitialized: true,
+    resave: true,
+    cookie: {
+        httpOnly: true,
+        maxAge: halfYear
+    }
+})
+app.use(sessionParser)
 app.use(passport.initialize())
 app.use(passport.session())
 passport.use("local", authStrategy)

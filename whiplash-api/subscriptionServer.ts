@@ -4,6 +4,7 @@ import { execute, subscribe } from "graphql"
 import { schema } from "./schema"
 import { RedisPubSub } from 'graphql-redis-subscriptions';
 import { logger } from './logger'
+import { sessionParser } from './app'
 
 export const pubsub = new RedisPubSub();
 
@@ -22,15 +23,34 @@ export const startSubscriptionServer = () => {
         logger.info(`Websocket Server is now running on http://localhost:${WS_PORT}`)
     })
 
-    return SubscriptionServer.create(
+    return new SubscriptionServer(
         {
             schema,
             execute,
             subscribe,
+            onConnect: (connectionParams, webSocket, connectionContext) => {
+                if (connectionContext.request.session.passport.user) {
+                    // this object will be available as context in the sub resolvers now
+                    return {
+                        user: {
+                            _id: connectionContext.request.session.passport.user
+                        }
+                    }
+                }
+                // logger.debug(connectionContext.request.session)
+                throw new Error('Unauthorized!');
+            }
         },
         {
             server: websocketServer,
-            path: "/api/subscriptions"
+            path: "/api/subscriptions",
+            verifyClient: (info, done) => {
+                // logger.debug('Parsing session from request...')
+                sessionParser(info.req, {}, () => {
+                    // logger.debug('Session is parsed!', info.req.session)
+                    done(info.req.session)
+                })
+            },
         }
     )
 }

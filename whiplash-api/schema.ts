@@ -80,7 +80,7 @@ const typeDefs = [gql`
     }
 
     type Subscription {
-        taskReset: [Task]
+        updateTasks(channelID: String!): [Task]
     }
 
     schema {
@@ -196,20 +196,20 @@ const resolvers = {
         },
     },
     Subscription: {
-        taskReset: {
+        updateTasks: {
             resolve: (payload, variables, context, info) => {
                 // Manipulate and return the new value
-                console.log("resolving sub")
+                console.log("resolving sub", context.user)
                 return []
             },
-            subscribe: // (_, args) => pubsub.asyncIterator("TASKS_UPDATE")
-                withFilter(
-                    () => pubsub.asyncIterator("TASKS_UPDATE"),
-                    // payload from pubsub event, variables from client query
-                    (payload, variables, context, info) => {
-                        return payload.channelID === variables.channelID;
-                    }
-                )
+            subscribe: (_, args) => pubsub.asyncIterator("TASKS_UPDATE")
+                // withFilter(
+                //     () => pubsub.asyncIterator("TASKS_UPDATE"),
+                //     // payload from pubsub event, variables from client query
+                //     (payload, variables, context, info) => {
+                //         return payload.channelID === variables.channelID;
+                //     }
+                // )
         }
     }
 }
