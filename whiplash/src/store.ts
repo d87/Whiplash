@@ -69,7 +69,7 @@ const composeEnhancers = composeWithDevTools({
 //     }
 // }
 
-const middleware = []
+const middleware = [(thunk as ThunkMiddleware<IAppState, AnyAction>)]
 
 if (process.env.NODE_ENV !== "production") {
     // const actionLogger = ({dispatch, getState}) =>
@@ -90,7 +90,7 @@ if (window !== undefined) {
     preloadedState = (window as any).__PRELOADED_STATE__
 }
 
-export const store = createStore(reducers, preloadedState, applyMiddleware(thunk as ThunkMiddleware<IAppState, AnyAction>))
+export const store = createStore(reducers, preloadedState, applyMiddleware(...middleware))
 
 registerKeybindings(store)
 

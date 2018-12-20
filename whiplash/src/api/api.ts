@@ -7,7 +7,7 @@ import { getMainDefinition } from 'apollo-utilities';
 import { InMemoryCache } from "apollo-cache-inmemory"
 import { SubscriptionClient } from "subscriptions-transport-ws";
 import { getBearerToken } from "../auth/auth"
-import { ITask } from "../components/Tasks/TaskActions"
+import { ITask, taskMerge } from "../components/Tasks/TaskActions"
 import { store } from "../store"
 
 import { GetTasks, UpdateTasks, NewTask, SaveTask, CompleteTask, UncompleteTask, AddProgress } from './task.gql'
@@ -87,9 +87,10 @@ export const subscribeToResets = (userID?: string) => {
 // https://github.com/apollographql/subscriptions-transport-ws
 const subscriptionObserver = subscribeToResets()
 subscriptionObserver.subscribe({
-    next(data) {
-        console.log("obsever got data ", data)
-        
+    next(message) {
+        const updatedTasks = message.data.updateTasks
+        console.log("observer got data", updatedTasks)
+        store.dispatch(taskMerge(updatedTasks))
     },
     error(err) { console.error('err', err); },
 });

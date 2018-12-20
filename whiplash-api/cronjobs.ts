@@ -61,8 +61,7 @@ const resetFunc = async () => {
 export const startDailyResetJob = () => {
     // Run this cron job every day at 7:00:00
     return new CronJob(
-        // "00 00 7 * * *",
-        "10 09 15 * * *",
+        "00 00 7 * * *",
         resetFunc,
         null,
         true,

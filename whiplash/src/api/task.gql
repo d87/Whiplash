@@ -31,8 +31,8 @@ query GetTasks {
     }
 }
 
-subscription UpdateTasks($channelID: String!) {
-    updateTasks(channelID: $channelID) {
+subscription UpdateTasks {
+    updateTasks {
         ...taskProgressFields
     }
 }

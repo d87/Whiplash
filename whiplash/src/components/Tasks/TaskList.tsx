@@ -94,7 +94,7 @@ const makeFlipKey = (tasks) => {
 }
 
 const getVisibilityFilter = (state, props) => state.tasks.filter
-const getTasksForSelector = (state) => state.tasks.list
+const getTasksForSelector = (state): ITask[] => Object.values(state.tasks.table)
 export const getSortedVisibleTodos = createSelector(
     [ getVisibilityFilter, getTasksForSelector ],
     (visibilityFilter, tasks) => {
@@ -115,7 +115,7 @@ const getStartedTasks = (tasks) => tasks.filter(t => {
 
 const mapStateToProps = (state, props) => {
     const tasks = getSortedVisibleTodos(state, props)
-    const activeTask = tasks.find(task => task._id === state.tasks.activeID)
+    const activeTask = state.tasks.table[state.tasks.activeID]
     const flipKey = makeFlipKey(tasks)
     return {
         tasks,

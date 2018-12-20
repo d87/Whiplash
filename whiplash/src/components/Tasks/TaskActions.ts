@@ -33,6 +33,7 @@ export interface ITask {
 }
 export interface ITaskState {
     list: ITask[]
+    table: any,
     selectedID: string
     activeID: string
     filter: string
@@ -50,6 +51,10 @@ const TASK_SAVE_PENDING = "TASK_SAVE_PENDING"
 const TASK_SAVE_SUCCESS = "TASK_SAVE_SUCCESS"
 const TASK_SAVE_FAILED = "TASK_SAVE_FAILED"
 
+const TASK_CREATE_PENDING = "TASK_CREATE_PENDING"
+const TASK_CREATE_SUCCESS = "TASK_CREATE_SUCCESS"
+const TASK_CREATE_FAILED = "TASK_CREATE_FAILED"
+
 const TASK_UPDATE_PROGRESS_PENDING = "TASK_UPDATE_PROGRESS_PENDING"
 const TASK_UPDATE_PROGRESS_SUCCESS = "TASK_UPDATE_PROGRESS_SUCCESS"
 const TASK_UPDATE_PROGRESS_FAILED = "TASK_UPDATE_PROGRESS_FAILED"
@@ -59,6 +64,7 @@ const TASK_DELETE = "TASK_DELETE"
 
 const initialState: ITaskState = {
     list: [],
+    table: {},
     activeID: null,
     selectedID: null,
     filter: "active"
@@ -67,72 +73,103 @@ const initialState: ITaskState = {
 export const reducer = (state: ITaskState = initialState, action: AnyAction): ITaskState => {
     switch (action.type) {
         case TASK_INIT: {
+            const newTasks = action.newState
+            const newState = {}
+            for (const task of newTasks) {
+                newState[task._id] = task
+            }
             return {
                 ...state,
-                list: action.newState
+                table: {
+                    // ...state.table,
+                    ...newState
+                }
+            }
+        }
+        case TASK_MERGE: {
+            const updatedTasks = action.serverData
+            const updatedStateChunk = {
+                ...state.table
+            }
+            for (const newTaskData of updatedTasks) {
+                const taskID = newTaskData._id
+                delete newTaskData.__typename
+                const oldTaskData = state.table[taskID]
+                updatedStateChunk[taskID] = {
+                    ...oldTaskData,
+                    ...newTaskData
+                }
+            }
+            return {
+                ...state,
+                table: updatedStateChunk
             }
         }
         case TASK_START: {
             if (state.activeID !== null) return state
+            const taskID = action._id
+            const task = state.table[taskID]
             return {
                 ...state,
-                list: state.list.map(task => {
-                    if (task._id === action._id)
-                        return {
-                            ...task,
-                            startTime: Date.now(),
-                            isStarted: true,
-                        }
-                    else return task
-                }),
-                activeID: action._id
+                table: {
+                    ...state.table,
+                    [taskID]: {
+                        ...task,
+                        startTime: Date.now(),
+                        isStarted: true,
+                    }
+                },
+                activeID: taskID
             }
         }
         case TASK_STOP: {
+            const taskID = action._id
+            const task = state.table[taskID]
             return {
                 ...state,
-                list: state.list.map(task => {
-                    if (task._id === action._id)
-                        return {
-                            ...task,
-                            startTime: 0,
-                            isStarted: false,
-                        }
-                    else return task
-                }),
+                table: {
+                    ...state.table,
+                    [taskID]: {
+                        ...task,
+                        startTime: 0,
+                        isStarted: false,
+                    }
+                },
                 activeID: null
             }
         }
         case TASK_TOGGLE_EXPAND: {
+            const taskID = action._id
+            const task = state.table[taskID]
             return {
                 ...state,
-                list: state.list.map(task => {
-                    if (task._id === action._id && !task.isEditing)
-                        return {
-                            ...task,
-                            isExpanded: !task.isExpanded
-                        }
-                    else return task
-                })
+                table: {
+                    ...state.table,
+                    [taskID]: {
+                        ...task,
+                        isExpanded: !task.isExpanded
+                    }
+                },
             }
         }
         case TASK_EDIT: {
+            const taskID = action._id
+            const task = state.table[taskID]
             return {
                 ...state,
-                list: state.list.map(task => {
-                    if (task._id === action._id) {
-                        return {
-                            ...task,
-                            isEditing: true,
-                            isExpanded: true
-                        }
-                    } else return task
-                })
+                table: {
+                    ...state.table,
+                    [taskID]: {
+                        ...task,
+                        isEditing: true,
+                        isExpanded: true
+                    }
+                }
             }
         }
         case TASK_ADD: {
             const newTask: ITask = {
-                _id: "__NEW__" + uuidv4(),
+                _id: "__new__",// + uuidv4(),
                 isDraft: true,
                 isEditing: true,
                 isExpanded: true,
@@ -142,6 +179,8 @@ export const reducer = (state: ITaskState = initialState, action: AnyAction): IT
                 duration: 0,
                 dueTime: 0,
                 progress: 0,
+                resetMode: "inDays",
+                resetTime: 1,
                 description: "",
                 isRecurring: false,
                 color: getRandomBrightColor(),
@@ -150,44 +189,75 @@ export const reducer = (state: ITaskState = initialState, action: AnyAction): IT
             }
             return {
                 ...state,
-                list: [newTask, ...state.list]
+                table: {
+                    ...state.table,
+                    __new__: newTask
+                }
             }
         }
 
         case TASK_SAVE_SUCCESS: {
+            const taskID = action._id
+            const task = state.table[taskID]
+            const { _id, title, color, description, duration, segmentDuration, priority, isRecurring } = action.serverData
             return {
                 ...state,
-                list: state.list.map(task => {
-                    if (task._id === action._id) {
-                        const { _id, title, color, description, duration, segmentDuration, priority, isRecurring } = action.serverData
-                        return {
-                            ...task,
-                            isEditing: false,
-                            isDraft: false,
-                            _id,
-                            title,
-                            color,
-                            duration,
-                            segmentDuration,
-                            description,
-                            priority,
-                            isRecurring
-                        }
-                    } else return task
-                })
+                table: {
+                    ...state.table,
+                    [taskID]: {
+                        ...task,
+                        isEditing: false,
+                        isDraft: false,
+                        _id,
+                        title,
+                        color,
+                        duration,
+                        segmentDuration,
+                        description,
+                        priority,
+                        isRecurring
+                    }
+                }
             }
         }
+        case TASK_CREATE_SUCCESS: {
+            // const taskID = action._id
+            const task = state.table.__new__
+            const { _id, title, color, description, duration, segmentDuration, priority, isRecurring } = action.serverData
+            const newState = {
+                ...state,
+                table: {
+                    ...state.table,
+                    [_id]: {
+                        ...task,
+                        isEditing: false,
+                        isDraft: false,
+                        _id,
+                        title,
+                        color,
+                        duration,
+                        segmentDuration,
+                        description,
+                        priority,
+                        isRecurring
+                    }
+                }
+            }
+            delete newState.table.__new__
+            return newState
+        }
         case TASK_UPDATE_PROGRESS_SUCCESS: {
+            const taskID = action._id
+            const task = state.table[taskID]
             return {
                 ...state,
-                list: state.list.map(task => {
-                    if (task._id === action._id) {
-                        return {
-                            ...task,
-                            ...action.taskProgress,
-                        }
-                    } else return task
-                })
+                table: {
+                    ...state.table,
+                    [taskID]: {
+                        ...task,
+                        ...action.taskProgress // that's an object w updated progress fields
+                    }
+                }
             }
         }
         case TASK_TOGGLE_FILTER: {
@@ -204,14 +274,14 @@ export const reducer = (state: ITaskState = initialState, action: AnyAction): IT
                 selectedID: newID,
             }
         }
-        case TASK_DELETE: {
-            return {
-                ...state,
-                list: state.list.filter(task => {
-                    return task._id !== action._id
-                })
-            }
-        }
+        // case TASK_DELETE: {
+        //     return {
+        //         ...state,
+        //         list: state.list.filter(task => {
+        //             return task._id !== action._id
+        //         })
+        //     }
+        // }
 
         default:
             return state
@@ -219,11 +289,11 @@ export const reducer = (state: ITaskState = initialState, action: AnyAction): IT
 }
 
 export const taskSave = (_id: ID, taskState) => {
-    if (_id.startsWith("__NEW__"))
+    if (_id === "__new__")
         return dispatch => {
             createTask(taskState)
                 .then(response => {
-                    dispatch(taskSaveSuccess(_id, response.data.createTask))
+                    dispatch(taskCreateSuccess(response.data.createTask))
                 })
                 .catch(err => {
                     console.error(err)
@@ -315,3 +385,7 @@ export const taskDeleteClient = (_id: ID) => ({ type: TASK_DELETE, _id })
 export const taskSavePending = (_id: ID) => ({ type: TASK_SAVE_PENDING, _id })
 export const taskSaveSuccess = (_id: ID, serverData: Partial<ITask>) => ({ type: TASK_SAVE_SUCCESS, _id, serverData })
 export const taskSaveFailed = (_id: ID, error) => ({ type: TASK_SAVE_FAILED, _id, error })
+// export const taskCreatePending = (_id: ID) => ({ type: TASK_CREATE_PENDING, _id })
+export const taskCreateSuccess = (serverData: Partial<ITask>) => ({ type: TASK_CREATE_SUCCESS, serverData })
+// export const taskCreateFailed = (_id: error) => ({ type: TASK_CREATE_FAILED, _id, error })
+export const taskMerge = (serverData: Partial<ITask>) => ({ type: TASK_MERGE, serverData })
