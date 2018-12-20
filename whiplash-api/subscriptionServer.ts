@@ -28,13 +28,13 @@ export const startSubscriptionServer = () => {
             schema,
             execute,
             subscribe,
+            // JWT example: https://www.apollographql.com/docs/graphql-subscriptions/authentication.html
+
             onConnect: (connectionParams, webSocket, connectionContext) => {
                 if (connectionContext.request.session.passport.user) {
                     // this object will be available as context in the sub resolvers now
                     return {
-                        user: {
-                            _id: connectionContext.request.session.passport.user
-                        }
+                        userID: connectionContext.request.session.passport.user
                     }
                 }
                 // logger.debug(connectionContext.request.session)
@@ -47,7 +47,7 @@ export const startSubscriptionServer = () => {
             verifyClient: (info, done) => {
                 // logger.debug('Parsing session from request...')
                 sessionParser(info.req, {}, () => {
-                    // logger.debug('Session is parsed!', info.req.session)
+                    logger.debug('Session is parsed!', info.req.session)
                     done(info.req.session)
                 })
             },

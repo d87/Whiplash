@@ -8,6 +8,7 @@ import { InMemoryCache } from "apollo-cache-inmemory"
 import { SubscriptionClient } from "subscriptions-transport-ws";
 import { getBearerToken } from "../auth/auth"
 import { ITask } from "../components/Tasks/TaskActions"
+import { store } from "../store"
 
 import { GetTasks, UpdateTasks, NewTask, SaveTask, CompleteTask, UncompleteTask, AddProgress } from './task.gql'
 
@@ -39,8 +40,8 @@ const wsLink = new WebSocketLink({
     // document.location.host
     uri: `ws://nevihta.d87:3001/api/subscriptions`,
     options: {
-      reconnect: true,
-      reconnectionAttempts: 5
+        reconnect: true,
+        // reconnectionAttempts: 5
     }
 });
 
@@ -76,20 +77,19 @@ export const getTasks = (): Promise<ApolloQueryResult<{ tasks: Array<Partial<ITa
     })
 }
 
-export const subscribeToResets = (userID: string) => {
+export const subscribeToResets = (userID?: string) => {
     return client.subscribe({
         query: UpdateTasks,
-        variables: { channelID: userID }
+        // variables: { channelID: userID }
     })
 }
 
 // https://github.com/apollographql/subscriptions-transport-ws
-const subscriptionObserver = subscribeToResets("5bed9cc91f633d12673a08ae")
+const subscriptionObserver = subscribeToResets()
 subscriptionObserver.subscribe({
     next(data) {
         console.log("obsever got data ", data)
-        // ... call updateQuery to integrate the new comment
-        // into the existing list of comments
+        
     },
     error(err) { console.error('err', err); },
 });
@@ -125,8 +125,7 @@ export const saveTask = (data: ITaskServerData): Promise<ApolloQueryResult<{ sav
         variables: { input: taskInput }
     })
 }
-// su --mount-master -c busybox mount -o username=d87,password=123,rw,noperm,iocharset=utf8 -t cifs //192.168.1.1/root /data/media/0/mounts/nevi
-// su --mount-master -c busybox mount -o username=d87,password=123,rw,noperm,iocharset=utf8 -t cifs //192.168.1.1/root /storage/sdcard0/mounts/nevi
+
 export const completeTask = (_id: string): Promise<ApolloQueryResult<{ completeTask: Partial<ITask> }>> => {
     return client.mutate({
         mutation: CompleteTask,

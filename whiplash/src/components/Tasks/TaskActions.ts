@@ -39,6 +39,7 @@ export interface ITaskState {
 }
 
 const TASK_INIT = "TASK_INIT"
+const TASK_MERGE = "TASK_MERGE"
 const TASK_ADD = "TASK_ADD"
 const TASK_START = "TASK_START"
 const TASK_SELECT = "TASK_SELECT"

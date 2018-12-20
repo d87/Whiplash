@@ -4,6 +4,7 @@ import {makeExecutableSchema} from 'graphql-tools'
 import gql from 'graphql-tag'
 import { withFilter } from 'graphql-subscriptions';
 import { pubsub } from './subscriptionServer'
+import { logger } from './logger'
 
 const ObjectId = mongoose.Types.ObjectId
 ObjectId.prototype.valueOf = function () {
@@ -80,7 +81,7 @@ const typeDefs = [gql`
     }
 
     type Subscription {
-        updateTasks(channelID: String!): [Task]
+        updateTasks: [Task]
     }
 
     schema {
@@ -114,6 +115,11 @@ const resolvers = {
             return new Date(value); // value from the client
         },
         serialize(value) {
+            // When GQL in serializing objects from pubsub payload
+            // Date types are already converted to string in that process
+            if (typeof value === "string") {
+                value = new Date(value)
+            }
             return value.getTime(); // value sent to the client
         },
     },
@@ -199,17 +205,23 @@ const resolvers = {
         updateTasks: {
             resolve: (payload, variables, context, info) => {
                 // Manipulate and return the new value
-                console.log("resolving sub", context.user)
-                return []
+                logger.debug("Resolving updateTasks subscription")
+                logger.debug("payload =", payload)
+                return payload.tasks
             },
-            subscribe: (_, args) => pubsub.asyncIterator("TASKS_UPDATE")
-                // withFilter(
-                //     () => pubsub.asyncIterator("TASKS_UPDATE"),
-                //     // payload from pubsub event, variables from client query
-                //     (payload, variables, context, info) => {
-                //         return payload.channelID === variables.channelID;
-                //     }
-                // )
+            subscribe: // (_, args) => pubsub.asyncIterator("TASKS_UPDATE")
+                withFilter(
+                    () => pubsub.asyncIterator("TASKS_UPDATE"),
+                    // payload from pubsub event, variables from client query
+                    (payload, variables, context, info) => {
+                        try {
+                            if (typeof payload === "undefined") return false // why is it undefined?
+                            return payload.targetUserID === context.userID;
+                        } catch (err) {
+                            logger.error(err)
+                        }
+                    }
+                )
         }
     }
 }
