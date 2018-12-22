@@ -47,7 +47,7 @@ export const startSubscriptionServer = () => {
             verifyClient: (info, done) => {
                 // logger.debug('Parsing session from request...')
                 sessionParser(info.req, {}, () => {
-                    logger.debug('Session is parsed!', info.req.session)
+                    // logger.silly('Session parsed:', info.req.session)
                     done(info.req.session)
                 })
             },

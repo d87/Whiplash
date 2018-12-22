@@ -6,7 +6,7 @@ import { createSelector } from "reselect"
 import Swipeable from "react-swipeable"
 
 import Remarkable from "remarkable"
-import { GetGradientColor, getRandomBrightColor } from "../../util"
+import { GetGradientColor, getRandomBrightColor, formatTimeRemains } from "../../util"
 import { ClickableProgressBar } from "../ProgressBar/ProgressBar"
 import {
     ITaskState,
@@ -42,7 +42,7 @@ interface ITaskHeaderProps {
     title: string
     state: string
     progress: number
-    percentage: number
+    statusText: string
     onComplete: () => void
     onUncomplete: () => void
     onStart: () => void
@@ -74,7 +74,7 @@ class TaskHeader extends React.Component<ITaskHeaderProps, ITaskHeaderState> {
             isRecurring,
             // isSelected,
             priority,
-            percentage,
+            statusText,
             color,
             title,
             state,
@@ -101,7 +101,7 @@ class TaskHeader extends React.Component<ITaskHeaderProps, ITaskHeaderState> {
 
                 <div styleName="title">
                     <span style={{ color }}>{title}</span>
-                    {percentage && <small className="marginLeft10">{`(${percentage}%)`}</small>}
+                    {statusText && <small className="marginLeft10">{statusText}</small>}
                     {this.state.isHovering &&
                         (state === "completed" ? (
                             <div styleName="controls">
@@ -456,9 +456,15 @@ class Task extends React.Component<ITaskProps, ITaskComponentState> {
         const { isExpanded, isEditing, color } = this.props
         const { onExpand, onEdit, onDelete } = this.props
 
-        let percent
-        if (progress > 0 && duration > 0) percent = (progress/duration*100).toFixed(0)
-        if (percent > 100) percent = 100
+        let statusText
+        if (duration > 0) {
+            let percent
+            if (progress > 0) {
+                percent = Math.floor((progress/duration*100))
+                if (percent > 100) percent = 100
+            }
+            statusText = percent ? `${percent}%, ${formatTimeRemains(duration)}` : `${formatTimeRemains(duration)}`
+        }
 
         // const priorityColor = GetGradientColor(this.state.priority / 100)
         // console.log("render task", this.props)
@@ -487,7 +493,7 @@ class Task extends React.Component<ITaskProps, ITaskComponentState> {
                             color={color}
                             title={title}
                             priority={priority}
-                            percentage={percent}
+                            statusText={statusText}
                             onExpand={this.handleTitleContextMenu}
                             // isSelected={isSelected}
                             isRecurring={isRecurring}

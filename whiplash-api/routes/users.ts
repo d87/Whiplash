@@ -1,6 +1,8 @@
 import express from "express"
 import { User } from "../models"
 import { check, validationResult } from "express-validator/check"
+/// switch to yup, remove express validator
+
 import passport from "passport"
 import fs from "fs"
 import jwt from 'jsonwebtoken'

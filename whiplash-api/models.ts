@@ -108,10 +108,18 @@ export interface IUser extends Document {
     name: string
     email: string
     hash: string
+    refreshTokenKey: string
+    createdAt: string
+    updatedAt: string
+    setPassword: (password: string) => Promise<string>
+    validatePassword: (password: string) => boolean
+    toAuthJSON: () => object
     // ...
 }
 
-export interface IUserModel extends IUser, mongoose.Document { }
+export interface IUserModel extends Model<IUser> {
+    checkUnique: (user: ITaskModel) => Promise<boolean>
+}
 
 const UserSchema = new mongoose.Schema(
     {
@@ -212,4 +220,4 @@ UserSchema.methods.toUserDataJSON = function() {
     };
 };
 
-export const User = mongoose.model<IUserModel>("User", UserSchema);
+export const User = mongoose.model<IUser, IUserModel>("User", UserSchema);
