@@ -164,7 +164,7 @@ export class EditableTask extends React.Component<IEditableTaskProps, IEditableT
     }
     handleToggleImportant = () => {
         const { isUrgent, isImportant } = this.state
-        const prio = calculatePriority(!isUrgent, isImportant)
+        const prio = calculatePriority(isUrgent, !isImportant)
         this.setState({ priority: prio, isUrgent, isImportant: !isImportant })
     }
     handleToggleRecurring = () => {
