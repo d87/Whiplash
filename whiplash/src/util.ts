@@ -22,6 +22,15 @@ export function rgbToHex2({ r, g, b}: IRGBColor) {
     return rgbToHex(r,g,b)
 }
 
+const FLOATING_POINT_NUMBER_CHARACTER_REGEX = /^[Ee0-9\+\-\.]$/;
+export const isFloatingPointNumericCharacter = (character: string) => {
+    return FLOATING_POINT_NUMBER_CHARACTER_REGEX.test(character);
+}
+
+const INTEGER_POINT_NUMBER_CHARACTER_REGEX = /^[Ee0-9\+\-]$/;
+export const isIntegerNumericCharacter = (character: string) => {
+    return INTEGER_POINT_NUMBER_CHARACTER_REGEX.test(character);
+}
 
 export function mulColor(hex:string, mul:number) : string {
     // hex to rgb

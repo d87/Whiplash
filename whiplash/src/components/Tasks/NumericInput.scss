@@ -1,0 +1,38 @@
+@import "../variables.scss";
+
+$pt-button-height: 1px;
+
+.#{$ns}-numeric-input {
+    display: inline-grid;
+    grid-template-columns: 2em 1.5em;
+    grid-template-rows: 1.2em 1.2em;
+    grid-template-areas:
+        "number up"
+        "number down";
+
+    .#{$ns}-numeric-input-text {
+        grid-area: number;
+        margin: 0;
+        padding: 5px 0px;
+        border: 0;
+        text-align: center;
+        background-color: transparent;
+        position: relative;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 1.5em;
+    }
+
+    .#{$ns}-numeric-input-up {
+        grid-area: up;
+        user-select: none;
+        -moz-user-select: none;
+    }
+    .#{$ns}-numeric-input-down {
+        grid-area: down;
+        user-select: none;
+        -moz-user-select: none;
+    }
+
+}

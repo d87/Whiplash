@@ -2,9 +2,10 @@ import React from "react"
 import { Formik } from "formik"
 import { PriorityMarker, StatusMarker, calculatePriority } from "./Task"
 import { ITask } from "./TaskActions"
-import { getRandomBrightColor } from "../../util"
+import { getRandomBrightColor, isIntegerNumericCharacter } from "../../util"
+import { NumericInput } from "./NumericInput"
 import "./Task.scss"
-import { Button, TextArea, EditableText, NumericInput, INumericInputProps, Classes } from "@blueprintjs/core";
+
 
 const TaskEditableHeader = ({ isRecurring, priority, color, title, onTitleChange }) => {
     return (
@@ -13,82 +14,80 @@ const TaskEditableHeader = ({ isRecurring, priority, color, title, onTitleChange
             <StatusMarker isRecurring={isRecurring} />
 
             <div className="taskTitle">
-                {/* <input style={{ color }} type="text" onChange={onTitleChange} name="title" value={title} /> */}
+                <input style={{ color }} type="text" onChange={onTitleChange} name="title" value={title} />
                 
-                <span style={{ color }}><EditableText intent="primary" maxLines={1} value={title} onChange={onTitleChange}/> </span>
+                {/* <span style={{ color }}><EditableText intent="primary" maxLines={1} value={title} onChange={onTitleChange}/> </span> */}
             </div>
         </div>
     )
 }
 
-const EditableDescription = ({
-    description,
-    onDescriptionChange,
-    color,
-    onColorChange,
-    resetTime,
-    onResetTimeChange,
-    segmentDuration,
-    onSegmentDurationChange,
-    duration,
-    onDurationChange,
-    onSave,
-    onCancel
-}) => {
-    return (
-        <div className="taskDescriptionEdit">
-            {/* <textarea name="description" onChange={onBodyChange} value={description} /> */}
-            <TextArea onChange={onDescriptionChange} value={description} fill={true}/>
-
-            <NumericInput  min={1} max={45} value={segmentDuration} onValueChange={onSegmentDurationChange} />
-            <NumericInput  min={1} max={720} value={duration} onValueChange={onDurationChange} />
-            {/* <input type="text" name="duration" onChange={onDurationChange} value={duration} /> */}
-            <input type="text" className={Classes.INPUT} name="color" onChange={onColorChange} value={color} />
-            {/* <input type="text" name="resetTime" onChange={onResetTimeChange} value={resetTime} /> */}
-            <NumericInput  min={1} max={31} value={resetTime} onValueChange={onResetTimeChange} />
-            <Button intent="none" text="Cancel" onClick={onCancel} />
-            <Button intent="success" text="Save" onClick={onSave} />
-            {/* <a className="taskSave" onClick={onSave}>
-                Save
-            </a> */}
-        </div>
-    )
-}
-
-const EditableFlags = ({
-    onRerollColor,
-    isRecurring,
-    onToggleRecurring,
-    isUrgent,
-    onToggleUrgent,
-    isImportant,
-    onToggleImportant
-}) => {
-    return (
-        <div className="taskButtons">
-            <a className={`material-icons ${"iconOn"}`} onClick={onRerollColor}>
-                casino
-            </a>
-            <a className={`material-icons ${isRecurring ? "iconOn" : ""}`} onClick={onToggleRecurring}>
-                autorenew
-            </a>
-            <a className={`material-icons ${isUrgent ? "iconOn" : ""}`} onClick={onToggleUrgent}>
-                schedule
-            </a>
-            <a className={`material-icons ${isImportant ? "iconOn" : ""}`} onClick={onToggleImportant}>
-                error_outline
-            </a>
-        </div>
-    )
-}
-
 const EditableExpand = props => {
-    // const { description, onBodyChange, color, onColorChange, segmentDuration, onSegmentDurationChange, duration, onDurationChange, onSave } = props
-    // const { onRerollColor, isRecurring, onToggleRecurring, isUrgent, onToggleUrgent, isImportant, onToggleImportant } = props
+    const {
+        onRerollColor,
+        isRecurring,
+        onToggleRecurring,
+        isUrgent,
+        onToggleUrgent,
+        isImportant,
+        onToggleImportant
+    } = props
+    const {
+        description,
+        onDescriptionChange,
+        color,
+        onColorChange,
+        resetTime,
+        onResetTimeChange,
+        segmentDuration,
+        onSegmentDurationChange,
+        duration,
+        onDurationChange,
+        onSave,
+        onCancel
+    } = props
     return (
         <div className="taskExpanded">
-            <EditableFlags {...props} />
-            <EditableDescription {...props} />
+            <div className="taskButtons">
+                <a className={`material-icons ${"iconOn"}`} onClick={onRerollColor}>
+                    casino
+                </a>
+                <a className={`material-icons ${isRecurring ? "iconOn" : ""}`} onClick={onToggleRecurring}>
+                    autorenew
+                </a>
+                <a className={`material-icons ${isUrgent ? "iconOn" : ""}`} onClick={onToggleUrgent}>
+                    schedule
+                </a>
+                <a className={`material-icons ${isImportant ? "iconOn" : ""}`} onClick={onToggleImportant}>
+                    error_outline
+                </a>
+            </div>
+            <div className="taskDescriptionEdit">
+                <textarea name="description" onChange={onDescriptionChange} value={description} />
+                {/* <TextArea onChange={onDescriptionChange} value={description} fill={true}/> */}
+
+                {/* <input type="text" name="segmentDuration" onChange={onDurationChange} value={segmentDuration} />
+                <input type="text" name="duration" onChange={onDurationChange} value={duration} /> */}
+                <input type="text" name="color" onChange={onColorChange} value={color} />
+                {/* <input type="text" name="resetTime" onChange={onResetTimeChange} value={resetTime} /> */}
+                <div>
+                    <label>Duration:</label>
+                    <NumericInput onChange={onDurationChange} value={duration} max={1200} min={0} speedUp={true} />
+                </div>
+                {duration > "0" && <div>
+                    <label>Segment:</label>
+                    <NumericInput onChange={onSegmentDurationChange} value={segmentDuration} max={1200} min={0} speedUp={true} />
+                </div>}
+                {isRecurring && <div>
+                    <label>Reset Every:</label>
+                    <NumericInput onChange={onResetTimeChange} value={resetTime} max={31} min={1} />
+                </div>}
+                {/* <NumericInput  min={1} max={31} value={resetTime} onValueChange={onResetTimeChange} /> */}
+                {/* <Button intent="none" text="Cancel" onClick={onCancel} /> */}
+                {/* <Button intent="success" text="Save" onClick={onSave} /> */}
+                <button className="paperButton mutedButton largeText" onClick={onCancel}>Cancel</button>
+                <button className="paperButton largeText" onClick={onSave}>Save</button>
+            </div>
         </div>
     )
 }
@@ -138,8 +137,8 @@ export class EditableTask extends React.Component<IEditableTaskProps, IEditableT
         return this.props.onSubmit(this.state)
     }
 
-    handleTitleChange = (title: string) => {
-        this.setState({ title })
+    handleTitleChange = (event) => {
+        this.setState({ title: event.target.value })
     }
     handleColorChange = (event) => {
         this.setState({ color: event.target.value })
@@ -147,15 +146,15 @@ export class EditableTask extends React.Component<IEditableTaskProps, IEditableT
     handleDescriptionChange = (event) => {
         this.setState({ description: event.target.value })
     }
-    handleDurationChange = (valueNum: number) => {
-        this.setState({ duration: valueNum })
+    handleDurationChange = (value: number) => {
+        this.setState({ duration: value })
     }
-    handleSegmentDurationChange = (valueNum: number) => {
-        this.setState({ segmentDuration: valueNum })
+    handleSegmentDurationChange = (value: number) => {
+        this.setState({ segmentDuration: value })
     }
-    handleResetTimeChange = (valueNum: number, valueStr: string) => {
+    handleResetTimeChange = (value: number) => {
         // this.setState({ resetTime: event.target.value })
-        this.setState({ resetTime: valueNum })
+        this.setState({ resetTime: value })
     }
 
     handleToggleUrgent = () => {

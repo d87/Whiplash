@@ -214,23 +214,16 @@ export const reducer = (state: ITaskState = initialState, action: AnyAction): IT
         case TASK_SAVE_SUCCESS: {
             const taskID = action._id
             const task = state.table[taskID]
-            const { _id, title, color, description, duration, segmentDuration, priority, isRecurring } = action.serverData
+            const serverData = action.serverData
             return {
                 ...state,
                 table: {
                     ...state.table,
                     [taskID]: {
                         ...task,
+                        ...serverData,
                         isEditing: false,
                         isDraft: false,
-                        _id,
-                        title,
-                        color,
-                        duration,
-                        segmentDuration,
-                        description,
-                        priority,
-                        isRecurring
                     }
                 }
             }
@@ -238,23 +231,17 @@ export const reducer = (state: ITaskState = initialState, action: AnyAction): IT
         case TASK_CREATE_SUCCESS: {
             // const taskID = action._id
             const task = state.table.__new__
-            const { _id, title, color, description, duration, segmentDuration, priority, isRecurring } = action.serverData
+            const { _id, ...serverData } = action.serverData
             const newState = {
                 ...state,
                 table: {
                     ...state.table,
                     [_id]: {
                         ...task,
+                        ...serverData,
+                        _id,
                         isEditing: false,
                         isDraft: false,
-                        _id,
-                        title,
-                        color,
-                        duration,
-                        segmentDuration,
-                        description,
-                        priority,
-                        isRecurring
                     }
                 }
             }

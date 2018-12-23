@@ -1,10 +1,24 @@
 @import url('http://fonts.googleapis.com/css?family=Ubuntu+Condensed&subset=cyrillic-ext,latin');
 @import url('http://fonts.googleapis.com/css?family=Roboto+Condensed&subset=latin,cyrillic');
-@import "blueprint1.theme.scss";
-@import "~normalize.css/normalize.css";
-// @import "~@blueprintjs/core/lib/css/blueprint.css";
-@import "~@blueprintjs/core/src/blueprint.scss";
-@import "~@blueprintjs/icons/lib/css/blueprint-icons.css";
+
+:root {
+    --primary: #723f5e;
+    --accent1: #705977;
+    --accent2: #a14d8c;
+    --accent3: #1b171a;
+    --background: #000000;
+    --normal-text: #777777;
+    --normal-text-hover: #aaaaaa;
+    --normal-text-active: #eeeeee;
+    --pretty-font: "Ubuntu Condensed", "Segoe UI", Roboto, Oxygen, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    --pretty2-font: "PT Sans Narrow", sans-serif;
+    --normal-font: arial, sans-serif;
+    --monospace-font: "Consolas", "Courier New", monospace;
+    --prio-red: rgba(151, 10, 10, 0.87);
+    --prio-orange: rgb(236, 97, 4);
+    --prio-yellow: rgb(255, 166, 49);
+    --prio-green: rgb(51, 75, 20);
+}
 
 // *, *::before, *::after {
 //     box-sizing: border-box;
@@ -24,44 +38,47 @@ body {
 
     // display: grid;
     // place-items: center;
-
-    .clickable {
-        text-decoration: none;
-        user-select: none;
-        -moz-user-select: none;
-        cursor: pointer;
-        color: var(--normal-text);
-    }
-    .clickable:hover {
-        text-decoration: none;
-        color: var(--normal-text-hover);
-    }
-    .clickable:active {
-        text-decoration: none;
-        color: var(--normal-text-active);
-    }
-    
-    .toggleable {
-        user-select: none;
-        -moz-user-select: none;
-        cursor: pointer;
-    }
-    .toggled {
-        color: var(--normal-text-active);
-    }
-
-    .iconOn {
-        color: var(--normal-text-hover);
-    }
 }
 
+.clickable {
+    text-decoration: none;
+    user-select: none;
+    -moz-user-select: none;
+    cursor: pointer;
+    color: var(--normal-text);
+}
+.clickable:hover {
+    text-decoration: none;
+    color: var(--normal-text-hover);
+}
+.clickable:active {
+    text-decoration: none;
+    color: var(--normal-text-active);
+}
+
+.toggleable {
+    user-select: none;
+    -moz-user-select: none;
+    cursor: pointer;
+}
+.toggled {
+    color: var(--normal-text-active);
+}
+
+.iconOn {
+    color: var(--normal-text-hover);
+}
 
 :global .xlText {
     font-size: 3em;
 }
 
+:global .largerText {
+    font-size: 1.5em;
+}
+
 :global .largeText {
-    font-size: 2em;
+    font-size: 1.5em;
 }
 
 :global .mediumText {
@@ -88,24 +105,21 @@ body {
     margin-right: 10px;
 }
 
+
 :global .paperButton {
     display: inline-flex;
+    border: 0;
     background-color: var(--accent3);
     font-family: var(--pretty-font);
     color: var(--normal-text);
     // font-weight: bold;
     border-radius: 4px;
-    height: 2rem;
-    padding: 0px 10px;
-    margin-right: 0.5em;
-    margin-left: 0.5em;
+    padding: 0.3em 0.8em;
+    margin: 0px 0.5em;
     align-items: center;
     justify-content: center;
     user-select: none;
-}
-
-:global .thinButton {
-    height: 1.3em;
+    -moz-user-select: none;
 }
 
 :global .paperButton:hover {
@@ -116,6 +130,25 @@ body {
     background-color: var(--accent2);
 }
 
-:global .stretch {
+.mutedButton {
+    color: var(--normal-text);
+    border: 1px solid var(--normal-text);
+    background-color: transparent;
+}
+.mutedButton:hover {
+    background-color: transparent;
+    color: var(--normal-text-hover);
+    // border: 1px solid var(--normal-text-hover);
+}
+.mutedButton:active {
+    color: var(--normal-text-active);
+    background-color: transparent;
+}
+.flexFill {
     display: flex;
+}
+.flexCenter {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }

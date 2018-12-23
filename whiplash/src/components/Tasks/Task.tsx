@@ -141,7 +141,7 @@ class TaskHeader extends React.Component<ITaskHeaderProps, ITaskHeaderState> {
 
 const NormalExpand = ({ description, onEdit }) => (
     <div className="taskExpanded">
-        <a className="paperButton stretch marginTop10 thinButton" onClick={onEdit}>
+        <a className="paperButton flexFill" onClick={onEdit}>
             Edit
         </a>
         <MarkdownView className="taskDescriptionView" source={description} />
