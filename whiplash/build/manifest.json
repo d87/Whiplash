@@ -1,9 +1,0 @@
-{
-  "app.css": "/app.css",
-  "app.js": "/app.bundle.js",
-  "app.css.map": "/app.css.map",
-  "app.js.map": "/app.bundle.js.map",
-  "devutils.js": "/devutils.bundle.js",
-  "devutils.js.map": "/devutils.bundle.js.map",
-  "index.html": "/index.html"
-}

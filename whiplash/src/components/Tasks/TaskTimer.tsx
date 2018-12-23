@@ -150,11 +150,10 @@ class TaskTimer extends React.Component<ITaskTimerProps, ITaskTimerState> {
         const { percCompleted, remains, isPaused, opacity } = this.state
 
         return (
-            
                 <div className={`clock`} style={{ opacity }}>
                     <ProgressRing color={color} value={percCompleted} />
                     
-                    <div styleName="clockControls">
+                    <div className="clockControls">
                         <TimeText time={remains/1000} formatFunc={formatFunc} />
                         {/* <span>{ formatTime(remains/1000) }</span> */}
                         <a className={"material-icons clickable xlText"} onClick={this.handlePause}>{isPaused ? "play_circle_filled" : "pause_circle_filled"}</a>

@@ -11,7 +11,7 @@ class NavBar extends React.Component {
         return (
             <header>
                 <h2 >Whiplash</h2>
-                <input type="checkbox" id="nav-toggle" styleName="nav-toggle"></input>
+                <input type="checkbox" id="nav-toggle" className="nav-toggle"></input>
                 <nav>
                     <ul>
                         <li>
@@ -31,7 +31,7 @@ class NavBar extends React.Component {
                         </li>
                     </ul>
                 </nav>
-                <label htmlFor="nav-toggle" styleName="nav-toggle-label">
+                <label htmlFor="nav-toggle" className="nav-toggle-label">
                     <span className="material-icons iconOn largeText">menu</span>
                 </label>
             </header>

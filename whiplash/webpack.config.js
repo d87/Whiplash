@@ -52,12 +52,11 @@ module.exports = (env = {}) => {
         target: "web", //default
 
         entry: {
-            devutils: [
+            app: [
                 require.resolve('react-dev-utils/webpackHotDevClient'),
-                require.resolve('react-error-overlay')
+                require.resolve('react-error-overlay'),
+                "./src/index.tsx",
             ],
-            app: "./src/index.tsx",
-            // index: "./src/index.js"
         },
         output: {
             path: paths.appBuild,
@@ -106,23 +105,26 @@ module.exports = (env = {}) => {
                 {
                     test: /\.(js|jsx|ts|tsx)$/,
                     include: paths.appSrc,
+                    // exclude: [
+                    //     path.resolve(__dirname, 'node_modules'),
+                    // ],
                     loader: 'babel-loader',
                     options: {
                         //
-                        plugins: [
-                            ["react-css-modules", {
-                                generateScopedName: cssIdentName,
-                                filetypes: {
-                                    ".scss": {
-                                        "syntax": "postcss-scss"
-                                    },
-                                    ".sass": {
-                                        "syntax": "sugarss"
-                                    }
-                                },
-                                "webpackHotModuleReloading": true
-                            }]
-                        ],
+                        // plugins: [
+                        //     ["react-css-modules", {
+                        //         generateScopedName: cssIdentName,
+                        //         filetypes: {
+                        //             ".scss": {
+                        //                 "syntax": "postcss-scss"
+                        //             },
+                        //             ".sass": {
+                        //                 "syntax": "sugarss"
+                        //             }
+                        //         },
+                        //         "webpackHotModuleReloading": true
+                        //     }]
+                        // ],
                         // This is a feature of `babel-loader` for webpack (not Babel itself).
                         // It enables caching results in ./node_modules/.cache/babel-loader/
                         // directory for faster rebuilds.
@@ -137,18 +139,38 @@ module.exports = (env = {}) => {
                 },
                 
 
+
+                // {
+                //     test: /\.css$/, // css-loader for external styles without css-modules
+                //     include: /node_modules/,
+                //     use: [
+                //         { loader: 'style-loader' },
+                //         { loader: 'css-loader' }
+                //     ]
+                // },
                 {
                     test: /\.(sa|sc|c)ss$/,
                     include: path.appSrc,
+                    // exclude: /node_modules/,
                     use: [
                         isDev ? 'style-loader' : MiniCssExtractPlugin.loader,
                         {
                             loader: 'css-loader',
                             options: {
-                                modules: true,
+                                // modules: 'global', // Enables global scoped CSS by default
+                                // And it doesn't work apparently.
                                 sourceMap: true,
                                 importLoaders: 1, // how many loaders were used before css-loader
-                                localIdentName: cssIdentName
+                                // localIdentName: cssIdentName
+                                // getLocalIdent: (loaderContext, localIdentName, localName, options) => {
+                                //     const fileName = path.basename(loaderContext.resourcePath)
+                                //     if(fileName.indexOf('global.scss') !== -1){
+                                //       return localName
+                                //     }else{
+                                //       const name = fileName.replace(/\.[^/.]+$/, "")
+                                //       return `${name}__${localName}`
+                                //     }
+                                // }
                             },
                         },
                         // 'postcss-loader',
@@ -159,6 +181,27 @@ module.exports = (env = {}) => {
                             }
                         }
                     ],
+                },
+                
+                {
+                    test: /\.(woff|woff2)$/,
+                    use: {
+                        loader: 'url-loader',
+                        options: {
+                            name: 'fonts/[hash].[ext]',
+                            limit: 5000,
+                            mimetype: 'application/font-woff'
+                        }
+                    }
+                },
+                {
+                    test: /\.(ttf|eot|svg)$/,
+                    use: {
+                        loader: 'file-loader',
+                        options: {
+                            name: 'fonts/[hash].[ext]'
+                        }
+                    }
                 }
                 // In production it's recommended to extract the style sheets into a dedicated file in production using the mini-css-extract-plugin. This way your styles are not dependent on JavaScript
             ]

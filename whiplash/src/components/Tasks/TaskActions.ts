@@ -47,6 +47,7 @@ const TASK_SELECT = "TASK_SELECT"
 const TASK_STOP = "TASK_STOP"
 const TASK_TOGGLE_EXPAND = "TASK_TOGGLE_EXPAND"
 const TASK_EDIT = "TASK_EDIT"
+const TASK_EDIT_CANCEL = "TASK_EDIT_CANCEL"
 const TASK_SAVE_PENDING = "TASK_SAVE_PENDING"
 const TASK_SAVE_SUCCESS = "TASK_SAVE_SUCCESS"
 const TASK_SAVE_FAILED = "TASK_SAVE_FAILED"
@@ -162,7 +163,21 @@ export const reducer = (state: ITaskState = initialState, action: AnyAction): IT
                     [taskID]: {
                         ...task,
                         isEditing: true,
-                        isExpanded: true
+                    }
+                }
+            }
+        }
+        case TASK_EDIT_CANCEL: {
+            const taskID = action._id
+            const task = state.table[taskID]
+            return {
+                ...state,
+                table: {
+                    ...state.table,
+                    [taskID]: {
+                        ...task,
+                        isEditing: false,
+                        isExpanded: false,
                     }
                 }
             }
@@ -173,7 +188,7 @@ export const reducer = (state: ITaskState = initialState, action: AnyAction): IT
                 isDraft: true,
                 isEditing: true,
                 isExpanded: true,
-                title: "",
+                title: "New Task",
                 priority: 1,
                 segmentDuration: 0,
                 duration: 0,
@@ -381,6 +396,7 @@ export const taskSelect = (_id: ID) => ({ type: TASK_SELECT, _id })
 export const taskAdd = () => ({ type: TASK_ADD })
 export const taskExpand = (_id: ID) => ({ type: TASK_TOGGLE_EXPAND, _id })
 export const taskEdit = (_id: ID) => ({ type: TASK_EDIT, _id })
+export const taskEditCancel = (_id: ID) => ({ type: TASK_EDIT_CANCEL, _id })
 export const taskDeleteClient = (_id: ID) => ({ type: TASK_DELETE, _id })
 export const taskSavePending = (_id: ID) => ({ type: TASK_SAVE_PENDING, _id })
 export const taskSaveSuccess = (_id: ID, serverData: Partial<ITask>) => ({ type: TASK_SAVE_SUCCESS, _id, serverData })

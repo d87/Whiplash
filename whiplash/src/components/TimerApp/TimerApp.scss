@@ -4,14 +4,14 @@
     margin: 10px 10px 10px 10px;
 }
 
-.timerform {
+.timer_form {
     width: 350px;
     height: 40px;
     display: grid;
     grid-template-columns: 70% 20% 10%;
 }
 
-.timerform input {
+.timer_form input {
     border: 0;
     border-left: 3px solid #333333;
     background-color: #090909;
@@ -23,7 +23,7 @@
     // line-height: 40px;
 }
 
-.counter {
+.timer_counter {
     font-family: "Ubuntu Condensed", sans-serif;
     font-size: 35px;
     color: #bbbbbb;
@@ -31,7 +31,7 @@
     text-align: center;
 }
 
-.buttons {
+.timer_buttons {
     padding-left: 30px;
     margin: 15px 10px 15px 10px;
 

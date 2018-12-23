@@ -48,12 +48,12 @@ export class TaskList extends React.Component<ITaskListProps,{}> {
                 </div>
                 
                 
-                <section styleName="taskList">
+                <section className="taskList">
                     <Flipper flipKey={flipKey}>
                         {activeTask && <TaskTimer flipId="Timer" {...activeTask}/>}
                         {tasks.map(task =>
                             <Flipped key={task._id} flipId={task._id}>
-                                {flippedProps => <Task flippedProps={flippedProps} {...task}/>}
+                                {flippedProps => <Task flippedProps={flippedProps} task={task}/>}
                             </Flipped>
                         )}
                     </Flipper>

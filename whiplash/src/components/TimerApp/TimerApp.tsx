@@ -84,8 +84,8 @@ class TimerWithDuration extends React.Component<ITimerProps, ITimerState> {
         this.active = active
 
         return (
-            <form styleName="timerform" onSubmit={this.handleSubmit}>
-                <div styleName="timer" >
+            <form className="timer_form" onSubmit={this.handleSubmit}>
+                <div className="timer" >
                     <PeriodicProgressBar
                         active={active}
                         onComplete={this.timerOnComplete}
@@ -95,7 +95,7 @@ class TimerWithDuration extends React.Component<ITimerProps, ITimerState> {
                     />
                 </div>    
                 <input type="text" onChange={this.handleDurationChange} value={this.state.duration}/>
-                { showCounter && <div styleName="counter"> {count}</div> }
+                { showCounter && <div className="timer_counter"> {count}</div> }
             </form>
         )
     }
@@ -134,7 +134,7 @@ class TimerApp extends React.Component<ITimerAppProps> {
                 {timers.map(timer => (
                     <TimerWithDuration key={timer.id} {...timer} {...this.props} />
                 ))}
-                <div styleName="buttons">
+                <div className="timer_buttons">
                     <a onClick={() => dispatch(timerStart(1))}>
                         Start
                     </a>

@@ -12,6 +12,7 @@
     // "no-parameter-reassignment": false,
     "no-implicit-dependencies": false,
     "no-unused-variable": false,
+    "no-submodule-imports": false,
     // TODO: Enable stricter options for these
     // "curly": [true, "ignore-same-line"],
     "curly": false,

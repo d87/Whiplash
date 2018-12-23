@@ -1,3 +1,4 @@
+import "./whiplash.global.scss"
 import React, { Component } from "react"
 import ReactDOM from "react-dom"
 
@@ -49,8 +50,6 @@ import { IAppState } from "../../store"
 //     </Toolbar>
 // </AppBar>
 
-import "./whiplash-style.scss"
-
 export interface IAppProps {
     store: Store // <IAppState>;
 }
@@ -61,7 +60,7 @@ export class App extends React.Component<IAppProps> {
             <Provider store={this.props.store}>
                 <ApolloProvider client={client}>
                     <NavBar />
-                        <div className="container App">
+                        <div className="container App ">
                             {/* <FilterBar /> */}
                             {/* <EventSource url={"/sse/stream"} /> */}
                             {/* <SoundPlayer/> */}

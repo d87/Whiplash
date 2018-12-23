@@ -3,10 +3,6 @@
     margin-top: 10px;
 }
 
-.shortInput {
-    width: 50px;
-}
-
 
 .task {
 
@@ -81,7 +77,7 @@ $pyellow: #cfad15;
     background-color: #171717;
 }
 
-.controls {
+.taskControls {
     // grid-area: controls;
     float:right;
     height: 100%;
@@ -96,7 +92,7 @@ $pyellow: #cfad15;
     font-size: 1.7em;
 }
 
-.title {
+.taskTitle {
     background-color: #232323;
     grid-area: title;
     padding-left: 10px;
@@ -133,14 +129,11 @@ $pyellow: #cfad15;
         height: 100%;
     }
 }
-.title:hover {
+.taskTitle:hover {
     background-color: #313131;
 }
-:global .selectedTask {
-    background-color: #3f3f3f;
-}
 
-.priority {
+.taskPriority {
     position: relative;
     grid-area: priority;
 
@@ -156,14 +149,14 @@ $pyellow: #cfad15;
         transform: translate(-50%, -50%);    
     }
 }
-.priority > svg {
+.taskPriority > svg {
     position: relative;
     top: -5px;
     height: calc(100% + 5px);
     width: 100%;
 }
 
-.buttons {
+.taskButtons {
     grid-area: buttons;
     font-size: 26px;
     // vertical-align: middle;
@@ -174,7 +167,7 @@ $pyellow: #cfad15;
     place-content: end;
 }
 
-.buttons > a {
+.taskButtons > a {
     font-weight: normal;
     margin: 0.3em;
     user-select: none;
@@ -188,47 +181,39 @@ $pyellow: #cfad15;
 //     color: var(--normal-text-active);
 // }
 
-.editButton {
-    width: 100%
-}
-
-:global .iconOn {
-    color: var(--normal-text-hover);
-}
-
-.expanded {
+.taskExpanded {
     grid-area: expanded;
 }
-.desc_view {
+.taskDescriptionView {
     margin: 5px 15px;
 }
 
 
-.task input {
-    border: 0;
-    border-left: 3px solid #333333;
-    background-color: #090909;
-    color: #79797a;
-    margin: 5px 10px 5px 0px;
-    font-family: var(--pretty-font);
-    font-size: 20px;
-    padding-left:8px;
-    height: 20px;
-}
+// .task input {
+//     border: 0;
+//     border-left: 3px solid #333333;
+//     background-color: #090909;
+//     color: #79797a;
+//     margin: 5px 10px 5px 0px;
+//     font-family: var(--pretty-font);
+//     font-size: 20px;
+//     padding-left:8px;
+//     height: 20px;
+// }
 
-.desc_edit {
-    display: grid;
-    grid-template-columns: auto 100px;
-    grid-template-rows: auto 50px 50px;
-    grid-template-areas:
-        "text text"
-        "priobar priobar"
-        "color button";
+.taskDescriptionEdit {
+    // display: grid;
+    // grid-template-columns: auto 100px;
+    // grid-template-rows: auto 50px 50px;
+    // grid-template-areas:
+    //     "text text"
+    //     "priobar priobar"
+    //     "color button";
     // position: absolute;
     // left: -40px;
 }
 
-.desc_edit > textarea {
+.taskDescriptionEdit > textarea {
     grid-area: text;
     min-height: 100px;
 
@@ -245,18 +230,18 @@ $pyellow: #cfad15;
     padding: 3px 3px 0px 5px;
 }
 
-.save {
+.taskSave {
     grid-area: button;
 
     color: #464748;
     font-family: var(--pretty-font);
     font-size: 20px;
 }
-.save:hover {
+.taskSave:hover {
     text-decoration: none;
     color: #a7aaac;
 }
-.save:active {
+.taskSave:active {
     text-decoration: none;
     color: #e9eaec;
 }

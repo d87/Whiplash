@@ -1,27 +1,10 @@
 @import url('http://fonts.googleapis.com/css?family=Ubuntu+Condensed&subset=cyrillic-ext,latin');
 @import url('http://fonts.googleapis.com/css?family=Roboto+Condensed&subset=latin,cyrillic');
-
-// "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif
-
-
-:root {
-    --primary: #723f5e;
-    --accent1: #705977;
-    --accent2: #a14d8c;
-    --accent3: #1b171a;
-    --background: #000000;
-    --normal-text: #777777;
-    --normal-text-hover: #aaaaaa;
-    --normal-text-active: #eeeeee;
-    --pretty-font: "Ubuntu Condensed", "Segoe UI", Roboto, Oxygen, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-    --pretty2-font: "PT Sans Narrow", sans-serif;
-    --normal-font: arial, sans-serif;
-    --monospace-font: "Consolas", "Courier New", monospace;
-    --prio-red: rgba(151, 10, 10, 0.87);
-    --prio-orange: rgb(236, 97, 4);
-    --prio-yellow: rgb(255, 166, 49);
-    --prio-green: rgb(51, 75, 20);
-}
+@import "blueprint1.theme.scss";
+@import "~normalize.css/normalize.css";
+// @import "~@blueprintjs/core/lib/css/blueprint.css";
+@import "~@blueprintjs/core/src/blueprint.scss";
+@import "~@blueprintjs/icons/lib/css/blueprint-icons.css";
 
 // *, *::before, *::after {
 //     box-sizing: border-box;
@@ -29,41 +12,47 @@
 
 body {
     background-color: var(--background);
-    font-family: arial;
+    // font-family: arial;
     // font-size: 12px;
     color:  var(--normal-text);
     margin: 0;
 }
 
-:global .App {
+
+.App {
     padding-top: 60px;
 
     // display: grid;
     // place-items: center;
-}
 
-:global .clickable {
-    user-select: none;
-    -moz-user-select: none;
-    cursor: pointer;
-}
-:global .clickable:hover {
-    color: var(--normal-text-hover);
-}
-:global .clickable:active {
-    color: var(--normal-text-active);
-}
+    .clickable {
+        text-decoration: none;
+        user-select: none;
+        -moz-user-select: none;
+        cursor: pointer;
+        color: var(--normal-text);
+    }
+    .clickable:hover {
+        text-decoration: none;
+        color: var(--normal-text-hover);
+    }
+    .clickable:active {
+        text-decoration: none;
+        color: var(--normal-text-active);
+    }
+    
+    .toggleable {
+        user-select: none;
+        -moz-user-select: none;
+        cursor: pointer;
+    }
+    .toggled {
+        color: var(--normal-text-active);
+    }
 
-:global .toggleable {
-    user-select: none;
-    -moz-user-select: none;
-    cursor: pointer;
-}
-// :global .toggleable:active {
-//     color: var(--normal-text-active);
-// }
-:global .toggled {
-    color: var(--normal-text-active);
+    .iconOn {
+        color: var(--normal-text-hover);
+    }
 }
 
 
