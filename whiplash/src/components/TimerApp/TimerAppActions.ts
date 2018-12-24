@@ -25,7 +25,7 @@ const defaultState = {
             duration: 7,
             color: "#6E8BDB",
             active: false,
-            soundID: 4,
+            soundID: "absorbhit",
             showCounter: false,
             count: 0,
             next: 2
@@ -37,7 +37,7 @@ const defaultState = {
             duration: 5,
             color: "#8265AC",
             active: false,
-            soundID: 2, // chew
+            soundID: "mgs",
             showCounter: false,
             count: 0,
             next: 3
@@ -49,7 +49,7 @@ const defaultState = {
             duration: 20,
             color: "#C265AC",
             active: false,
-            soundID: 4, // ping
+            soundID: "absorbhit", // ping
             showCounter: false,
             count: 0,
             next: 4
@@ -61,7 +61,7 @@ const defaultState = {
             duration: 5,
             color: "#8265AC",
             active: false,
-            soundID: 3, // abolish
+            soundID: "abolish", // abolish
             showCounter: true,
             count: 0,
             next: 1

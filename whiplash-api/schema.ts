@@ -1,10 +1,11 @@
-import mongoose from 'mongoose'
+import mongoose, { Error } from 'mongoose'
 import { Task, Todo } from './models'
 import {makeExecutableSchema} from 'graphql-tools'
 import gql from 'graphql-tag'
 import { withFilter } from 'graphql-subscriptions';
 import { pubsub } from './subscriptionServer'
 import { logger } from './logger'
+import { taskInputValidationSchema, taskAddProgressValidationSchema } from './mutationValidators'
 
 const ObjectId = mongoose.Types.ObjectId
 ObjectId.prototype.valueOf = function () {
@@ -138,29 +139,45 @@ const resolvers = {
             const newTodo = new Todo(args)
             return await newTodo.save()
         },
+
+
         createTask: async (root, args, context, info) => {
-            const newTask = new Task(args.input)
-            newTask.userID = context.user._id
-            return await newTask.save()
+            const data = args.input
+            try {
+                const isValid = taskInputValidationSchema.validateSync(data)
+                if (isValid) {
+                    const newTask = new Task(data)
+                    newTask.userID = context.user._id
+                    return newTask.save()
+                }
+            } catch(err) {
+                logger.error(err)
+                throw err
+            }
         },
         saveTask: async (root, args, context, info) => {
             const data = args.input
             try {
-                const task = await Task.findById(data._id)
-                task.title = data.title
-                task.description = data.description
-                task.priority = data.priority
-                task.dueTime = data.dueTime
-                task.duration = data.duration
-                task.segmentDuration = data.segmentDuration
-                task.resetMode = data.resetMode
-                task.resetTime = data.resetTime
-                // task.state = data.state
-                task.isRecurring = data.isRecurring
-                task.color = data.color
-                return await task.save()
+                const isValid = taskInputValidationSchema.validateSync(data)
+                if (isValid) {
+                    const task = await Task.findById(data._id)
+                    task.title = data.title
+                    task.description = data.description
+                    task.priority = data.priority
+                    task.dueTime = data.dueTime
+                    task.duration = data.duration
+                    task.segmentDuration = data.segmentDuration
+                    task.resetMode = data.resetMode
+                    task.resetTime = data.resetTime
+                    // task.state = data.state
+                    task.isRecurring = data.isRecurring
+                    task.color = data.color
+                    const savedTask = await task.save()
+                    return savedTask
+                }
             } catch(err) {
-                console.error(err)
+                logger.error(err)
+                throw err
             }
         },
         completeTask: async (root, args, context, info) => {
@@ -171,7 +188,8 @@ const resolvers = {
                 task.completedAt = new Date()
                 return await task.save()
             } catch(err) {
-                console.error(err)
+                logger.error(err)
+                throw err
             }
         },
         uncompleteTask: async (root, args, context, info) => {
@@ -183,12 +201,14 @@ const resolvers = {
                 task.completedAt = undefined
                 return await task.save()
             } catch(err) {
-                console.error(err)
+                logger.error(err)
+                throw err
             }
         },
         addProgress: async (root, args, context, info) => {
-            const id = args.id
             try {
+                taskAddProgressValidationSchema.validateSync(args)
+                const id = args.id
                 const task = await Task.findById(id)
                 task.progress += args.time
                 if (task.progress >= task.duration) {
@@ -197,7 +217,8 @@ const resolvers = {
                 }
                 return await task.save()
             } catch(err) {
-                console.error(err)
+                logger.error(err)
+                throw err
             }
         },
     },
@@ -219,6 +240,7 @@ const resolvers = {
                             return payload.targetUserID === context.userID;
                         } catch (err) {
                             logger.error(err)
+                            throw err
                         }
                     }
                 )

@@ -86,9 +86,9 @@ app.use(
             },
             formatError: error => ({
                 message: error.message,
-                locations: error.locations,
-                stack: error.stack ? error.stack.split("\n") : [],
-                path: error.path
+                // locations: error.locations,
+                // stack: error.stack ? error.stack.split("\n") : [],
+                // path: error.path
             })
         }
     })

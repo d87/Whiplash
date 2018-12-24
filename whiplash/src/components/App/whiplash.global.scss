@@ -12,7 +12,7 @@
     --normal-text-active: #eeeeee;
     --pretty-font: "Ubuntu Condensed", "Segoe UI", Roboto, Oxygen, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
     --pretty2-font: "PT Sans Narrow", sans-serif;
-    --normal-font: arial, sans-serif;
+    --normal-font: "Calibri", arial, sans-serif;
     --monospace-font: "Consolas", "Courier New", monospace;
     --prio-red: rgba(151, 10, 10, 0.87);
     --prio-orange: rgb(236, 97, 4);
@@ -20,13 +20,13 @@
     --prio-green: rgb(51, 75, 20);
 }
 
-// *, *::before, *::after {
-//     box-sizing: border-box;
-// }
+*, *::before, *::after {
+    box-sizing: border-box;
+}
 
 body {
     background-color: var(--background);
-    // font-family: arial;
+    font-family: var(--normal-font);
     // font-size: 12px;
     color:  var(--normal-text);
     margin: 0;

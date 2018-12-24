@@ -4,7 +4,7 @@ import { connect } from "react-redux"
 import { createSelector } from "reselect"
 import { ITask, taskStopAndAddProgress, taskStop } from "../Tasks/TaskActions"
 import { MiniDaemon, formatTimeRemains, formatTimeMS } from '../../util'
-import { CSSTransition, CSSTransitionGroup } from 'react-transition-group';
+import { playSound } from "../SoundPlayer/SoundPlayer";
 import "./TaskTimer.scss"
 
 interface ITaskTimerState {
@@ -171,6 +171,7 @@ const ConnectedTaskTimer = connect(
     (dispatch) => ({
         onComplete(id, duration) {
             dispatch(taskStopAndAddProgress(id, duration))
+            dispatch(playSound("abolish"))
         },
         onStop(id) {
             dispatch(taskStop(id))

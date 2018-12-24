@@ -1,6 +1,6 @@
 import { CronJob } from "cron"
 import { pubsub } from "./subscriptionServer"
-import { Task, User, IUserModel, ITaskModel, ITask } from './models'
+import { Task, User, IUser, IUserModel, ITaskModel, ITask } from './models'
 import { eachLimit as asyncEachLimit } from 'async'
 import { logger } from './logger'
 
@@ -9,7 +9,7 @@ const dayLength = 24 * 3600 * 1000
 const resetFunc = async () => {
     logger.info("Starting reset...")
     const now = Date.now()
-    const users: IUserModel[] = await User.find()
+    const users: IUser[] = await User.find()
 
     asyncEachLimit(users, 5, async (user) => {
         await Task.find({

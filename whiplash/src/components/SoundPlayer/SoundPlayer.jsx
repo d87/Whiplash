@@ -9,12 +9,12 @@ const initialState = {
     status: "STOPPED"
 };
 
-const sounds = [
-    new Howl({ src: '/static/DevotionAura.ogg', volume: 0.13, autoSuspend: true }),
-    new Howl({ src: '/static/MGS4Codec4.mp3', autoSuspend: true }),
-    new Howl({ src: '/static/AbolishMagic.mp3', volume: 0.13, autoSuspend: true }),
-    new Howl({ src: '/static/AbsorbGetHitA.mp3', volume: 0.04, autoSuspend: true }),
-]
+const sounds = {
+    devotion:   new Howl({ src: '/static/DevotionAura.ogg', volume: 0.13, autoSuspend: true }),
+    mgs:        new Howl({ src: '/static/MGS4Codec4.mp3', autoSuspend: true }),
+    abolish:    new Howl({ src: '/static/AbolishMagic.mp3', volume: 0.13, autoSuspend: true }),
+    absorbhit:  new Howl({ src: '/static/AbsorbGetHitA.mp3', volume: 0.04, autoSuspend: true }),
+}
 
 
 const playSound = (soundID) => {
@@ -28,7 +28,7 @@ const playSound = (soundID) => {
 const soundReducer = (state = initialState, action) => {
     switch (action.type) {
         case 'SOUND_PLAY': {
-            sounds[action.soundID-1].play()
+            sounds[action.soundID].play()
             return Object.assign({}, state, { status: "PLAYING" });
         }
 

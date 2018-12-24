@@ -25,7 +25,7 @@ export interface ITask {
     updatedAt: Date
 }
 
-export interface ITaskModel extends ITask, mongoose.Document { }
+export interface ITaskModel extends ITask, mongoose.Document{}
 
 const TaskSchema = new mongoose.Schema(
     {
@@ -41,7 +41,7 @@ const TaskSchema = new mongoose.Schema(
         // resetTasksAt - custom daily reset time / or day start time
         dueTime: { type: Number, default: 0 },
         segmentDuration: { type: Number, default: 0 },
-        duration: { type: Number, default: 3600 },
+        duration: { type: Number, default: 0 },
         progress: { type: Number, default: 0 },
         resetMode: { type: String, enum: ['atDays', 'inDays'], default: "inDays"},
         resetTime: { type: Number, default: 1 },
@@ -104,6 +104,7 @@ const TodoSchema = new mongoose.Schema(
 export const Todo = mongoose.model("Todo", TodoSchema);
 
 export interface IUser extends Document {
+    _id: string
     username: string
     name: string
     email: string
@@ -118,7 +119,7 @@ export interface IUser extends Document {
 }
 
 export interface IUserModel extends Model<IUser> {
-    checkUnique: (user: ITaskModel) => Promise<boolean>
+    checkUnique: (user: IUser) => Promise<boolean>
 }
 
 const UserSchema = new mongoose.Schema(

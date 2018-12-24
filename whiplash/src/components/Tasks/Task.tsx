@@ -178,6 +178,7 @@ interface ITaskProps extends ITask {
     onEditCancel: () => void
     onEditSubmit: (newData) => void
     onDelete: () => void
+    onComplete: () => void
 }
 interface ITaskComponentState {
     xOffset: number
@@ -249,7 +250,7 @@ class Task extends React.Component<ITaskProps, ITaskComponentState> {
         this.setState({ paddingXOffset: 0 })
         // console.log("You Swiped...", x, isFlick)
         if (-x > 50) {
-            this.props.dispatch(taskComplete(this.props._id))
+            this.props.onComplete()
             // history.push("/activity")
         }
     }
@@ -257,7 +258,7 @@ class Task extends React.Component<ITaskProps, ITaskComponentState> {
     completeTask = (e?: React.MouseEvent<any>) => {
         e.preventDefault()
         e.stopPropagation()
-        this.props.dispatch(taskComplete(this.props.task._id))
+        this.props.onComplete()
     }
     uncompleteTask = (e?: React.MouseEvent<any>) => {
         e.preventDefault()
@@ -389,6 +390,9 @@ const mapDispatchToProps = (dispatch: Dispatch, props) => {
         dispatch,
         onExpand: () => {
             dispatch(taskExpand(props.task._id))
+        },
+        onComplete: () => {
+            dispatch(taskComplete(props.task._id))
         },
         onEdit: () => {
             dispatch(taskEdit(props.task._id))
