@@ -235,13 +235,8 @@ const resolvers = {
                     () => pubsub.asyncIterator("TASKS_UPDATE"),
                     // payload from pubsub event, variables from client query
                     (payload, variables, context, info) => {
-                        try {
-                            if (typeof payload === "undefined") return false // why is it undefined?
-                            return payload.targetUserID === context.userID;
-                        } catch (err) {
-                            logger.error(err)
-                            throw err
-                        }
+                        if (typeof payload === "undefined") return false // why is it undefined?
+                        return payload.targetUserID === context.userID;
                     }
                 )
         }

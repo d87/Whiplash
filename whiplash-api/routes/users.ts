@@ -1,11 +1,12 @@
 import express from "express"
 import { User } from "../models"
-import { check, validationResult } from "express-validator/check"
-/// switch to yup, remove express validator
-
 import passport from "passport"
 import fs from "fs"
 import jwt from 'jsonwebtoken'
+import * as yup from "yup"
+
+
+
 
 const router = express.Router()
 
@@ -83,33 +84,27 @@ router.post(
     }
 )
 
+export const registrationValidationSchema = yup.object().shape({
+    username: yup.string().required(),
+    email: yup.string().email().required(),
+    password: yup.string().min(6).required(),
+    password2: yup.string()
+            .oneOf([yup.ref('password'), null])
+            .required('Password confirm is required')
+})
+
 router.post(
     "/register",
-    [
-        check("username", "Username is required")
-            .exists()
-            .isLength({ min: 1 }),
-        check("email", "E-Mail is required")
-            .exists()
-            .isEmail(),
-        check("password", "Password is too short")
-            .exists()
-            .isLength({ min: 5 }),
-        check("password2")
-            .exists()
-            .custom((value, { req }) => value === req.body.password)
-            .withMessage("Passwords are not matching"),
-    ],
     async (req, res, next) => {
-        const errors = validationResult(req)
-        if (!errors.isEmpty()) {
-            return res.status(422).json({ errors: errors.array() })
+
+        try {
+            const isValid = registrationValidationSchema.validateSync(req.body)
+        } catch(errors) {
+            return res.status(422).json({ errors: errors })
         }
 
-        const name = req.body.name
-        const email = req.body.email
-        const username = req.body.username
-        const password = req.body.password
+        const { name, email, username, password } = req.body
+        
 
         const newUser = new User({
             username,
