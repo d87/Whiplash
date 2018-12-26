@@ -6,6 +6,8 @@ interface INumeritInputProps {
     value: number|string
     min?: number
     max?: number
+    rollover?: boolean
+    zerofill?: number
     speedUp?: boolean
     onChange: (value: number) => void
 }
@@ -57,10 +59,11 @@ export class NumericInput extends React.Component<INumeritInputProps> {
         // pretend we're incrementing from 0 if currValue is empty
         const currValue = parseInt(this.props.value || "0", 10);
         let nextValue = currValue + delta;
-        const { min, max } = this.props
-        if (max !== undefined && nextValue > max) nextValue = max
-        if (min !== undefined && nextValue < min) nextValue = min
-
+        const { min, max, rollover } = this.props
+        if (max !== undefined && nextValue > max)
+            nextValue = (min !== undefined && rollover) ? min : max
+        if (min !== undefined && nextValue < min)
+            nextValue = (max !== undefined && rollover) ? max : min
 
         this.props.onChange(nextValue)
 
@@ -103,9 +106,11 @@ export class NumericInput extends React.Component<INumeritInputProps> {
     };
 
     render() {
-        const { value } = this.props
+        const { value, zerofill } = this.props
+        const value2 = (zerofill) ? value.toString().padStart(zerofill, '0').slice(-zerofill) : value
+
         return (<div className="wl-numeric-input">
-            <input className="wl-numeric-input-text" onKeyPress={this.handleKeyPress} onBlur={this.handleBlur} onChange={this.handleChange} value={value}/>
+            <input className="wl-numeric-input-text" onKeyPress={this.handleKeyPress} onBlur={this.handleBlur} onChange={this.handleChange} value={value2}/>
             <a className={`material-icons clickable wl-numeric-input-up flexCenter`} onMouseDown={this.handleIncrement}>keyboard_arrow_up</a>
             <a className={`material-icons clickable wl-numeric-input-down flexCenter`} onMouseDown={this.handleDecrement}>keyboard_arrow_down</a>
         </div>)

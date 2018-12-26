@@ -122,7 +122,7 @@ class TaskTimer extends React.Component<ITaskTimerProps, ITaskTimerState> {
             }
         } else {
             remains = elapsed
-            p = 0.75
+            p = (elapsed/1000 % 3600) / 3600
         }
 
         // this.progressPathRef.current.setAttribute("stroke-dashoffset", 292.209 - 292.209*p)

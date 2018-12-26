@@ -18,6 +18,7 @@ import {
     taskEdit, taskEditCancel,
     taskSave,
     taskStart,
+    taskStop,
     taskSelect,
     taskComplete,
     taskUncomplete,
@@ -392,7 +393,11 @@ const mapDispatchToProps = (dispatch: Dispatch, props) => {
             dispatch(taskExpand(props.task._id))
         },
         onComplete: () => {
+            if (props.task.isStarted) {
+                dispatch(taskStop(props.task._id))
+            }
             dispatch(taskComplete(props.task._id))
+            
         },
         onEdit: () => {
             dispatch(taskEdit(props.task._id))

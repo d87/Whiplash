@@ -1,10 +1,13 @@
 import React from "react"
-import { Formik } from "formik"
 import { PriorityMarker, StatusMarker, calculatePriority } from "./Task"
 import { ITask } from "./TaskActions"
-import { getRandomBrightColor, isIntegerNumericCharacter } from "../../util"
-import { NumericInput } from "./NumericInput"
+import { getRandomBrightColor, isIntegerNumericCharacter, getHoursFromSeconds, getMinutesFromSeconds } from "../../util"
+import { NumericInput } from "../NumericInput/NumericInput"
+import DayPicker from "react-day-picker"
+import "react-day-picker/lib/style.css"
+import { Manager, Reference, Popper, ReferenceChildrenProps } from "react-popper"
 import "./Task.scss"
+import { dueInDays } from './TaskList'
 
 
 const TaskEditableHeader = ({ isRecurring, priority, color, title, onTitleChange }) => {
@@ -15,11 +18,60 @@ const TaskEditableHeader = ({ isRecurring, priority, color, title, onTitleChange
 
             <div className="taskTitle">
                 <input style={{ color }} type="text" onChange={onTitleChange} name="title" value={title} />
-                
+
                 {/* <span style={{ color }}><EditableText intent="primary" maxLines={1} value={title} onChange={onTitleChange}/> </span> */}
             </div>
         </div>
     )
+}
+class Example extends React.Component {
+    constructor(props) {
+        super(props)
+        this.state = {
+            isOpen: false
+        }
+        this.targetRef = React.createRef()
+        this.popoverRef = React.createRef()
+    }
+
+    private renderTarget = (referenceProps: ReferenceChildrenProps) => {
+        const { openOnTargetFocus, targetClassName, targetProps = {}, targetTagName: TagName } = this.props;
+        // const { isOpen } = this.state;
+        // const isHoverInteractionKind = this.isHoverInteractionKind();
+    };
+
+    handleTargetClick = (e) => {
+        console.log("target Click")
+        this.setState({ isOpen: !this.state.isOpen })
+    }
+
+    render() {
+        return (
+            <Manager>
+                <Reference innerRef={(ref) => {this.targetRef = ref}}>
+                    {({ ref }) => (
+                        <button type="button" ref={ref} onClick={this.handleTargetClick}>
+                            Reference element
+                        </button>
+                    )}
+                </Reference>
+                <Popper placement="right">
+                    {({ ref, style, placement, arrowProps }) => {
+                        let finalStyle = style
+                        if (!this.state.isOpen) {
+                            finalStyle = { ...style, display: "none"}
+                        }
+                        return (
+                            <div ref={ref} style={finalStyle} data-placement={placement}>
+                                Popper element
+                                <div ref={arrowProps.ref} style={arrowProps.style} />
+                            </div>
+                        )
+                    }}
+                </Popper>
+            </Manager>
+        )
+    }
 }
 
 const EditableExpand = props => {
@@ -43,6 +95,12 @@ const EditableExpand = props => {
         onSegmentDurationChange,
         duration,
         onDurationChange,
+        dueDays,
+        onDueDaysChange,
+        onDueHoursChange, 
+        dueHours,
+        onDueMinutesChange, 
+        dueMinutes,
         onSave,
         onCancel
     } = props
@@ -74,19 +132,45 @@ const EditableExpand = props => {
                     <label>Duration:</label>
                     <NumericInput onChange={onDurationChange} value={duration} max={1200} min={0} speedUp={true} />
                 </div>
-                {duration > "0" && <div>
-                    <label>Segment:</label>
-                    <NumericInput onChange={onSegmentDurationChange} value={segmentDuration} max={1200} min={0} speedUp={true} />
-                </div>}
-                {isRecurring && <div>
-                    <label>Reset Every:</label>
-                    <NumericInput onChange={onResetTimeChange} value={resetTime} max={31} min={1} />
-                </div>}
-                {/* <NumericInput  min={1} max={31} value={resetTime} onValueChange={onResetTimeChange} /> */}
-                {/* <Button intent="none" text="Cancel" onClick={onCancel} /> */}
-                {/* <Button intent="success" text="Save" onClick={onSave} /> */}
-                <button className="paperButton mutedButton largeText" onClick={onCancel}>Cancel</button>
-                <button className="paperButton largeText" onClick={onSave}>Save</button>
+                {duration > "0" && (
+                    <div>
+                        <label>Segment:</label>
+                        <NumericInput
+                            onChange={onSegmentDurationChange}
+                            value={segmentDuration}
+                            max={1200}
+                            min={0}
+                            speedUp={true}
+                        />
+                    </div>
+                )}
+                {isRecurring && (
+                    <div>
+                        <label>Reset Every:</label>
+                        <NumericInput onChange={onResetTimeChange} value={resetTime} max={31} min={1} />
+                    </div>
+                )}
+                {isUrgent && (
+                    <div>
+                        <label>Due in N Days:</label>
+                        <NumericInput onChange={onDueDaysChange} value={dueDays} max={31} min={0} />
+                    </div>
+                )}
+                {isUrgent && (
+                    <div>
+                        <label>Due Time:</label>
+                        <NumericInput onChange={onDueHoursChange} value={dueHours} max={23} min={0} rollover={true}/>
+                        <span> : </span>
+                        <NumericInput onChange={onDueMinutesChange} value={dueMinutes} max={59} min={0} zerofill={2} rollover={true} speedUp={true}/>
+                    </div>
+                )}
+
+                <button className="paperButton mutedButton largeText" onClick={onCancel}>
+                    Cancel
+                </button>
+                <button className="paperButton largeText" onClick={onSave}>
+                    Save
+                </button>
             </div>
         </div>
     )
@@ -104,6 +188,9 @@ interface IEditableTaskState {
     description: string
     color: string
     duration: number
+    dueDays: number
+    dueHours: number
+    dueMinutes: number
     resetTime: number
     segmentDuration: number
     isRecurring: boolean
@@ -111,12 +198,27 @@ interface IEditableTaskState {
     isImportant: boolean
     isUrgent: boolean
 }
+
+const cleanInput = (value, def = 0) => {
+    if (typeof value === "string") {
+        return value === "" ? def : parseInt(value, 10)
+    }
+    return value
+}
+
+const dayLength = 24 * 3600 * 1000
 const prioTable = [null, [false, false], [true, false], [false, true], [true, true]]
 export class EditableTask extends React.Component<IEditableTaskProps, IEditableTaskState> {
     constructor(props) {
         super(props)
         const task = this.props.task
         const [isUrgent, isImportant] = prioTable[task.priority]
+        const diffDays = dueInDays(task.dueDate)
+        const dueHours = getHoursFromSeconds(task.dueTime)
+        const dueMinutes = getMinutesFromSeconds(task.dueTime)
+        
+        console.log("got time: ", task.dueTime, dueHours, dueMinutes)
+
         this.state = {
             priority: task.priority,
             title: task.title,
@@ -125,25 +227,40 @@ export class EditableTask extends React.Component<IEditableTaskProps, IEditableT
             duration: task.duration,
             segmentDuration: task.segmentDuration,
             resetTime: task.resetTime,
+            dueHours: dueHours,
+            dueMinutes: dueMinutes,
+            dueDays: diffDays,
             isRecurring: task.isRecurring,
             isHovering: false,
-            isImportant: isUrgent,
-            isUrgent: isImportant,
+            isImportant: isImportant,
+            isUrgent: isUrgent
         }
     }
 
     handleSubmit = (event: React.FormEvent<any>) => {
         event.preventDefault()
-        return this.props.onSubmit(this.state)
+        const data: any = { ...this.state }
+        data.duration = cleanInput(data.duration)
+        data.segmentDuration = cleanInput(data.duration)
+        data.resetTime = cleanInput(data.resetTime, 1)
+        const dueDays = cleanInput(data.dueDays, 0)
+        const d = new Date()
+        d.setDate(d.getDate()+dueDays)
+        d.setHours(7)
+        d.setMinutes(0)
+        data.dueDate = d.getTime()
+
+        data.dueTime = (data.dueHours * 60 + data.dueMinutes) * 60
+        return this.props.onSubmit(data)
     }
 
-    handleTitleChange = (event) => {
+    handleTitleChange = event => {
         this.setState({ title: event.target.value })
     }
-    handleColorChange = (event) => {
+    handleColorChange = event => {
         this.setState({ color: event.target.value })
     }
-    handleDescriptionChange = (event) => {
+    handleDescriptionChange = event => {
         this.setState({ description: event.target.value })
     }
     handleDurationChange = (value: number) => {
@@ -151,6 +268,15 @@ export class EditableTask extends React.Component<IEditableTaskProps, IEditableT
     }
     handleSegmentDurationChange = (value: number) => {
         this.setState({ segmentDuration: value })
+    }
+    handleDueDaysChange = (value: number) => {
+        this.setState({ dueDays: value })
+    }
+    handleDueHoursChange = (value: number) => {
+        this.setState({ dueHours: value })
+    }
+    handleDueMinutesChange = (value: number) => {
+        this.setState({ dueMinutes: value })
     }
     handleResetTimeChange = (value: number) => {
         // this.setState({ resetTime: event.target.value })
@@ -202,6 +328,12 @@ export class EditableTask extends React.Component<IEditableTaskProps, IEditableT
                     segmentDuration={values.segmentDuration}
                     onSegmentDurationChange={this.handleSegmentDurationChange}
                     duration={values.duration}
+                    dueDays={values.dueDays}
+                    onDueDaysChange={this.handleDueDaysChange}
+                    dueHours={values.dueHours}
+                    onDueHoursChange={this.handleDueHoursChange}
+                    dueMinutes={values.dueMinutes}
+                    onDueMinutesChange={this.handleDueMinutesChange}
                     onDurationChange={this.handleDurationChange}
                     resetTime={values.resetTime}
                     onResetTimeChange={this.handleResetTimeChange}

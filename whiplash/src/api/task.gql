@@ -3,6 +3,7 @@ fragment taskFields on Task {
     title
     description
     priority
+    dueDate
     dueTime
     duration
     segmentDuration

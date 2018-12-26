@@ -117,6 +117,19 @@ export function getRandomBrightColor(): string {
     return rgbToHex2(color)
 }
 
+export function getRandomInt(max) {
+    return Math.floor(Math.random() * Math.floor(max));
+}
+
+export function getRandomHex(len) {
+    let n = 0
+    for (let i=0; i < len; i++) {
+        n*=16
+        n+=getRandomInt(16)
+    }
+    return n.toString(16)
+}
+
 export function formatTimeRemains(s: number): string {
     if (s >= 3600) {
         return `${Math.ceil(s / 3600)}h`
@@ -126,6 +139,18 @@ export function formatTimeRemains(s: number): string {
         return `${Math.floor(s)}s`
     // }
     // return s.toFixed(1)
+}
+
+export function getMinutesFromSeconds(t: number) {
+    if (t === null) return 0
+    return Math.floor((t % 3600) / 60)
+}
+
+export function getHoursFromSeconds(t: number) {
+    if (t === null) return 0
+    let h = Math.floor(t / 3600)
+    if (h >= 24) h = h - 24
+    return h
 }
 
 export function formatTimeHM(t : number){
@@ -158,7 +183,7 @@ export class MiniDaemon {
     // lastCallTime: number
     task: () => boolean|void
     
-    constructor(owner: HTMLElement|null, task: ()=>boolean|void, interval: number, len: number) {
+    constructor(owner: HTMLElement|null, task: ()=>boolean|void, interval: number, len?: number) {
         // if (!(this && this instanceof MiniDaemon)) { return; }
         if (arguments.length < 2) { throw new TypeError("MiniDaemon - not enough arguments"); }
 
@@ -172,7 +197,7 @@ export class MiniDaemon {
         if (owner) { this.owner = owner; }
         this.task = task;
         if (isFinite(interval) && interval > 0) { this.rate = Math.floor(interval); }
-        if (len > 0) { this.length = Math.floor(len); }
+        if (len && len > 0) { this.length = Math.floor(len); }
     }
 
     forceCall() {

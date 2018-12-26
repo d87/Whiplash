@@ -5,7 +5,7 @@ import { PeriodicProgressBar } from '../ProgressBar/ProgressBar'
 import { playSound } from  '../SoundPlayer/SoundPlayer'
 import { ITimer, timerStart, timerStartNext, timerFinish, timerSetDuration, timerResetAll, timerResetCounter } from  './TimerAppActions'
 import './TimerApp.scss'
-
+import { NumericInput } from "../NumericInput/NumericInput"
 
 
 interface ITimerProps {
@@ -45,32 +45,38 @@ class TimerWithDuration extends React.Component<ITimerProps, ITimerState> {
         this.timerOnComplete = this.timerOnComplete.bind(this)
     }
 
-    handleDurationChange(event: any) { // ChangeEvent isn't working
-        event.preventDefault()
-        const element: HTMLInputElement = event.target as HTMLInputElement
-        const value = parseInt(element.value,10)
+    // handleDurationChange(event: any) { // ChangeEvent isn't working
+    //     event.preventDefault()
+    //     const element: HTMLInputElement = event.target as HTMLInputElement
+    //     const value = parseInt(element.value,10)
         
-        if (value > 0 || element.value === "") {
-            this.setState({
-                duration: element.value
-            })
-        }
+    //     if (value > 0 || element.value === "") {
+    //         this.setState({
+    //             duration: element.value
+    //         })
+    //     }
 
-        if (value > 0) {
-            this.props.onDurationChanged(this.id, value)
-        }
+    //     if (value > 0) {
+    //         this.props.onDurationChanged(this.id, value)
+    //     }
+    // }
+    private handleDurationChange(value) {
+        // this.setState({
+        //     duration: element.value
+        // })
+        this.props.onDurationChanged(this.id, value)
     }
 
-    protected timerOnComplete() {
+    private timerOnComplete() {
         this.dispatch(timerFinish(this.id))
         this.dispatch(timerStartNext(this.id))
         // this.dispatch(playSound(this.soundID))
     }
-    protected timerOnStart() {
+    private timerOnStart() {
         this.dispatch(playSound(this.soundID))
     }
 
-    protected handleSubmit(event){
+    private handleSubmit(event){
         event.preventDefault();
     }
 
@@ -93,8 +99,9 @@ class TimerWithDuration extends React.Component<ITimerProps, ITimerState> {
                         duration={duration}
                         color={color}
                     />
-                </div>    
-                <input type="text" onChange={this.handleDurationChange} value={this.state.duration}/>
+                </div>
+                <NumericInput onChange={this.handleDurationChange} min={1} max={100} value={duration}/>
+                {/* <input type="text" onChange={this.handleDurationChange} value={this.state.duration}/> */}
                 { showCounter && <div className="timer_counter"> {count}</div> }
             </form>
         )

@@ -13,6 +13,7 @@ export interface ITask {
     state: string
     isRecurring: boolean
 
+    dueDate: Date
     dueTime: number
     segmentDuration: number
     duration: number
@@ -39,6 +40,7 @@ const TaskSchema = new mongoose.Schema(
         isRecurring: { type: Boolean, default: false }, // merge into resetMode?
 
         // resetTasksAt - custom daily reset time / or day start time
+        dueDate: { type: Date },
         dueTime: { type: Number, default: 0 },
         segmentDuration: { type: Number, default: 0 },
         duration: { type: Number, default: 0 },

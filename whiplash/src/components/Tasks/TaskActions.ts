@@ -1,7 +1,7 @@
 import { AnyAction } from "redux"
 import { ThunkAction } from "redux-thunk"
 import { createTask, saveTask, completeTask, uncompleteTask, addTaskProgress } from "../../api/api"
-import { getRandomBrightColor } from "../../util"
+import { getRandomBrightColor, getRandomHex } from "../../util"
 import uuidv4 from 'uuid'
 import { IAppState, Thunk } from '../../store'
 
@@ -14,6 +14,7 @@ export interface ITask {
     priority: number
     state: string
     color: string
+    dueDate: number // timestamp
     dueTime: number
     duration: number
     progress: number
@@ -37,6 +38,7 @@ export interface ITaskState {
     selectedID: string
     activeID: string
     filter: string
+    refreshTrigger: string
 }
 
 const TASK_INIT = "TASK_INIT"
@@ -51,6 +53,7 @@ const TASK_EDIT_CANCEL = "TASK_EDIT_CANCEL"
 const TASK_SAVE_PENDING = "TASK_SAVE_PENDING"
 const TASK_SAVE_SUCCESS = "TASK_SAVE_SUCCESS"
 const TASK_SAVE_FAILED = "TASK_SAVE_FAILED"
+const TASK_FORCE_DATE_CHECK = "TASK_FORCE_DATE_CHECK"
 
 const TASK_CREATE_PENDING = "TASK_CREATE_PENDING"
 const TASK_CREATE_SUCCESS = "TASK_CREATE_SUCCESS"
@@ -64,11 +67,11 @@ const TASK_TOGGLE_FILTER = "TASK_TOGGLE_FILTER"
 const TASK_DELETE = "TASK_DELETE"
 
 const initialState: ITaskState = {
-    list: [],
     table: {},
     activeID: null,
     selectedID: null,
-    filter: "active"
+    filter: "active",
+    refreshTrigger: "ass"
 }
 
 export const reducer = (state: ITaskState = initialState, action: AnyAction): ITaskState => {
@@ -268,6 +271,12 @@ export const reducer = (state: ITaskState = initialState, action: AnyAction): IT
                 filter: state.filter === "active" ? "completed" : "active"
             }
         }
+        case TASK_FORCE_DATE_CHECK: {
+            return {
+                ...state,
+                refreshTrigger: getRandomHex(4)
+            }
+        }
         case TASK_SELECT: {
             let newID = action._id
             if (newID === state.selectedID) newID = null
@@ -376,7 +385,7 @@ export const taskStopAndAddProgress = (_id: ID, progress: number) => {
 }
 
 export const taskToggleFilter = () => ({ type: TASK_TOGGLE_FILTER })
-
+export const taskForceDateCheck = () => ({ type: TASK_FORCE_DATE_CHECK })
 export const taskStart = (_id: ID) => ({ type: TASK_START, _id })
 export const taskStop = (_id: ID) => ({ type: TASK_STOP, _id })
 export const taskSelect = (_id: ID) => ({ type: TASK_SELECT, _id })

@@ -99,6 +99,7 @@ interface ITaskServerData {
     _id?: string
     title: string
     description: string
+    dueDate: Date
     dueTime: number
     duration: number
     segmentDuration: number
@@ -119,8 +120,8 @@ export const createTask = (data: ITaskServerData): Promise<ApolloQueryResult<{ c
 }
 
 export const saveTask = (data: ITaskServerData): Promise<ApolloQueryResult<{ saveTask: Partial<ITask> }>> => {
-    const { _id, title, description, dueTime, resetMode, resetTime, color, duration, segmentDuration, priority, isRecurring } = data
-    const taskInput = { _id, title, description, dueTime, resetMode, resetTime, color, duration, segmentDuration, priority, isRecurring }
+    const { _id, title, description, dueDate, dueTime, resetMode, resetTime, color, duration, segmentDuration, priority, isRecurring } = data
+    const taskInput = { _id, title, description, dueDate, dueTime, resetMode, resetTime, color, duration, segmentDuration, priority, isRecurring }
     return client.mutate({
         mutation: SaveTask,
         variables: { input: taskInput }
