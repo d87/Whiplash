@@ -6,7 +6,7 @@ import { ApolloClient } from "apollo-client";
 import { withApollo } from "react-apollo";
 
 import { Flipper, Flipped } from 'react-flip-toolkit';
-import { ITask, ITaskState, taskAdd, taskToggleFilter, taskExpand, taskEdit, taskSaveSuccess, taskSaveFailed, taskForceDateCheck } from './TaskActions'
+import { ITask, ITaskState, taskAdd, taskToggleFilter, taskExpand, taskEdit, taskSaveSuccess, taskSaveFailed, taskForceDateCheck, taskToggleFutureTasks } from './TaskActions'
 import { createSelector } from 'reselect'
 import { AddButton } from './AddButton'
 import { TaskTimer } from './TaskTimer'
@@ -23,9 +23,11 @@ interface ITaskListProps {
     flipKey?: any
     tasks: ITask[]
     activeTask: ITask
+    showFutureTasks: boolean
     filter: string
     onAddClick: () => void
     onFilterToggle: () => void
+    onFutureToggle: () => void
 }
 
 export class TaskList extends React.Component<ITaskListProps,{}> {
@@ -41,12 +43,15 @@ export class TaskList extends React.Component<ITaskListProps,{}> {
     }
 
     render() {
-        const { tasks, activeTask, flipKey, onAddClick, onFilterToggle } = this.props
+        const { tasks, activeTask, flipKey, onAddClick, onFilterToggle, onFutureToggle } = this.props
         return (
             <div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginLeft: "0.2em" }}>
                     <a className="material-icons clickable largeText" onClick={onAddClick}>add_box</a>
-                    <a className={`material-icons marginRight10 toggleable ${this.props.filter === "completed" ? "toggled" : "" }`} onClick={onFilterToggle}>done_all</a>
+                    <div>
+                        <a className={`material-icons marginRight10 toggleable ${this.props.showFutureTasks ? "toggled" : "" }`} onClick={onFutureToggle}>history</a>
+                        <a className={`material-icons marginRight10 toggleable ${this.props.filter === "completed" ? "toggled" : "" }`} onClick={onFilterToggle}>done_all</a>
+                    </div> 
                 </div>
                 
                 
@@ -96,18 +101,29 @@ export const dueInDays = (dueDate) => {
     if (diffDays < 0) diffDays = 0
     return diffDays
 }
+
+export const RESET_HOUR = 7
+export const RESET_MINUTE = 0
 const isCurrent = (task: ITask) => {
     if (dueInDays(task.dueDate) === 0) {
         if (task.dueTime) {
+            const now = new Date()
             const d = new Date()
+            d.setHours(RESET_HOUR)
+            d.setMinutes(RESET_MINUTE)
+            const resetTimestamp = d.getTime()
+            if (now.getTime() < resetTimestamp)
+                now.setDate(now.getDate()-1)
+
             const dueTime = task.dueTime
             const h = getHoursFromSeconds(dueTime)
             const m = getMinutesFromSeconds(dueTime)
             d.setHours(h)
             d.setMinutes(m)
-            const dtimestamp = d.getTime()
-            const now = Date.now()
-            return now >= dtimestamp
+            const dueTimestamp = d.getTime()
+           
+            
+            return (now.getTime() >= dueTimestamp)
         }
         return true
     }
@@ -119,14 +135,15 @@ const makeFlipKey = (tasks) => {
 }
 
 const getVisibilityFilter = (state, props) => state.tasks.filter
+const getShowFutureStatus = (state, props) => state.tasks.showFutureTasks
 const getTasksForSelector = (state): ITask[] => Object.values(state.tasks.table)
 const getRefreshTrigger = (state) => state.tasks.refreshTrigger
 export const getSortedVisibleTodos = createSelector(
-    [ getVisibilityFilter, getTasksForSelector, getRefreshTrigger ],
-    (visibilityFilter, tasks, trigger) => {
+    [ getVisibilityFilter, getShowFutureStatus, getTasksForSelector, getRefreshTrigger ],
+    (visibilityFilter, showFuture, tasks, trigger) => {
         switch (visibilityFilter) {
             case 'active':
-                return tasks.filter(t => t.state === "active" && isCurrent(t)).sort(sortFunc)
+                return tasks.filter(t => t.state === "active" && (showFuture || isCurrent(t))).sort(sortFunc)
             case 'completed':
                 return tasks.filter(t => t.state === "completed").sort(compareCompletedDate)
             default:
@@ -144,7 +161,6 @@ const refresher = new MiniDaemon(null, () => {
     const currentTasksAmount = storedTasksN
     store.dispatch(taskForceDateCheck())
     const newTasksAmount = storedTasksN
-    console.log("comparing ", newTasksAmount, currentTasksAmount)
     if (newTasksAmount > currentTasksAmount) {
         store.dispatch(playSound("mgs"))
     }
@@ -175,6 +191,9 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
         },
         onFilterToggle: () => {
             dispatch(taskToggleFilter())
+        },
+        onFutureToggle: () => {
+            dispatch(taskToggleFutureTasks())
         }
     }
 }

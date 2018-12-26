@@ -33,11 +33,11 @@ export interface ITask {
     isStarted?: boolean
 }
 export interface ITaskState {
-    list: ITask[]
     table: any,
     selectedID: string
     activeID: string
     filter: string
+    showFutureTasks: boolean
     refreshTrigger: string
 }
 
@@ -64,6 +64,7 @@ const TASK_UPDATE_PROGRESS_SUCCESS = "TASK_UPDATE_PROGRESS_SUCCESS"
 const TASK_UPDATE_PROGRESS_FAILED = "TASK_UPDATE_PROGRESS_FAILED"
 
 const TASK_TOGGLE_FILTER = "TASK_TOGGLE_FILTER"
+const TASK_TOGGLE_FUTURE_TASKS = "TASK_TOGGLE_FUTURE_TASKS"
 const TASK_DELETE = "TASK_DELETE"
 
 const initialState: ITaskState = {
@@ -71,6 +72,7 @@ const initialState: ITaskState = {
     activeID: null,
     selectedID: null,
     filter: "active",
+    showFutureTasks: false,
     refreshTrigger: "ass"
 }
 
@@ -271,6 +273,12 @@ export const reducer = (state: ITaskState = initialState, action: AnyAction): IT
                 filter: state.filter === "active" ? "completed" : "active"
             }
         }
+        case TASK_TOGGLE_FUTURE_TASKS: {
+            return {
+                ...state,
+                showFutureTasks: !state.showFutureTasks
+            }
+        }
         case TASK_FORCE_DATE_CHECK: {
             return {
                 ...state,
@@ -385,6 +393,7 @@ export const taskStopAndAddProgress = (_id: ID, progress: number) => {
 }
 
 export const taskToggleFilter = () => ({ type: TASK_TOGGLE_FILTER })
+export const taskToggleFutureTasks = () => ({ type: TASK_TOGGLE_FUTURE_TASKS })
 export const taskForceDateCheck = () => ({ type: TASK_FORCE_DATE_CHECK })
 export const taskStart = (_id: ID) => ({ type: TASK_START, _id })
 export const taskStop = (_id: ID) => ({ type: TASK_STOP, _id })

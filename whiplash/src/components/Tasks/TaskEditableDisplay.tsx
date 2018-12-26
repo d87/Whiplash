@@ -7,7 +7,7 @@ import DayPicker from "react-day-picker"
 import "react-day-picker/lib/style.css"
 import { Manager, Reference, Popper, ReferenceChildrenProps } from "react-popper"
 import "./Task.scss"
-import { dueInDays } from './TaskList'
+import { dueInDays, RESET_HOUR, RESET_MINUTE } from './TaskList'
 
 
 const TaskEditableHeader = ({ isRecurring, priority, color, title, onTitleChange }) => {
@@ -246,8 +246,8 @@ export class EditableTask extends React.Component<IEditableTaskProps, IEditableT
         const dueDays = cleanInput(data.dueDays, 0)
         const d = new Date()
         d.setDate(d.getDate()+dueDays)
-        d.setHours(7)
-        d.setMinutes(0)
+        d.setHours(RESET_HOUR)
+        d.setMinutes(RESET_MINUTE)
         data.dueDate = d.getTime()
 
         data.dueTime = (data.dueHours * 60 + data.dueMinutes) * 60
