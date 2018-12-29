@@ -264,7 +264,7 @@ export class EditableTask extends React.Component<IEditableTaskProps, IEditableT
         event.preventDefault()
         const data: any = { ...this.state }
         data.duration = cleanInput(data.duration)
-        data.segmentDuration = cleanInput(data.duration)
+        data.segmentDuration = cleanInput(data.segmentDuration)
         data.resetTime = cleanInput(data.resetTime, 1)
         const dueDays = cleanInput(data.dueDays, 0)
         if (dueDays > 0) {
@@ -276,7 +276,6 @@ export class EditableTask extends React.Component<IEditableTaskProps, IEditableT
         } else {
             data.dueDate = null
         }
-
 
         data.dueTime = (data.dueHours === null) ? null : (data.dueHours * 60 + data.dueMinutes) * 60
         return this.props.onSubmit(data)
