@@ -74,6 +74,27 @@ class Example extends React.Component {
     }
 }
 
+
+const DueDateInput = ({ dueDays, onDueDaysChange }) => {
+    const d = new Date()
+    d.setDate(d.getDate()+dueDays)
+    d.setHours(RESET_HOUR)
+    d.setMinutes(RESET_MINUTE)
+    
+    let dateStr
+    if (dueDays === 0) dateStr = "Today"
+    else if (dueDays === 1) dateStr = "Tomorrow"
+    else dateStr = d.toLocaleDateString(undefined, { weekday: "short", month: 'short', day: 'numeric' })
+
+    return (
+        <div>
+            <label>Due in N Days:</label>
+            <NumericInput onChange={onDueDaysChange} value={dueDays} max={31} min={0} />
+            <span>{dateStr}</span>
+        </div>
+    )
+}
+
 const EditableExpand = props => {
     const {
         onRerollColor,
@@ -153,10 +174,7 @@ const EditableExpand = props => {
                     </div>
                 )}
                 {isUrgent && (
-                    <div>
-                        <label>Due in N Days:</label>
-                        <NumericInput onChange={onDueDaysChange} value={dueDays} max={31} min={0} />
-                    </div>
+                    <DueDateInput onDueDaysChange={onDueDaysChange} dueDays={dueDays} />
                 )}
                 {dueHours === null ?
                     <div>
@@ -223,8 +241,6 @@ export class EditableTask extends React.Component<IEditableTaskProps, IEditableT
         const diffDays = dueInDays(task.dueDate)
         const dueHours = getHoursFromSeconds(task.dueTime)
         const dueMinutes = getMinutesFromSeconds(task.dueTime)
-        
-        console.log("got time: ", task.dueTime, dueHours, dueMinutes)
 
         this.state = {
             priority: task.priority,
