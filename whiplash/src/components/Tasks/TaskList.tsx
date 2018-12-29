@@ -43,13 +43,13 @@ export class TaskList extends React.Component<ITaskListProps,{}> {
     }
 
     render() {
-        const { tasks, activeTask, flipKey, onAddClick, onFilterToggle, onFutureToggle } = this.props
+        const { tasks, activeTask, flipKey, onAddClick, showFutureTasks, onFilterToggle, onFutureToggle } = this.props
         return (
             <div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginLeft: "0.2em" }}>
                     <a className="material-icons clickable largeText" onClick={onAddClick}>add_box</a>
                     <div>
-                        <a className={`material-icons marginRight10 toggleable ${this.props.showFutureTasks ? "toggled" : "" }`} onClick={onFutureToggle}>history</a>
+                        <a className={`material-icons marginRight10 toggleable ${showFutureTasks ? "toggled" : "" }`} onClick={onFutureToggle}>history</a>
                         <a className={`material-icons marginRight10 toggleable ${this.props.filter === "completed" ? "toggled" : "" }`} onClick={onFilterToggle}>done_all</a>
                     </div> 
                 </div>
@@ -178,7 +178,8 @@ const mapStateToProps = (state, props) => {
         flipKey,
         filter: getVisibilityFilter(state, props),
         selectedTaskID: state.tasks.selectedID,
-        activeTask 
+        activeTask,
+        showFutureTasks: state.tasks.showFutureTasks
     }
 }
 

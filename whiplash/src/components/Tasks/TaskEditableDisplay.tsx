@@ -99,7 +99,9 @@ const EditableExpand = props => {
         onDueDaysChange,
         onDueHoursChange, 
         dueHours,
-        onDueMinutesChange, 
+        onDueMinutesChange,
+        addDueTime,
+        removeDueTime,
         dueMinutes,
         onSave,
         onCancel
@@ -156,14 +158,19 @@ const EditableExpand = props => {
                         <NumericInput onChange={onDueDaysChange} value={dueDays} max={31} min={0} />
                     </div>
                 )}
-                {isUrgent && (
+                {dueHours === null ?
+                    <div>
+                        <button onClick={addDueTime}>Add Due Time</button>
+                    </div>
+                    :
                     <div>
                         <label>Due Time:</label>
                         <NumericInput onChange={onDueHoursChange} value={dueHours} max={23} min={0} rollover={true}/>
                         <span> : </span>
                         <NumericInput onChange={onDueMinutesChange} value={dueMinutes} max={59} min={0} zerofill={2} rollover={true} speedUp={true}/>
+                        <button onClick={removeDueTime}>X</button>
                     </div>
-                )}
+                }
 
                 <button className="paperButton mutedButton largeText" onClick={onCancel}>
                     Cancel
@@ -244,16 +251,26 @@ export class EditableTask extends React.Component<IEditableTaskProps, IEditableT
         data.segmentDuration = cleanInput(data.duration)
         data.resetTime = cleanInput(data.resetTime, 1)
         const dueDays = cleanInput(data.dueDays, 0)
-        const d = new Date()
-        d.setDate(d.getDate()+dueDays)
-        d.setHours(RESET_HOUR)
-        d.setMinutes(RESET_MINUTE)
-        data.dueDate = d.getTime()
+        if (dueDays > 0) {
+            const d = new Date()
+            d.setDate(d.getDate()+dueDays)
+            d.setHours(RESET_HOUR)
+            d.setMinutes(RESET_MINUTE)
+            data.dueDate = d.getTime()
+        } else {
+            data.dueDate = null
+        }
 
-        data.dueTime = (data.dueHours * 60 + data.dueMinutes) * 60
+
+        data.dueTime = (data.dueHours === null) ? null : (data.dueHours * 60 + data.dueMinutes) * 60
         return this.props.onSubmit(data)
     }
-
+    handleAddDueTime = event => {
+        this.setState({ dueHours: 0, dueMinutes: 0 })
+    }
+    handleRemoveDueTime = event => {
+        this.setState({ dueHours: null, dueMinutes: null })
+    }
     handleTitleChange = event => {
         this.setState({ title: event.target.value })
     }
@@ -339,6 +356,8 @@ export class EditableTask extends React.Component<IEditableTaskProps, IEditableT
                     onResetTimeChange={this.handleResetTimeChange}
                     onSave={this.handleSubmit}
                     onCancel={onEditCancel}
+                    addDueTime={this.handleAddDueTime}
+                    removeDueTime={this.handleRemoveDueTime}
                 />
             </form>
         )

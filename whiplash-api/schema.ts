@@ -162,7 +162,6 @@ const resolvers = {
             try {
                 const isValid = taskInputValidationSchema.validateSync(data)
                 if (isValid) {
-                    logger.debug("saving task", data )
                     const task = await Task.findById(data._id)
                     task.title = data.title
                     task.description = data.description

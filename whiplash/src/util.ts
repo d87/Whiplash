@@ -142,12 +142,12 @@ export function formatTimeRemains(s: number): string {
 }
 
 export function getMinutesFromSeconds(t: number) {
-    if (t === null) return 0
+    if (t === null) return null
     return Math.floor((t % 3600) / 60)
 }
 
 export function getHoursFromSeconds(t: number) {
-    if (t === null) return 0
+    if (t === null) return null
     let h = Math.floor(t / 3600)
     if (h >= 24) h = h - 24
     return h
