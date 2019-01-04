@@ -176,7 +176,7 @@ const refresher = new MiniDaemon(null, () => {
     }
 // }, 10*60*1000)
 }, 15*1000)
-refresher.start()
+// refresher.start()
 
 const mapStateToProps = (state, props) => {
     const tasks = getSortedVisibleTodos(state, props)

@@ -3,7 +3,7 @@ import PropTypes from "prop-types"
 import { ApolloProvider, getDataFromTree } from "react-apollo"
 import Head from "next/head"
 import { initApollo } from "../src/api/api"
-import { isBrowser } from './isBrowser'
+import { isBrowser } from "./isBrowser"
 
 // Gets the display name of a JSX component for dev tools
 function getComponentDisplayName(Component) {
@@ -18,6 +18,12 @@ export default ComposedComponent => {
         }
 
         static async getInitialProps(ctx) {
+            const {
+                Component,
+                router,
+                ctx: { req, res }
+            } = ctx
+
             // Initial serverState with apollo (empty)
             let serverState = {
                 apollo: {
@@ -27,9 +33,6 @@ export default ComposedComponent => {
 
             const apollo = initApollo()
 
-            // console.log("with apollo context", Object.keys(ctx))
-            // console.log("with apollo page context", Object.keys(ctx.ctx))
-
             ctx.ctx.client = apollo
             // Evaluate the composed component's getInitialProps()
             let composedInitialProps = {}
@@ -37,41 +40,42 @@ export default ComposedComponent => {
                 composedInitialProps = await ComposedComponent.getInitialProps(ctx)
             }
 
-            // console.log("composedInitialProps", Object.keys(composedInitialProps))
-
-            // // Run all GraphQL queries in the component tree
-            // // and extract the resulting data
-            // if (!isBrowser) {
-            //     try {
-            //         // Run all GraphQL queries
-            //         await getDataFromTree(
-            //             <ApolloProvider client={apollo}>
-            //                 <ComposedComponent {...composedInitialProps} />
-            //             </ApolloProvider>,
-            //             {
-            //                 router: {
-            //                     asPath: ctx.ctx.asPath,
-            //                     pathname: ctx.ctx.pathname,
-            //                     query: ctx.ctx.query
-            //                 }
-            //             }
-            //         )
-            //     } catch (error) {
-            //         // Prevent Apollo Client GraphQL errors from crashing SSR.
-            //         // Handle them in components via the data.error prop:
-            //         // https://www.apollographql.com/docs/react/api/react-apollo.html#graphql-query-data-error
-            //     }
-            //     // getDataFromTree does not call componentWillUnmount
-            //     // head side effect therefore need to be cleared manually
-            //     Head.rewind()
-
-            //     // Extract query data from the Apollo store
-            //     serverState = {
-            //         apollo: {
-            //             data: apollo.cache.extract()
-            //         }
-            //     }
+            // if (res && res.finished) {
+            //     // When redirecting, the response is finished.
+            //     // No point in continuing to render
+            //     return {}
             // }
+
+            // Run all GraphQL queries in the component tree
+            // and extract the resulting data
+            if (!isBrowser) {
+                try {
+                    // Run all GraphQL queries
+                    await getDataFromTree(
+                        <ApolloProvider client={apollo}>
+                            <ComposedComponent
+                                {...composedInitialProps}
+                                router={router}
+                                Component={Component}
+                            />
+                        </ApolloProvider>
+                    )
+                } catch (error) {
+                    // Prevent Apollo Client GraphQL errors from crashing SSR.
+                    // Handle them in components via the data.error prop:
+                    // https://www.apollographql.com/docs/react/api/react-apollo.html#graphql-query-data-error
+                }
+                // getDataFromTree does not call componentWillUnmount
+                // head side effect therefore need to be cleared manually
+                Head.rewind()
+
+                // Extract query data from the Apollo store
+                serverState = {
+                    apollo: {
+                        data: apollo.cache.extract()
+                    }
+                }
+            }
 
             return {
                 serverState,
