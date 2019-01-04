@@ -2,8 +2,9 @@ import createError from "http-errors"
 import express from "express"
 import path from "path"
 import cookieParser from "cookie-parser"
-
+import uuidv4 from 'uuid'
 import morgan from "morgan"
+import cors from "cors"
 // import jsend from "jsend"
 // import jwt from 'jsonwebtoken'
 import session from "express-session"
@@ -12,7 +13,7 @@ import { Strategy as LocalStrategy } from "passport-local"
 import connectRedis from "connect-redis"
 import nunjucks from "nunjucks"
 import graphqlHTTP from "express-graphql"
-
+import { GraphQLError } from "graphql";
 // var indexRouter = require('./routes/index');
 import indexRouter from "./routes/index"
 // import scheduleTaskRouter from './routes/tasks'
@@ -22,6 +23,7 @@ import { startDailyResetJob } from './cronjobs'
 
 import { schema } from "./schema"
 import { authStrategy, jwtStrategy, serializeUser, deserializeUser } from "./auth"
+import { logger } from "./logger";
 
 
 const app = express()
@@ -40,6 +42,8 @@ app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 app.use(express.json())
 
+// app.use(cors())
+
 app.use("/static", express.static(path.join(__dirname, 'static')))
 
 const halfYear = 31536000 * 0.5 * 1000
@@ -51,7 +55,8 @@ export const sessionParser = session({
     saveUninitialized: true,
     resave: true,
     cookie: {
-        httpOnly: true,
+        httpOnly: false,
+        secure: false,
         maxAge: halfYear
     }
 })
@@ -84,13 +89,14 @@ app.use(
             context: {
                 user: req.user
             },
-            formatError: error => ({
-                message: error.message,
-                // locations: error.locations,
-                // stack: error.stack ? error.stack.split("\n") : [],
-                // path: error.path
-            })
-        }
+            formatError: (error: GraphQLError) => {
+                const errId = uuidv4();
+                logger.error(`errId: ${errId}`);
+                logger.error(error);
+          
+                return new GraphQLError(`Internal Error: ${errId}`);
+            }
+        }      
     })
 )
 

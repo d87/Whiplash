@@ -2,7 +2,7 @@ import "./whiplash.global.scss"
 import React, { Component } from "react"
 import ReactDOM from "react-dom"
 
-import { client } from "../../api/api"
+// import { client } from "../../api/api"
 import { ApolloProvider, withApollo } from "react-apollo"
 import { Route, Link } from "react-router-dom"
 
@@ -57,39 +57,20 @@ export interface IAppProps {
 export class App extends React.Component<IAppProps> {
     render() {
         return (
-            <Provider store={this.props.store}>
-                <ApolloProvider client={client}>
-                    <NavBar />
-                        <div className="container App ">
-                            {/* <FilterBar /> */}
-                            {/* <EventSource url={"/sse/stream"} /> */}
-                            {/* <SoundPlayer/> */}
+            // <Provider store={this.props.store}>
+                // <ApolloProvider client={client}> 
                             <div>
-                                {/* <Route
-                                    path="/"
-                                    exact
-                                    render={() => (
-                                        <div>
-                                            <Schedule />
-                                            <Tasks />
-                                        </div>
-                                    )}
-                                /> */}
-
-                                <Route path="/tasks" render={() => {
-                                    return <TaskList/>
+                                <TaskList/>
+                                {/* <Route path="/tasks" render={() => {
+                                    return 
                                 }} />
-                                {/* <Route path="/completed" render={() => {
-                                    return <TaskList filter="completed"/>
-                                }} /> */}
 
                                 <Route path="/login" component={LoginPage} />
 
-                                <Route path="/timers" component={TimerApp} />
+                                <Route path="/timers" component={TimerApp} /> */}
                             </div>
-                        </div>
-                </ApolloProvider>
-            </Provider>
+                // </ApolloProvider>
+            // </Provider>
         )
     }
 }

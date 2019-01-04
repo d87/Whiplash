@@ -1,7 +1,7 @@
 import React from "react"
 import { PriorityMarker, StatusMarker, calculatePriority } from "./Task"
 import { ITask } from "./TaskActions"
-import { getRandomBrightColor, isIntegerNumericCharacter, getHoursFromSeconds, getMinutesFromSeconds } from "../../util"
+import { getRandomBrightColor, isIntegerNumericCharacter, zerofill, getHoursFromSeconds, getMinutesFromSeconds } from "../../util"
 import { NumericInput } from "../NumericInput/NumericInput"
 import DayPicker from "react-day-picker"
 import "react-day-picker/lib/style.css"
@@ -95,6 +95,8 @@ const DueDateInput = ({ dueDays, onDueDaysChange }) => {
     )
 }
 
+const zerofillFormatter = (value) => zerofill(value, 2)
+
 const EditableExpand = props => {
     const {
         onRerollColor,
@@ -185,7 +187,7 @@ const EditableExpand = props => {
                         <label>Due Time:</label>
                         <NumericInput onChange={onDueHoursChange} value={dueHours} max={23} min={0} rollover={true}/>
                         <span> : </span>
-                        <NumericInput onChange={onDueMinutesChange} value={dueMinutes} max={59} min={0} zerofill={2} rollover={true} speedUp={true}/>
+                        <NumericInput onChange={onDueMinutesChange} value={dueMinutes} max={59} min={0} formatFunc={zerofillFormatter} rollover={true} speedUp={true}/>
                         <button onClick={removeDueTime}>X</button>
                     </div>
                 }

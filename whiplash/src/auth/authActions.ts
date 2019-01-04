@@ -14,8 +14,8 @@ export interface IAuthState {
 }
 
 
-const existingUser = getUser()
-const defaultState = existingUser ? { loggedIn: true, user: existingUser } : {}
+// const existingUser = getUser()
+// const defaultState = existingUser ? { loggedIn: true, user: existingUser } : {}
 
 export const reducer = (state = defaultState, action) => {
     switch (action.type) {

@@ -7,7 +7,7 @@ interface INumeritInputProps {
     min?: number
     max?: number
     rollover?: boolean
-    zerofill?: number
+    formatFunc: (value: number) => string
     speedUp?: boolean
     onChange: (value: number) => void
 }
@@ -106,8 +106,8 @@ export class NumericInput extends React.Component<INumeritInputProps> {
     };
 
     render() {
-        const { value, zerofill } = this.props
-        const value2 = (zerofill) ? value.toString().padStart(zerofill, '0').slice(-zerofill) : value
+        const { value, formatFunc } = this.props
+        const value2 = (formatFunc) ? formatFunc(value as number) : value
 
         return (<div className="wl-numeric-input">
             <input className="wl-numeric-input-text" onKeyPress={this.handleKeyPress} onBlur={this.handleBlur} onChange={this.handleChange} value={value2}/>

@@ -4,11 +4,11 @@
     "allowJs": true,
     "jsx": "react",
     "module": "es2015",
-    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "lib": [
         "es2017",
+        "esnext",
         "dom",
-        "scripthost"
     ],
     "moduleResolution": "node",
     // "skipLibCheck": true,

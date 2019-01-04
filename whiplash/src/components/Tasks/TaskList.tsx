@@ -6,15 +6,14 @@ import { ApolloClient } from "apollo-client";
 import { withApollo } from "react-apollo";
 
 import { Flipper, Flipped } from 'react-flip-toolkit';
-import { ITask, ITaskState, taskAdd, taskToggleFilter, taskExpand, taskEdit, taskSaveSuccess, taskSaveFailed, taskForceDateCheck, taskToggleFutureTasks } from './TaskActions'
+import { ITask, ITaskState, taskAdd, taskMerge, taskToggleFilter, taskExpand, taskEdit, taskSaveSuccess, taskSaveFailed, taskForceDateCheck, taskToggleFutureTasks } from './TaskActions'
 import { createSelector } from 'reselect'
 import { AddButton } from './AddButton'
 import { TaskTimer } from './TaskTimer'
-import { Dispatch, store } from '../../store';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
-import { getTasks } from '../../api/api'
+import { getTasks, subscribeToResets } from '../../api/api'
 import { MiniDaemon, getHoursFromSeconds, getMinutesFromSeconds } from '../../util'
-
+import { getStore } from '../../store'
 import './Task.scss'
 import { playSound } from '../SoundPlayer/SoundPlayer';
 
@@ -40,6 +39,16 @@ export class TaskList extends React.Component<ITaskListProps,{}> {
                 })
             })
             .catch(err => console.error(err))
+
+        const subscriptionObserver = subscribeToResets()
+        subscriptionObserver.subscribe({
+            next(message) {
+                const updatedTasks = message.data.updateTasks
+                console.log("observer got data", updatedTasks)
+                this.props.store.dispatch(taskMerge(updatedTasks))
+            },
+            error(err) { console.error('err', err); },
+        });
     }
 
     render() {
@@ -159,12 +168,13 @@ const getStartedTasks = (tasks) => tasks.filter(t => {
 let storedTasksN = 0
 const refresher = new MiniDaemon(null, () => {
     const currentTasksAmount = storedTasksN
+    const store = getStore()
     store.dispatch(taskForceDateCheck())
     const newTasksAmount = storedTasksN
     if (newTasksAmount > currentTasksAmount) {
         store.dispatch(playSound("mgs"))
     }
-// }, 15*60*1000)
+// }, 10*60*1000)
 }, 15*1000)
 refresher.start()
 

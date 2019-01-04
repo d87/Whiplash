@@ -117,11 +117,11 @@ export function getRandomBrightColor(): string {
     return rgbToHex2(color)
 }
 
-export function getRandomInt(max) {
+export function getRandomInt(max: number): number {
     return Math.floor(Math.random() * Math.floor(max));
 }
 
-export function getRandomHex(len) {
+export function getRandomHex(len: number): string {
     let n = 0
     for (let i=0; i < len; i++) {
         n*=16
@@ -141,36 +141,37 @@ export function formatTimeRemains(s: number): string {
     // return s.toFixed(1)
 }
 
-export function getMinutesFromSeconds(t: number) {
+export function getMinutesFromSeconds(t: number|null): number|null {
     if (t === null) return null
     return Math.floor((t % 3600) / 60)
 }
 
-export function getHoursFromSeconds(t: number) {
+export function getHoursFromSeconds(t: number|null): number|null {
     if (t === null) return null
     let h = Math.floor(t / 3600)
     if (h >= 24) h = h - 24
     return h
 }
 
-export function formatTimeHM(t : number){
-    let h = Math.floor(t / 3600)
+export const zerofill = (value: number|string, n: number) => {
+    const str = typeof value === "number" ? value.toString() : value
+    return str.padStart(n, '0').slice(-n)
+}
+
+export function formatTimeHM(t : number): string{
+    const h = Math.floor(t / 3600)
     t = t - h*3600
     // if (h >= 24) h = h - 24
     const m =  Math.floor(t / 60)
-
-    const zerofill = m.toString().padStart(2, '0').slice(-2);
-    return `${h}:${zerofill}`
+    return `${h}:${zerofill(m,2)}`
 }
 
-export function formatTimeMS(t : number){
+export function formatTimeMS(t : number) {
     if (t >= 3600) return formatTimeHM(t)
 
     const m =  Math.floor(t / 60)
     const s =  t % 60
-
-    const zerofill = s.toFixed(0).padStart(2, '0').slice(-2);
-    return `${m}:${zerofill}`
+    return `${m}:${zerofill(s,2)}`
 }
 
 export class MiniDaemon {

@@ -1,5 +1,5 @@
 export const config = {
-    apiUrl: "",
+    apiUrl: "http://nevihta.d87:4500",
 }
 
 export default config

@@ -3,7 +3,7 @@ import thunk, { ThunkAction, ThunkDispatch, ThunkMiddleware } from "redux-thunk"
 import { createLogger } from "redux-logger"
 import { composeWithDevTools } from "redux-devtools-extension"
 
-import { reducer as auth } from "./auth/authActions"
+// import { reducer as auth } from "./auth/authActions"
 import { reducer as tasks } from "./components/Tasks/TaskActions"
 import { soundReducer as sound } from "./components/SoundPlayer/SoundPlayer"
 import { ITimerState, timerReducer as timers } from "./components/TimerApp/TimerAppActions"
@@ -22,9 +22,9 @@ export type Thunk = ThunkAction<void, IAppState, null, AnyAction>;
 export type Dispatch = ThunkDispatch<any, null, AnyAction>;
 
 export const reducers = combineReducers({
-    auth,
-    tasks,
+    // auth,
     sound,
+    tasks,
     timers
 })
 
@@ -85,14 +85,24 @@ const enchancers = composeEnhancers(
     // other store enhancers if any
 )
 
-let preloadedState = {}
-if (window !== undefined) {
-    preloadedState = (window as any).__PRELOADED_STATE__
+// let preloadedState = {}
+// if (window !== undefined) {
+//     preloadedState = (window as any).__PRELOADED_STATE__
+// }
+
+// export const store = createStore(reducers, {}, applyMiddleware(...middleware))
+
+let store = null
+
+export const initStore = (initialState) => {
+    store = createStore(reducers, initialState, applyMiddleware(...middleware))
+    return store
 }
 
-export const store = createStore(reducers, preloadedState, applyMiddleware(...middleware))
+export const getStore = () => store
+  
 
-registerKeybindings(store)
+// registerKeybindings(store)
 
 // if (window !== undefined) {
 //     window.addEventListener("storage", createStorageListener(store))

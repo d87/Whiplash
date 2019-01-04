@@ -1,34 +1,32 @@
 import React from "react"
 import { Dispatch } from "redux"
 import { connect } from "react-redux"
-import {  Link } from 'react-router-dom'
+// import {  Link } from 'react-router-dom'
+import Link from "next/link"
 import { history } from "../../history"
 
-import './NavBar.scss'
+import "./NavBar.scss"
 
 class NavBar extends React.Component {
     render() {
         return (
             <header>
-                <h2 >Whiplash</h2>
-                <input type="checkbox" id="nav-toggle" className="nav-toggle"></input>
+                <h2>Whiplash</h2>
+                <input type="checkbox" id="nav-toggle" className="nav-toggle" />
                 <nav>
                     <ul>
-                        <li>
-                            <Link to="/activity">Activity</Link>
-                        </li>
-                        <li>
-                            <Link to="/tasks">Tasks</Link>
-                        </li>
-                        <li>
-                            <Link to="/timers">Timers</Link>
-                        </li>
-                        <li>
-                            <Link to="/todo">Todos</Link>
-                        </li>
-                        <li>
-                            <Link to="/login">Login</Link>
-                        </li>
+                        <Link href="/activity">
+                            <li>Activity</li>
+                        </Link>
+                        <Link href="/tasks">
+                            <li>Tasks</li>
+                        </Link>
+                        <Link href="/timers">
+                            <li>Timers</li>
+                        </Link>
+                        <Link href="/login">
+                            <li>Login</li>
+                        </Link>
                     </ul>
                 </nav>
                 <label htmlFor="nav-toggle" className="nav-toggle-label">
