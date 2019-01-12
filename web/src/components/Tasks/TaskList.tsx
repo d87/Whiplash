@@ -4,7 +4,7 @@ import Task from './Task';
 import gql from "graphql-tag";
 import { ApolloClient } from "apollo-client";
 import { withApollo } from "react-apollo";
-
+import { Dispatch } from 'redux'
 import { Flipper, Flipped } from 'react-flip-toolkit';
 import { ITask, ITaskState, taskAdd, taskMerge, taskToggleFilter, taskExpand, taskEdit, taskSaveSuccess, taskSaveFailed, taskForceDateCheck, taskToggleFutureTasks } from './TaskActions'
 import { createSelector } from 'reselect'
@@ -39,13 +39,14 @@ export class TaskList extends React.Component<ITaskListProps,{}> {
                 })
             })
             .catch(err => console.error(err))
-
+        
+        const dispatch = this.props.dispatch
         const subscriptionObserver = subscribeToResets()
         subscriptionObserver.subscribe({
             next(message) {
                 const updatedTasks = message.data.updateTasks
                 console.log("observer got data", updatedTasks)
-                this.props.store.dispatch(taskMerge(updatedTasks))
+                dispatch(taskMerge(updatedTasks))
             },
             error(err) { console.error('err', err); },
         });

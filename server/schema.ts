@@ -108,7 +108,7 @@ const resolvers = {
             return await Task.findOne({ _id })
         },
         tasks: async (root, args, context) => {
-            logger.debug(context.user)
+            // logger.debug(context.user)
             const userID = context.user._id
             // const tasks = await 
             return Task.find({ userID })

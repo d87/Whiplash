@@ -1,12 +1,11 @@
 {
-  "name": "whiplash",
+  "name": "@whiplash/web",
   "version": "1.0.0",
   "private": true,
   "dependencies": {
     "apollo-boost": "^0.1.23",
     "apollo-link-ws": "^1.0.12",
     "cross-fetch": "^2.2.3",
-    "express-jwt": "^5.3.1",
     "graphql": "^14.0.2",
     "graphql-tag": "^2.10.0",
     "history": "^4.7.2",
@@ -85,8 +84,9 @@
     "webpack-merge": "^4.1.4"
   },
   "scripts": {
-    "start": "webpack-dev-server --open --env.host=nevihta.d87 --env.port=4500",
+    "start": "next -p $PORT",
     "dev": "node server/index.js",
+    "webpackdev": "webpack-dev-server --open --env.host=nevihta.d87 --env.port=4500",
     "watch": "webpack --watch",
     "build": "webpack --config webpack.config.js --env.production"
   },

@@ -5,12 +5,9 @@ import { schema } from "./schema"
 import { RedisPubSub } from 'graphql-redis-subscriptions';
 import { logger } from './logger'
 import { sessionParser } from './app'
-
 export const pubsub = new RedisPubSub();
 
-const WS_PORT = 3001
-
-export const startSubscriptionServer = () => {
+export const startSubscriptionServer = (port: number) => {
     // Create WebSocket listener server
     const websocketServer = createServer((request, response) => {
         response.writeHead(404)
@@ -18,9 +15,9 @@ export const startSubscriptionServer = () => {
     })
 
     // Bind it to port and start listening
-    websocketServer.listen(WS_PORT)
+    websocketServer.listen(port)
     websocketServer.on("listening", () => {
-        logger.info(`Websocket Server is now running on http://localhost:${WS_PORT}`)
+        logger.info(`Websocket Server is now running on http://localhost:${port}`)
     })
 
     return new SubscriptionServer(

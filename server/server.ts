@@ -6,8 +6,6 @@ import { logger } from './logger'
 // import createDebug from 'debug'
 // const debug = createDebug('whiplash-api:server')
 
-
-
 const normalizePort = (portStr: string) => parseInt(portStr, 10)
 const port = normalizePort(process.env.PORT || "3000")
 
@@ -49,5 +47,5 @@ const server = http.createServer(app)
 server.listen(port)
 server.on("error", onError)
 server.on("listening", onListening)
-const subsServer = startSubscriptionServer()
+const subsServer = startSubscriptionServer(port+1)
 

@@ -14,10 +14,6 @@ import connectRedis from "connect-redis"
 import nunjucks from "nunjucks"
 import graphqlHTTP from "express-graphql"
 import { GraphQLError } from "graphql";
-// var indexRouter = require('./routes/index');
-import indexRouter from "./routes/index"
-// import scheduleTaskRouter from './routes/tasks'
-import todoRouter from "./routes/todos"
 import usersRouter from "./routes/users"
 import { startDailyResetJob } from './cronjobs'
 
@@ -74,7 +70,6 @@ app.use((req, res, next) => {
 
 // app.use(jsend.middleware)
 
-app.use("/", indexRouter)
 app.use("/users", usersRouter)
 startDailyResetJob()
 // app.use('/users', passport.authenticate('jwt', {session: false}), usersRouter);

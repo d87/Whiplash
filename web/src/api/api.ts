@@ -58,7 +58,7 @@ let link
 if (isBrowser) {
     const wsLink = new WebSocketLink({
         // document.location.host
-        uri: `ws://nevihta.d87:3001/api/subscriptions`,
+        uri: `${config.websocketUrl}/api/subscriptions`,
         options: {
             reconnect: true,
             // reconnectionAttempts: 5
