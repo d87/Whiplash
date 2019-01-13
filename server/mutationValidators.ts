@@ -1,5 +1,6 @@
 import * as yup from "yup"
 // docs: https://github.com/jquense/yup
+// positive = moreThan(0)
 export const taskInputValidationSchema = yup.object().shape({
     _id: yup.string(),
     title: yup.string().trim().required(),
@@ -14,8 +15,8 @@ export const taskInputValidationSchema = yup.object().shape({
         .max(4),
     state: yup.string().matches(/(active|completed|archived)/),
     color: yup.string().matches(/^#([0-9a-f]{6}|[0-9a-f]{3})$/i),
-    duration: yup.number().positive().integer(),
-    segmentDuration: yup.number().positive().integer(),
+    duration: yup.number().moreThan(-1).integer(),
+    segmentDuration: yup.number().moreThan(-1).integer(),
     resetMode: yup.string().matches(/(atDays|inDays)/),
     resetTime: yup.number().positive().integer(),
 })
