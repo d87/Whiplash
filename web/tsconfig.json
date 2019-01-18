@@ -11,6 +11,7 @@
         "esnext",
         "dom",
     ],
+    "types": ["jest"],
     "moduleResolution": "node",
     "skipLibCheck": true,
     "pretty": true
