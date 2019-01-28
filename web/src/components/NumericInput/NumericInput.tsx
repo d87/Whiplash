@@ -7,7 +7,7 @@ interface INumeritInputProps {
     min?: number
     max?: number
     rollover?: boolean
-    formatFunc: (value: number) => string
+    formatFunc?: (value: number) => string
     speedUp?: boolean
     onChange: (value: number) => void
 }

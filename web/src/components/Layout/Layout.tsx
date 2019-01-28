@@ -1,5 +1,6 @@
 import React from "react"
 import Head from "next/head"
+import "./whiplash.global.scss"
 import NavBar from "../NavBar/NavBar"
 
 export const Layout = props => {

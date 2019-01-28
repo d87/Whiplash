@@ -4,7 +4,6 @@ import { connect } from "react-redux"
 // import {  Link } from 'react-router-dom'
 import Link from "next/link"
 import { history } from "../../history"
-
 import "./NavBar.scss"
 
 class NavBar extends React.Component {

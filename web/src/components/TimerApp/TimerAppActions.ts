@@ -37,7 +37,7 @@ const defaultState = {
             duration: 5,
             color: "#8265AC",
             active: false,
-            soundID: "mgs",
+            // soundID: "mgs",
             showCounter: false,
             count: 0,
             next: 3
@@ -61,7 +61,7 @@ const defaultState = {
             duration: 5,
             color: "#8265AC",
             active: false,
-            soundID: "abolish", // abolish
+            // soundID: "abolish", // abolish
             showCounter: true,
             count: 0,
             next: 1

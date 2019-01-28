@@ -9,6 +9,7 @@ import { NumericInput } from "../NumericInput/NumericInput"
 
 
 interface ITimerProps {
+    dispatch: Dispatch
     id: number
     soundID?: number
     text?: string
@@ -21,76 +22,35 @@ interface ITimerProps {
     onDurationChanged?: (id: number, value: number) => void
 }
 
-interface ITimerState {
-    duration: string
-}
-
-class TimerWithDuration extends React.Component<ITimerProps, ITimerState> {
-    id: number
-    dispatch: Dispatch
-    soundID: number
-    active: boolean
-
-
-    constructor(props: any) {
-        super(props)
-        this.id = props.id
-        this.dispatch = props.dispatch
-        this.soundID = props.soundID
-        this.state = {
-            duration: props.duration
+class TimerWithDuration extends React.Component<ITimerProps> {
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        const { active } = this.props
+        if (!prevProps.active && active) {
+            this.timerOnStart()
         }
-        this.handleDurationChange = this.handleDurationChange.bind(this)
-        this.handleSubmit = this.handleSubmit.bind(this)
-        this.timerOnComplete = this.timerOnComplete.bind(this)
+    }    
+
+    handleDurationChange = (value) => {
+        this.props.onDurationChanged(this.props.id, value)
     }
 
-    // handleDurationChange(event: any) { // ChangeEvent isn't working
-    //     event.preventDefault()
-    //     const element: HTMLInputElement = event.target as HTMLInputElement
-    //     const value = parseInt(element.value,10)
-        
-    //     if (value > 0 || element.value === "") {
-    //         this.setState({
-    //             duration: element.value
-    //         })
-    //     }
-
-    //     if (value > 0) {
-    //         this.props.onDurationChanged(this.id, value)
-    //     }
-    // }
-    private handleDurationChange(value) {
-        // this.setState({
-        //     duration: element.value
-        // })
-        this.props.onDurationChanged(this.id, value)
+    timerOnComplete = () => {
+        this.props.dispatch(timerFinish(this.props.id))
+        this.props.dispatch(timerStartNext(this.props.id))
     }
 
-    private timerOnComplete() {
-        this.dispatch(timerFinish(this.id))
-        this.dispatch(timerStartNext(this.id))
-        // this.dispatch(playSound(this.soundID))
-    }
-    private timerOnStart() {
-        this.dispatch(playSound(this.soundID))
-    }
-
-    private handleSubmit(event){
-        event.preventDefault();
+    timerOnStart() {
+        if (this.props.soundID) {
+            this.props.dispatch(playSound(this.props.soundID))
+        } 
     }
 
     render() {
         const { text, active, startTime, duration, color, ...props } = this.props
         const { showCounter, count } = props
 
-        if (!this.active && active) {
-            this.timerOnStart()
-        }
-        this.active = active
-
         return (
-            <form className="timer_form" onSubmit={this.handleSubmit}>
+            <div className="timer_form">
                 <div className="timer" >
                     <PeriodicProgressBar
                         active={active}
@@ -103,7 +63,7 @@ class TimerWithDuration extends React.Component<ITimerProps, ITimerState> {
                 <NumericInput onChange={this.handleDurationChange} min={1} max={100} value={duration}/>
                 {/* <input type="text" onChange={this.handleDurationChange} value={this.state.duration}/> */}
                 { showCounter && <div className="timer_counter"> {count}</div> }
-            </form>
+            </div>
         )
     }
 }
