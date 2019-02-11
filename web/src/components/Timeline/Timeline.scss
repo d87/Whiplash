@@ -1,0 +1,12 @@
+.timelineGrid {
+    display: grid;
+    grid-template-columns: 7px auto;
+    grid-template-rows: repeat(20, 1fr);
+    height: 700px;
+    padding: 15px 3px 0px 3px;
+}
+
+.timelineBar {
+    grid-column: 1;
+    grid-row: span 20;
+}

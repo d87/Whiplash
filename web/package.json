@@ -28,6 +28,7 @@
     "redux-thunk": "^2.3.0",
     "remarkable": "^1.7.1",
     "reselect": "^4.0.0",
+    "styled-components": "^4.1.3",
     "subscriptions-transport-ws": "^0.9.15",
     "uuid": "^3.3.2",
     "yup": "^0.26.6"
@@ -46,26 +47,17 @@
     "@zeit/next-css": "^1.0.1",
     "@zeit/next-sass": "^1.0.1",
     "@zeit/next-typescript": "^1.1.1",
-    "babel-eslint": "^10.0.1",
     "babel-loader": "^8.0.4",
     "babel-plugin-react-css-modules": "^5.0.0",
+    "babel-plugin-styled-components": "^1.10.0",
     "babel-plugin-transform-class-properties": "^6.24.1",
     "clean-webpack-plugin": "^1.0.0",
-    "css-loader": "1.0.0",
-    "eslint": "^5.8.0",
-    "eslint-config-prettier": "^3.5.0",
-    "eslint-config-react": "^1.1.7",
-    "eslint-loader": "^2.1.1",
-    "eslint-plugin-import": "^2.14.0",
-    "eslint-plugin-jsx-a11y": "^6.1.2",
-    "eslint-plugin-react": "^7.12.4",
     "file-loader": "^3.0.1",
     "html-webpack-plugin": "^3.2.0",
     "jest": "^23.6.0",
     "mini-css-extract-plugin": "^0.5.0",
     "next-plugin-graphql": "^0.0.2",
     "node-sass": "^4.10.0",
-    "postcss-loader": "^3.0.0",
     "postcss-plugin": "^1.0.0",
     "postcss-scss": "^2.0.0",
     "react-dev-utils": "^7.0.1",
@@ -96,7 +88,15 @@
   },
   "babel": {
     "plugins": [
-      "transform-class-properties"
+      "transform-class-properties",
+      [
+        "styled-components",
+        {
+          "ssr": true,
+          "displayName": true,
+          "preprocess": false
+        }
+      ]
     ],
     "presets": [
       "next/babel",

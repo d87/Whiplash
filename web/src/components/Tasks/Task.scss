@@ -4,8 +4,12 @@
 }
 
 
-.task {
+.taskListGrid {
+    display: grid;
+    grid-template-columns: 50px auto;
+}
 
+.task {
     margin-bottom: 10px;
 }
 
@@ -159,7 +163,6 @@ $pyellow: #cfad15;
 .taskButtons {
     grid-area: buttons;
     font-size: 26px;
-    // vertical-align: middle;
     line-height: 50px;
     color: #232323;
     padding-right: 15px;

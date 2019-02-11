@@ -159,9 +159,9 @@ export const zerofill = (value: number|string, n: number) => {
 }
 
 export function formatTimeHM(t : number): string{
-    const h = Math.floor(t / 3600)
+    let h = Math.floor(t / 3600)
     t = t - h*3600
-    // if (h >= 24) h = h - 24
+    h = h % 24
     const m =  Math.floor(t / 60)
     return `${h}:${zerofill(m,2)}`
 }

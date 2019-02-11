@@ -10,6 +10,7 @@ import { ITask, ITaskState, taskAdd, taskMerge, taskToggleFilter, taskExpand, ta
 import { createSelector } from 'reselect'
 import { AddButton } from './AddButton'
 import { TaskTimer } from './TaskTimer'
+import { Timeline } from '../Timeline/Timeline'
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { getTasks, subscribeToResets } from '../../api/api'
 import { MiniDaemon, getHoursFromSeconds, getMinutesFromSeconds } from '../../util'
@@ -64,17 +65,19 @@ export class TaskList extends React.Component<ITaskListProps,{}> {
                     </div> 
                 </div>
                 
-                
-                <section className="taskList">
-                    <Flipper flipKey={flipKey}>
-                        {activeTask && <TaskTimer flipId="Timer" {...activeTask}/>}
-                        {tasks.map(task =>
-                            <Flipped key={task._id} flipId={task._id}>
-                                {flippedProps => <Task flippedProps={flippedProps} task={task}/>}
-                            </Flipped>
-                        )}
-                    </Flipper>
-                </section>
+                <div className="taskListGrid">
+                    <Timeline />
+                    <section className="taskList">
+                        <Flipper flipKey={flipKey}>
+                            {activeTask && <TaskTimer flipId="Timer" {...activeTask}/>}
+                            {tasks.map(task =>
+                                <Flipped key={task._id} flipId={task._id}>
+                                    {flippedProps => <Task flippedProps={flippedProps} task={task}/>}
+                                </Flipped>
+                            )}
+                        </Flipper>
+                    </section>
+                </div>
             </div>
         )
     }

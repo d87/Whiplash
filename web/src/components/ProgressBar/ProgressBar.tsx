@@ -1,6 +1,7 @@
 import React from 'react';
 import { Dispatch } from 'redux'
 import { MiniDaemon, mulColor } from '../../util'
+import { isBrowser } from '../../../lib/isBrowser'
 // import styles from "./ProgressBar.sass"
 
 const getXY = (obj?: HTMLElement) => {
@@ -29,6 +30,7 @@ export interface IProgressBarProps {
     color?: string
     value?: number
     text?: string
+    orientation?: string
     onMouseDown?: (e: any) => void
 }
 
@@ -50,10 +52,10 @@ export class ProgressBar<P extends IProgressBarProps = IProgressBarProps, S = {}
         this.barStyleBase = {
             "height": "100%",
             "width": "100%",
-            "borderRadius": "3px",
+            "borderRadius": "5px",
             "background": color,
             "position": "absolute",
-            "bottom": "0px"
+            // "bottom": "0px"
         }
 
         this.textStyle = {
@@ -67,31 +69,31 @@ export class ProgressBar<P extends IProgressBarProps = IProgressBarProps, S = {}
         this.bgStyleBase = {
             "height": "100%",
             "width": "100%",
-            "borderRadius": "3px",
+            "borderRadius": "5px",
             "background": bgcolor,
             "position": "relative"
         }
 
         const orientation = props.orientation
-        const attachPoint = props.attachPoint
+        const attachPoint = props.attachPoint || "top"
 
         if (orientation === "vertical" && attachPoint === "top"){
-            this.barStyleBase.bottom = ""
+            this.barStyleBase.bottom = undefined
             this.barStyleBase.top = "0px"
             this.barStyleBase.left = "0px"
         } else {
             this.barStyleBase.bottom = "0px"
-            this.barStyleBase.top = ""
+            this.barStyleBase.top = undefined
             this.barStyleBase.left = "0px"
         }
     }
 
     render() {
-        const { value, color } = this.props
+        const { value, color, orientation } = this.props
         const { text } = this.props
 
         const bgStyle = this.bgStyleBase
-        const barStyle = { ...this.barStyleBase, width: value+"%" }
+        const barStyle = orientation === "vertical" ? { ...this.barStyleBase, height: value+"%" } : { ...this.barStyleBase, width: value+"%" }
         const textStyle = this.textStyle
 
         return (
@@ -172,6 +174,7 @@ interface IPeriodicProgressBarProps extends IProgressBarProps {
     startTime?: number
     duration?: number
     active?: boolean
+    interval?: number
     onComplete?: () => void
 }
 
@@ -189,24 +192,33 @@ export class PeriodicProgressBar extends ProgressBar<IPeriodicProgressBarProps, 
     constructor(props) {
         super(props);
 
-        this.startTime = props.startTime
-        this.duration = props.duration
+        const { startTime, duration, active } = this.props
+        this.startTime = startTime
+        this.duration = duration * 1000
+        this.active = active
+        
         this.onComplete = props.onComplete
         this.state = { progress: 0 }
     }
 
     componentWillMount() {
-        this.normalTimer = new MiniDaemon(null, this.update.bind(this),50, Infinity)
-        this.normalTimer.pause();
+        const interval = this.props.interval || 50
+        if (isBrowser) {
+            this.normalTimer = new MiniDaemon(null, this.update.bind(this), interval, Infinity)
+            this.normalTimer.pause();
+        }
+        this.update()
     }
 
     componentWillUnmount() {
-        this.normalTimer.pause()
+        if (isBrowser) {
+            this.normalTimer.pause()
+        }
     }
 
-    protected update() {
+    update() {
         if ( this.active !== true){
-            this.normalTimer.pause()
+            if (this.normalTimer) this.normalTimer.pause()
             this.setState({ progress: 0 })
             return 
         }
@@ -235,7 +247,7 @@ export class PeriodicProgressBar extends ProgressBar<IPeriodicProgressBarProps, 
         this.duration = duration * 1000
         this.active = active
 
-        if ( active === true){
+        if ( active === true && isBrowser){
             this.normalTimer.resume()
         }
 
