@@ -1,5 +1,5 @@
 import mongoose, { Error } from 'mongoose'
-import { Task, Todo } from './models'
+import { Task, TaskEvent, Todo } from './models'
 import {makeExecutableSchema} from 'graphql-tools'
 import gql from 'graphql-tag'
 import { withFilter } from 'graphql-subscriptions';
@@ -18,9 +18,11 @@ const typeDefs = [gql`
     type Query {
         task(_id: ID): Task
         tasks: [Task]
+        taskEvents: [TaskEvent]
         todo(_id: ID): Todo
         todos: [Todo]
     }
+    
 
     type Task {
         _id: ID!
@@ -43,6 +45,13 @@ const typeDefs = [gql`
 
         completedAt: Date
         createdAt: Date
+    }
+
+    type TaskEvent {
+        userID: ID
+        timestamp: Date
+        title: String
+        color: String
     }
 
     input TaskInput {
@@ -85,6 +94,7 @@ const typeDefs = [gql`
 
     type Subscription {
         updateTasks: [Task]
+        eventLog: TaskEvent
     }
 
     schema {
@@ -112,6 +122,10 @@ const resolvers = {
             const userID = context.user._id
             // const tasks = await 
             return Task.find({ userID })
+        },
+        taskEvents: async (root, args, context) => {
+            const userID = context.user._id
+            return TaskEvent.find({ userID })
         },
     },
     Date: {
@@ -189,7 +203,20 @@ const resolvers = {
             try {
                 const task = await Task.findById(id)
                 task.state = "completed"
-                task.completedAt = new Date()
+                const now = new Date()
+                task.completedAt = now
+
+                const event = new TaskEvent({
+                    eventType: "TASK_COMPLETE",
+                    userID: task.userID,
+                    timestamp: now,
+                    title: task.title,
+                    color: task.color
+                })
+                event.save()
+                logger.debug(`Publishing TASK_COMPLETE ${event.userID} ${event.title}`) 
+                pubsub.publish("TASK_COMPLETE", { targetUserID: event.userID, event: event })
+
                 return await task.save()
             } catch(err) {
                 logger.error(err)
@@ -237,6 +264,21 @@ const resolvers = {
             subscribe: // (_, args) => pubsub.asyncIterator("TASKS_UPDATE")
                 withFilter(
                     () => pubsub.asyncIterator("TASKS_UPDATE"),
+                    // payload from pubsub event, variables from client query
+                    (payload, variables, context, info) => {
+                        if (typeof payload === "undefined") return false // why is it undefined?
+                        return payload.targetUserID === context.userID;
+                    }
+                )
+        },
+        eventLog: {
+            resolve: (payload, variables, context, info) => {
+                logger.debug(`TASK_COMPLETE event ${payload}`)
+                return payload.event
+            },
+            subscribe: // (_, args) => pubsub.asyncIterator("TASKS_UPDATE")
+                withFilter(
+                    () => pubsub.asyncIterator("TASK_COMPLETE"),
                     // payload from pubsub event, variables from client query
                     (payload, variables, context, info) => {
                         if (typeof payload === "undefined") return false // why is it undefined?

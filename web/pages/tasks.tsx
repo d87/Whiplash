@@ -3,8 +3,6 @@ import { Layout } from "../src/components/Layout/Layout"
 import App from "../src/components/App/App"
 // import { withApollo } from "react-apollo";
 import { BrowserRouter, Router } from "react-router-dom"
-import { history } from "../src/history"
-import { getTasks, subscribeToResets } from "../src/api/api"
 
 class Index extends React.Component {
     // static async getInitialProps(pageContext) {

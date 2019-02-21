@@ -12,7 +12,7 @@ import { AddButton } from './AddButton'
 import { TaskTimer } from './TaskTimer'
 import { Timeline } from '../Timeline/Timeline'
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
-import { getTasks, subscribeToResets } from '../../api/api'
+import { getTasks, resetSubscriptionQuery, eventSubscriptionQuery } from '../../api/api'
 import { MiniDaemon, getHoursFromSeconds, getMinutesFromSeconds } from '../../util'
 import { getStore } from '../../store'
 import './Task.scss'
@@ -31,6 +31,8 @@ interface ITaskListProps {
 }
 
 export class TaskList extends React.Component<ITaskListProps,{}> {
+    resetSubscription: ZenObservable.Subscription
+
     componentDidMount() {
         getTasks()
             .then(response => {
@@ -42,8 +44,9 @@ export class TaskList extends React.Component<ITaskListProps,{}> {
             .catch(err => console.error(err))
         
         const dispatch = this.props.dispatch
-        const subscriptionObserver = subscribeToResets()
-        subscriptionObserver.subscribe({
+
+
+        this.resetSubscription = resetSubscriptionQuery().subscribe({
             next(message) {
                 const updatedTasks = message.data.updateTasks
                 console.log("observer got data", updatedTasks)
@@ -51,6 +54,10 @@ export class TaskList extends React.Component<ITaskListProps,{}> {
             },
             error(err) { console.error('err', err); },
         });
+    }
+
+    componentWillUnmount() {
+        this.resetSubscription.unsubscribe()
     }
 
     render() {
@@ -178,8 +185,8 @@ const refresher = new MiniDaemon(null, () => {
     if (newTasksAmount > currentTasksAmount) {
         store.dispatch(playSound("mgs"))
     }
-// }, 10*60*1000)
-}, 15*1000)
+}, 10*60*1000)
+// }, 15*1000)
 // refresher.start()
 
 const mapStateToProps = (state, props) => {

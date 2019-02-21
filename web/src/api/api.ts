@@ -4,13 +4,15 @@ import { HttpLink } from "apollo-link-http"
 import { WebSocketLink } from 'apollo-link-ws'
 import { ApolloLink, concat, split } from "apollo-link"
 import { getMainDefinition } from 'apollo-utilities';
-import { InMemoryCache } from "apollo-cache-inmemory"
+import { InMemoryCache, NormalizedCacheObject } from "apollo-cache-inmemory"
 import { SubscriptionClient } from "subscriptions-transport-ws";
 import { getBearerToken } from "../auth/auth"
 import { ITask, taskMerge } from "../components/Tasks/TaskActions"
+import { ITaskEvent } from "../components/Timeline/Timeline"
+
 import { store } from "../store"
 
-import { GetTasks, UpdateTasks, NewTask, SaveTask, CompleteTask, UncompleteTask, AddProgress } from './task.gql'
+import { GetTasks, GetTaskEvents, UpdateTasks, EventLog, NewTask, SaveTask, CompleteTask, UncompleteTask, AddProgress } from './task.gql'
 
 import config from "../config"
 import fetch from "cross-fetch"
@@ -88,7 +90,7 @@ if (isBrowser) {
 //     ssrMode: !isBrowser
 // })
 
-let apolloClient = null
+let apolloClient: ApolloClient<NormalizedCacheObject> = null
 
 
 function create (initialState) {
@@ -124,13 +126,26 @@ export const getTasks = (): Promise<ApolloQueryResult<{ tasks: Array<Partial<ITa
     })
 }
 
+export const getTaskEvents = (): Promise<ApolloQueryResult<{ taskEvents: ITaskEvent[] }>> => {
+    return apolloClient.query({
+        query: GetTaskEvents
+    })
+}
+
 
 // https://github.com/apollographql/subscriptions-transport-ws
-export const subscribeToResets = () => {
+export const resetSubscriptionQuery = () => {
     return apolloClient.subscribe({
         query: UpdateTasks,
     })
 }
+
+export const eventSubscriptionQuery = () => {
+    return apolloClient.subscribe({
+        query: EventLog,
+    })
+}
+
 if (isBrowser) {
     
 

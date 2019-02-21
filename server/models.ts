@@ -71,7 +71,7 @@ const TaskSchema = new mongoose.Schema(
  *  is_new - set on client side if created_at is less than 1-2 days
  *  priority: { type: Number, default: 1 },
  *      - 4 red: urgent & important
- *      - 3 orange: important
+ *      - 3 orange: important   
  *      - 2 yellow: urgent & not important
  *      - 1 green: macro / non-urgent semi-important?
  *      - 0 grey?
@@ -84,6 +84,35 @@ const TaskSchema = new mongoose.Schema(
 // TaskSchema.methods.reset = () => {};
 
 export const Task = mongoose.model<ITaskModel>("Task", TaskSchema);
+
+
+
+export interface ITaskEvent {
+    eventType: string
+    userID: string
+    timestamp: Date
+    title: string
+    color: string
+}
+
+export interface ITaskEventModel extends ITaskEvent, mongoose.Document{}
+
+const TaskEventSchema = new mongoose.Schema(
+    {
+        eventType: { type: String, required: true },
+        userID: { type: mongoose.Schema.Types.ObjectId, ref: "User", index: true, required: true },
+        timestamp: { type: Date, required: true, index: true, expires: 48*3600 },
+        // expires attr on Date in mongoose creates TTL index in mongo
+        title: { type: String, trim: true },
+        color: { type: String, default: "" }
+    },
+    {
+        collection: "task_eventlog",
+    }
+)
+export const TaskEvent = mongoose.model<ITaskEventModel>("TaskEvent", TaskEventSchema);
+
+
 
 const TodoSchema = new mongoose.Schema(
     {

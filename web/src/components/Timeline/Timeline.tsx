@@ -6,63 +6,25 @@ import { mulColor, formatTimeHM } from "../../util"
 import "./Timeline.scss"
 import styled from "styled-components"
 import { isBrowser } from "../../../lib/isBrowser"
-const rowHeight = 15
+import { getTaskEvents, eventSubscriptionQuery } from '../../api/api'
 
-// const TaskFieldAlt = ({ startTime, duration, color, title }) => {
-//     const startHours = startTime / 1800
-//     const durationHours = duration / 1800
+const StyledEventMark = styled.div`
+    position: absolute;
 
-//     const width = 160
-//     const height = durationHours*rowHeight
-//     const style = {
-//         position: "absolute",
-//         left: 0,
-//         top: rowHeight*startHours,
-//         height: height,
-//         width: width,
-//         // opacity: 0.1,
-//         backgroundColor: mulColor(color, 0.4),
-//         borderTopWidth: "2px",
-//         borderBottomWidth: 0,
-//         borderLeftWidth: 0,
-//         borderRightWidth: 0,
-//         borderStyle: "solid",
-//         borderColor: color,
-//     }
+    height: 2px;
+    width: 2px;
+    background-color: #FFFFFF;
+    transform: translate(-35%, -50%);
+    border-radius: 10px;
+    z-index: 2;
+`
+const EventMark = (props) => {
+    const s = props.startTime
+    const elapsed = props.event.timestamp - s
+    const p = (elapsed/props.duration*100).toFixed(1)
+    return <StyledEventMark style={{top: p+"%"}}/>
+}
 
-//     const textStyle = {
-//         padding: 5,
-//         color: color,
-//         textAlign: "center",
-//         fontWeight: "bold",
-//         width: "100%",
-//         position: "absolute",
-//         left: "50%",
-//         top: "50%",
-//         transform: "translate(-50%, -50%)",
-//         // backgroundColor: "#000"
-//         // textShadowColor: "#000000",
-//         // textShadowOffset: {width: -2, height: 2},
-//         // textShadowRadius: 30
-//     }
-
-//     return (
-//         <div style={style}>
-//             <svg width={ width } height={ height } viewBox={[0, 0, width, height]}>
-
-//                 <defs>
-//                     <pattern id="hatchPattern" patternTransform="rotate(45 0 0)" width="4" height="4"
-//                         patternUnits="userSpaceOnUse">
-//                         <line x1={0} y1={0} x2={0} y2={20} style={{ stroke: "#000000", strokeWidth:5 }} />
-//                     </pattern>
-//                 </defs>
-
-//                 <rect width={width} height={height-3} fill="url(#hatchPattern)"/>
-//             </svg>
-//             <span style={textStyle}>{title}</span>
-//         </div>
-//     )
-// }
 
 const ScheduleRow = styled.div`
     grid-column: 2;
@@ -80,13 +42,34 @@ const ScheduleTimestamp = styled.span`
     right: 5px;
 `
 
+export interface ITaskEvent {
+    timestamp: number
+    title: string
+    color: string
+}
+
+interface ITimelineProps {
+    dispatch: Dispatch
+    // events: ITaskEvent[]
+}
+
+interface ITimelineState {
+    events: ITaskEvent[]
+    active: boolean
+    startTime: number
+}
+
 const lines = [...Array(20).keys()]
+const workdayDuration = 20 * 3600
 const dayStartHour = 8
-export class Timeline extends React.Component {
+class Timeline extends React.Component<ITimelineProps, ITimelineState> {
     dayStartTimestamp: number
     recheckTimeout: NodeJS.Timeout
-    state: object = {
+    eventSubscription: ZenObservable.Subscription
+
+    state: ITimelineState = {
         active: true,
+        events: [],
         startTime: 0
     }
     constructor(props) {
@@ -102,9 +85,39 @@ export class Timeline extends React.Component {
             this.recheckTimeout = setTimeout(this.updateDayStartTimestamp, untilNextDay)
         }
     }
+
+    addEvent = (event) => {
+        this.setState({
+            events: [...this.state.events, event]
+        })
+    }
+
+    componentDidMount() {
+        if (isBrowser) {
+            const self = this
+            this.eventSubscription = eventSubscriptionQuery().subscribe({
+                next(message) {
+                    const event = message.data.eventLog
+                    console.log("eventlog observer got data", event)
+                    self.addEvent(event)
+                },
+                error(err) { console.error('err', err); },
+            });
+        }
+
+        getTaskEvents()
+            .then(response => {
+                this.setState({
+                    events: response.data.taskEvents
+                })
+            })
+            .catch(err => console.error(err))
+    }
+
     componentWillUnmount() {
         if (isBrowser) {
             clearTimeout(this.recheckTimeout)
+            this.eventSubscription.unsubscribe()
         }
     }
 
@@ -126,18 +139,27 @@ export class Timeline extends React.Component {
     }
 
     render() {
-        const workdayDuration = 20 * 3600
+        const events = this.state.events
+        const dayStartTimestamp = this.state.startTime
         return (
             <div className="timelineGrid">
                 <div className="timelineBar">
                     <PeriodicProgressBar
                         active={true}
                         orientation="vertical"
-                        startTime={this.state.startTime}
+                        startTime={dayStartTimestamp}
                         duration={workdayDuration}
                         interval={10000}
                         color={"#880088"}
                     />
+                    <div>
+                        {events
+                            .filter(event => event.timestamp >= dayStartTimestamp)
+                            .map( (event) => (
+                                <EventMark key={event.timestamp} event={event} startTime={dayStartTimestamp} duration={workdayDuration*1000}>
+                                </EventMark>
+                        ))}
+                    </div>
                 </div>
 
                 {lines.map(index => (
@@ -152,3 +174,26 @@ export class Timeline extends React.Component {
         )
     }
 }
+
+
+// const mapStateToProps = (state, props) => {
+//     return {
+//         events: state.tasks.events,
+//     }
+// }
+
+// const mapDispatchToProps = (dispatch: Dispatch) => {
+//     return {
+//         dispatch,
+
+//     }
+// }
+
+
+
+const ConnectedTimeline = Timeline // connect(mapStateToProps, mapDispatchToProps)(Timeline)
+
+export {
+    ConnectedTimeline as Timeline
+}
+export default ConnectedTimeline

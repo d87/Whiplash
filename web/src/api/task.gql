@@ -25,6 +25,12 @@ fragment taskProgressFields on Task {
     completedAt
 }
 
+fragment taskEventFields on TaskEvent {
+    title
+    timestamp
+    color
+}
+
 
 query GetTasks {
     tasks {
@@ -32,9 +38,21 @@ query GetTasks {
     }
 }
 
+query GetTaskEvents {
+    taskEvents {
+        ...taskEventFields
+    }
+}
+
 subscription UpdateTasks {
     updateTasks {
         ...taskProgressFields
+    }
+}
+
+subscription EventLog {
+    eventLog {
+        ...taskEventFields
     }
 }
 
