@@ -73,7 +73,7 @@ const makeNewDayStartTimestamp = () => {
 
 export const Timeline = (props) => {
     const [events, setEventsState] = useState([])
-    const [startTime, setStartTime] = useState(makeNewDayStartTimestamp())
+    const [startTime, setStartTime] = useState(makeNewDayStartTimestamp)
 
     const updateDayStartTimestamp = () => {
         const ts = makeNewDayStartTimestamp()
@@ -83,10 +83,9 @@ export const Timeline = (props) => {
 
     // setting a timeout to update startTime when next day begins
     useEffect(() => {
-        const ts = updateDayStartTimestamp()
         if (isBrowser) {
             const now = Date.now()
-            const nextDayStartTime = ts + 24 * 3600 * 1000
+            const nextDayStartTime = startTime + 24 * 3600 * 1000
             const untilNextDay = nextDayStartTime - now
             recheckTimeout = setTimeout(updateDayStartTimestamp, untilNextDay)
         }
@@ -101,17 +100,14 @@ export const Timeline = (props) => {
         setEventsState([...events, event])
     }
     
-    const fetchData = () => {
+    // fetching data and subscription hook
+    useEffect(() => {
         getTaskEvents()
             .then(response => {
                 setEventsState(response.data.taskEvents)
             })
             .catch(err => console.error(err))
-    }
 
-    // Data and subscription hook
-    useEffect(() => {
-        fetchData()
         if (isBrowser) eventSubscription = subscribeToEventLog(addEvent)
         
         return () => {
