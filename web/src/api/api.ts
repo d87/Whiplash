@@ -140,10 +140,19 @@ export const resetSubscriptionQuery = () => {
     })
 }
 
-export const eventSubscriptionQuery = () => {
+export const subscribeToEventLog = (callback: (event: ITaskEvent) => any) => {
     return apolloClient.subscribe({
         query: EventLog,
-    })
+    }).subscribe({
+        next(message) {
+            const event = message.data.eventLog
+            console.log("eventlog observer got data", event)
+            return callback(event)
+        },
+        error(err) {
+            console.error('err', err);
+        },
+    });
 }
 
 if (isBrowser) {

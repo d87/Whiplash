@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState, useEffect } from "react"
 import { Dispatch } from "redux"
 import { connect } from "react-redux"
 import { PeriodicProgressBar } from "../ProgressBar/ProgressBar"
@@ -6,7 +6,7 @@ import { mulColor, formatTimeHM } from "../../util"
 import "./Timeline.scss"
 import styled from "styled-components"
 import { isBrowser } from "../../../lib/isBrowser"
-import { getTaskEvents, eventSubscriptionQuery } from '../../api/api'
+import { getTaskEvents, subscribeToEventLog } from '../../api/api'
 
 const StyledEventMark = styled.div`
     position: absolute;
@@ -48,152 +48,106 @@ export interface ITaskEvent {
     color: string
 }
 
-interface ITimelineProps {
-    dispatch: Dispatch
-    // events: ITaskEvent[]
-}
-
-interface ITimelineState {
-    events: ITaskEvent[]
-    active: boolean
-    startTime: number
-}
-
 const lines = [...Array(20).keys()]
 const workdayDuration = 20 * 3600
 const dayStartHour = 8
-class Timeline extends React.Component<ITimelineProps, ITimelineState> {
-    dayStartTimestamp: number
-    recheckTimeout: NodeJS.Timeout
-    eventSubscription: ZenObservable.Subscription
 
-    state: ITimelineState = {
-        active: true,
-        events: [],
-        startTime: 0
-    }
-    constructor(props) {
-        super(props)
+let recheckTimeout: NodeJS.Timeout
+let eventSubscription: ZenObservable.Subscription
+
+const makeNewDayStartTimestamp = () => {
+    const dayStart = new Date()
+    dayStart.setHours(dayStartHour)
+    dayStart.setMinutes(0)
+    dayStart.setSeconds(0)
+
+    let ts = dayStart.getTime()
+
+    const date = new Date()
+    if (date.getHours() < dayStartHour) {
+        ts -= 24 * 3600 * 1000
     }
 
-    componentWillMount() {
-        const dayStartTimestamp = this.updateDayStartTimestamp()
+    return ts
+}
+
+export const Timeline = (props) => {
+    const [events, setEventsState] = useState([])
+    const [startTime, setStartTime] = useState(makeNewDayStartTimestamp())
+
+    const updateDayStartTimestamp = () => {
+        const ts = makeNewDayStartTimestamp()
+        setStartTime(ts)
+        return ts
+    }
+
+    // setting a timeout to update startTime when next day begins
+    useEffect(() => {
+        const ts = updateDayStartTimestamp()
         if (isBrowser) {
             const now = Date.now()
-            const nextDayStartTime = dayStartTimestamp + 24 * 3600 * 1000
+            const nextDayStartTime = ts + 24 * 3600 * 1000
             const untilNextDay = nextDayStartTime - now
-            this.recheckTimeout = setTimeout(this.updateDayStartTimestamp, untilNextDay)
-        }
-    }
-
-    addEvent = (event) => {
-        this.setState({
-            events: [...this.state.events, event]
-        })
-    }
-
-    componentDidMount() {
-        if (isBrowser) {
-            const self = this
-            this.eventSubscription = eventSubscriptionQuery().subscribe({
-                next(message) {
-                    const event = message.data.eventLog
-                    console.log("eventlog observer got data", event)
-                    self.addEvent(event)
-                },
-                error(err) { console.error('err', err); },
-            });
+            recheckTimeout = setTimeout(updateDayStartTimestamp, untilNextDay)
         }
 
+        // cleanup
+        return () => {
+            clearTimeout(recheckTimeout)
+        }
+    }, [])
+
+    const addEvent = (event: ITaskEvent) => {
+        setEventsState([...events, event])
+    }
+    
+    const fetchData = () => {
         getTaskEvents()
             .then(response => {
-                this.setState({
-                    events: response.data.taskEvents
-                })
+                setEventsState(response.data.taskEvents)
             })
             .catch(err => console.error(err))
     }
 
-    componentWillUnmount() {
-        if (isBrowser) {
-            clearTimeout(this.recheckTimeout)
-            this.eventSubscription.unsubscribe()
+    // Data and subscription hook
+    useEffect(() => {
+        fetchData()
+        if (isBrowser) eventSubscription = subscribeToEventLog(addEvent)
+        
+        return () => {
+            if (isBrowser) eventSubscription.unsubscribe()
         }
-    }
+    }, [])
 
-    updateDayStartTimestamp = () => {
-        const dayStart = new Date()
-        dayStart.setHours(dayStartHour)
-        dayStart.setMinutes(0)
-        dayStart.setSeconds(0)
-
-        let dayStartTimestamp = dayStart.getTime()
-
-        const date = new Date()
-        if (date.getHours() < dayStartHour) {
-            dayStartTimestamp -= 24 * 3600 * 1000
-        }
-
-        this.setState({ startTime: dayStartTimestamp })
-        return dayStartTimestamp
-    }
-
-    render() {
-        const events = this.state.events
-        const dayStartTimestamp = this.state.startTime
-        return (
-            <div className="timelineGrid">
-                <div className="timelineBar">
-                    <PeriodicProgressBar
-                        active={true}
-                        orientation="vertical"
-                        startTime={dayStartTimestamp}
-                        duration={workdayDuration}
-                        interval={10000}
-                        color={"#880088"}
-                    />
-                    <div>
-                        {events
-                            .filter(event => event.timestamp >= dayStartTimestamp)
-                            .map( (event) => (
-                                <EventMark key={event.timestamp} event={event} startTime={dayStartTimestamp} duration={workdayDuration*1000}>
-                                </EventMark>
-                        ))}
-                    </div>
+    return (
+        <div className="timelineGrid">
+            <div className="timelineBar">
+                <PeriodicProgressBar
+                    active={true}
+                    orientation="vertical"
+                    startTime={startTime}
+                    duration={workdayDuration}
+                    interval={10000}
+                    color={"#880088"}
+                />
+                <div>
+                    {events
+                        .filter(event => event.timestamp >= startTime)
+                        .map( (event) => (
+                            <EventMark key={event.timestamp} event={event} startTime={startTime} duration={workdayDuration*1000}>
+                            </EventMark>
+                    ))}
                 </div>
-
-                {lines.map(index => (
-                    <ScheduleRow key={index} style={{ gridRow: index + 1 }}>
-                        <ScheduleTimestamp>{formatTimeHM(dayStartHour * 3600 + (index + 1) * 3600)}</ScheduleTimestamp>
-                    </ScheduleRow>
-                ))}
-                {/* {tasks.map(task =>
-                <TaskFieldAlt key={task.id} startTime={task.suggestedStartTime} duration={task.taskLength} title={task.title} color={task.color} />
-            )} */}
             </div>
-        )
-    }
+
+            {lines.map(index => (
+                <ScheduleRow key={index} style={{ gridRow: index + 1 }}>
+                    <ScheduleTimestamp>{formatTimeHM(dayStartHour * 3600 + (index + 1) * 3600)}</ScheduleTimestamp>
+                </ScheduleRow>
+            ))}
+            {/* {tasks.map(task =>
+            <TaskFieldAlt key={task.id} startTime={task.suggestedStartTime} duration={task.taskLength} title={task.title} color={task.color} />
+        )} */}
+        </div>
+    )
 }
-
-
-// const mapStateToProps = (state, props) => {
-//     return {
-//         events: state.tasks.events,
-//     }
-// }
-
-// const mapDispatchToProps = (dispatch: Dispatch) => {
-//     return {
-//         dispatch,
-
-//     }
-// }
-
-
-
-const ConnectedTimeline = Timeline // connect(mapStateToProps, mapDispatchToProps)(Timeline)
-
-export {
-    ConnectedTimeline as Timeline
-}
-export default ConnectedTimeline
