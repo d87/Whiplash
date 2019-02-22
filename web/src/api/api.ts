@@ -9,9 +9,6 @@ import { SubscriptionClient } from "subscriptions-transport-ws";
 import { getBearerToken } from "../auth/auth"
 import { ITask, taskMerge } from "../components/Tasks/TaskActions"
 import { ITaskEvent } from "../components/Timeline/Timeline"
-
-import { store } from "../store"
-
 import { GetTasks, GetTaskEvents, UpdateTasks, EventLog, NewTask, SaveTask, CompleteTask, UncompleteTask, AddProgress } from './task.gql'
 
 import config from "../config"
@@ -146,7 +143,6 @@ export const subscribeToEventLog = (callback: (event: ITaskEvent) => any) => {
     }).subscribe({
         next(message) {
             const event = message.data.eventLog
-            console.log("eventlog observer got data", event)
             return callback(event)
         },
         error(err) {

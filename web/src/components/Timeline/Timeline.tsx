@@ -139,9 +139,6 @@ export const Timeline = (props) => {
                     <ScheduleTimestamp>{formatTimeHM(dayStartHour * 3600 + (index + 1) * 3600)}</ScheduleTimestamp>
                 </ScheduleRow>
             ))}
-            {/* {tasks.map(task =>
-            <TaskFieldAlt key={task.id} startTime={task.suggestedStartTime} duration={task.taskLength} title={task.title} color={task.color} />
-        )} */}
         </div>
     )
 }

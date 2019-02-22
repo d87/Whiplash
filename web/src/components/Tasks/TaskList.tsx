@@ -1,17 +1,13 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import Task from './Task';
-import gql from "graphql-tag";
-import { ApolloClient } from "apollo-client";
 import { withApollo } from "react-apollo";
 import { Dispatch } from 'redux'
 import { Flipper, Flipped } from 'react-flip-toolkit';
 import { ITask, ITaskState, taskAdd, taskMerge, taskToggleFilter, taskExpand, taskEdit, taskSaveSuccess, taskSaveFailed, taskForceDateCheck, taskToggleFutureTasks } from './TaskActions'
 import { createSelector } from 'reselect'
-import { AddButton } from './AddButton'
 import { TaskTimer } from './TaskTimer'
 import { Timeline } from '../Timeline/Timeline'
-import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { getTasks, resetSubscriptionQuery } from '../../api/api'
 import { MiniDaemon, getHoursFromSeconds, getMinutesFromSeconds } from '../../util'
 import { getStore } from '../../store'
@@ -221,4 +217,4 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
 
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(withApollo(TaskList))
+export default connect(mapStateToProps, mapDispatchToProps)(TaskList)

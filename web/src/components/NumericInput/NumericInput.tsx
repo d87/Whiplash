@@ -57,7 +57,7 @@ export class NumericInput extends React.Component<INumeritInputProps> {
 
     private incrementValue(delta: number) {
         // pretend we're incrementing from 0 if currValue is empty
-        const currValue = parseInt(this.props.value || "0", 10);
+        const currValue = parseInt((this.props.value as string) || "0", 10);
         let nextValue = currValue + delta;
         const { min, max, rollover } = this.props
         if (max !== undefined && nextValue > max)
