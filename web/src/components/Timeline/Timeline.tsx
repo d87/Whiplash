@@ -10,8 +10,8 @@ import { getTaskEvents, subscribeToEventLog } from '../../api/api'
 
 const StyledEventMark = styled.div`
     position: absolute;
-    font-size: 0.8em;
-    transform: translate(-30%, -50%);
+    font-size: 0.6em;
+    transform: translate(-20%, -50%) scale(1.5, 1);
     border-radius: 10px;
     z-index: 2;
 `
@@ -21,7 +21,6 @@ const EventMark = (props) => {
     const p = (elapsed/props.duration*100).toFixed(1)
     return <StyledEventMark className="material-icons" style={{ top: p+"%", color: props.color }}>label</StyledEventMark>
 }
-
 
 const ScheduleRow = styled.div`
     grid-column: 2;
@@ -72,36 +71,28 @@ export const Timeline = (props) => {
     const [events, setEventsState] = useState([])
     const [startTime, setStartTime] = useState(makeNewDayStartTimestamp)
 
-    const updateDayStartTimestamp = () => {
-        const ts = makeNewDayStartTimestamp()
-        setStartTime(ts)
-        return ts
-    }
-
     // setting a timeout to update startTime when next day begins
     useEffect(() => {
         if (isBrowser) {
             const now = Date.now()
             const nextDayStartTime = startTime + 24 * 3600 * 1000
             const untilNextDay = nextDayStartTime - now
-            recheckTimeout = setTimeout(updateDayStartTimestamp, untilNextDay)
+            recheckTimeout = setTimeout(() => {
+                setStartTime(makeNewDayStartTimestamp())
+            }, untilNextDay)
         }
 
         // cleanup
         return () => {
             clearTimeout(recheckTimeout)
         }
-    }, [])
+    }, [startTime])
 
-    const prevEventsRef = useRef()
+    const prevEventsRef = useRef(events)
     useEffect(() => {
         prevEventsRef.current = events
-    })
+    }, [events])
 
-    const addEvent = (event: ITaskEvent) => {
-        setEventsState([...prevEventsRef.current, event])
-    }
-    
     // fetching data and subscription hook
     useEffect(() => {
         getTaskEvents()
@@ -110,7 +101,12 @@ export const Timeline = (props) => {
             })
             .catch(err => console.error(err))
 
-        if (isBrowser) eventSubscription = subscribeToEventLog(addEvent)
+        if (isBrowser) {
+            const addEvent = (event: ITaskEvent) => {
+                setEventsState([...prevEventsRef.current, event])
+            }
+            eventSubscription = subscribeToEventLog(addEvent)
+        }
         
         return () => {
             if (isBrowser) eventSubscription.unsubscribe()

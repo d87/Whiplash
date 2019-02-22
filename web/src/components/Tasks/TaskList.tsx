@@ -12,7 +12,7 @@ import { AddButton } from './AddButton'
 import { TaskTimer } from './TaskTimer'
 import { Timeline } from '../Timeline/Timeline'
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
-import { getTasks, resetSubscriptionQuery, eventSubscriptionQuery } from '../../api/api'
+import { getTasks, resetSubscriptionQuery } from '../../api/api'
 import { MiniDaemon, getHoursFromSeconds, getMinutesFromSeconds } from '../../util'
 import { getStore } from '../../store'
 import './Task.scss'
@@ -49,7 +49,6 @@ export class TaskList extends React.Component<ITaskListProps,{}> {
         this.resetSubscription = resetSubscriptionQuery().subscribe({
             next(message) {
                 const updatedTasks = message.data.updateTasks
-                console.log("observer got data", updatedTasks)
                 dispatch(taskMerge(updatedTasks))
             },
             error(err) { console.error('err', err); },

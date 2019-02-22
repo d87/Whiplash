@@ -19,12 +19,12 @@ interface ITaskTimerProps extends ITask {
     onStop: (id) => void
 }
 
-const ProgressRing = React.memo(({ color, value }) => (
+const ProgressRing = ({ color, value }) => (
     <svg viewBox="0 0 100 100">
         <path d="M 50,50 m 0,-46.5 a 46.5,46.5 0 1 1 0,93 a 46.5,46.5 0 1 1 0,-93" stroke="#222222" strokeWidth="1" fillOpacity="0"></path>
         <path d="M 50,50 m 0,-46.5 a 46.5,46.5 0 1 1 0,93 a 46.5,46.5 0 1 1 0,-93" stroke={ color } strokeWidth="7" fillOpacity="0" strokeDasharray="292.209, 292.209" strokeDashoffset={ 292.209 - 292.209*value }></path>
     </svg>
-))
+)
 
 const TimeText = ({ time, formatFunc }) => <span>{ formatFunc(time) }</span>
 
