@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useRef, useEffect } from "react"
 import { Dispatch } from "redux"
 import { connect } from "react-redux"
 import { PeriodicProgressBar } from "../ProgressBar/ProgressBar"
@@ -10,11 +10,8 @@ import { getTaskEvents, subscribeToEventLog } from '../../api/api'
 
 const StyledEventMark = styled.div`
     position: absolute;
-
-    height: 2px;
-    width: 2px;
-    background-color: #FFFFFF;
-    transform: translate(-35%, -50%);
+    font-size: 0.8em;
+    transform: translate(-30%, -50%);
     border-radius: 10px;
     z-index: 2;
 `
@@ -22,7 +19,7 @@ const EventMark = (props) => {
     const s = props.startTime
     const elapsed = props.event.timestamp - s
     const p = (elapsed/props.duration*100).toFixed(1)
-    return <StyledEventMark style={{top: p+"%"}}/>
+    return <StyledEventMark className="material-icons" style={{ top: p+"%", color: props.color }}>label</StyledEventMark>
 }
 
 
@@ -96,8 +93,13 @@ export const Timeline = (props) => {
         }
     }, [])
 
+    const prevEventsRef = useRef()
+    useEffect(() => {
+        prevEventsRef.current = events
+    })
+
     const addEvent = (event: ITaskEvent) => {
-        setEventsState([...events, event])
+        setEventsState([...prevEventsRef.current, event])
     }
     
     // fetching data and subscription hook
@@ -130,7 +132,7 @@ export const Timeline = (props) => {
                     {events
                         .filter(event => event.timestamp >= startTime)
                         .map( (event) => (
-                            <EventMark key={event.timestamp} event={event} startTime={startTime} duration={workdayDuration*1000}>
+                            <EventMark key={event.timestamp} event={event} color={event.color} startTime={startTime} duration={workdayDuration*1000}>
                             </EventMark>
                     ))}
                 </div>

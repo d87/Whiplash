@@ -170,7 +170,7 @@ export function formatTimeMS(t : number) {
     if (t >= 3600) return formatTimeHM(t)
 
     const m =  Math.floor(t / 60)
-    const s =  t % 60
+    const s =  Math.floor(t % 60)
     return `${m}:${zerofill(s,2)}`
 }
 
