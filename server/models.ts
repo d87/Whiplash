@@ -2,6 +2,7 @@ import './db';
 import crypto from 'crypto'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import { pubsub } from './subscriptionServer'
 import mongoose, { Document, Schema, Model, model} from "mongoose";
 
 
@@ -24,6 +25,8 @@ export interface ITask {
     completedAt: Date
     createdAt: Date
     updatedAt: Date
+
+    createTaskCompleteEvent: (time: Date) => void
 }
 
 export interface ITaskModel extends ITask, mongoose.Document{}
@@ -58,6 +61,18 @@ const TaskSchema = new mongoose.Schema(
     }
 );
 
+
+TaskSchema.methods.createTaskCompleteEvent = function(time: Date) {
+    const event = new TaskEvent({
+        eventType: "TASK_COMPLETE",
+        userID: this.userID,
+        timestamp: time,
+        title: this.title,
+        color: this.color
+    })
+    event.save()
+    pubsub.publish("TASK_COMPLETE", { targetUserID: event.userID, event: event })
+}
 
 /*  start_time 
  *      - if present, shold be projected on the timeline

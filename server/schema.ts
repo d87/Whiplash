@@ -205,17 +205,7 @@ const resolvers = {
                 task.state = "completed"
                 const now = new Date()
                 task.completedAt = now
-
-                const event = new TaskEvent({
-                    eventType: "TASK_COMPLETE",
-                    userID: task.userID,
-                    timestamp: now,
-                    title: task.title,
-                    color: task.color
-                })
-                event.save()
-                logger.debug(`Publishing TASK_COMPLETE ${event.userID} ${event.title}`) 
-                pubsub.publish("TASK_COMPLETE", { targetUserID: event.userID, event: event })
+                task.createTaskCompleteEvent(now)
 
                 return await task.save()
             } catch(err) {
@@ -244,7 +234,10 @@ const resolvers = {
                 task.progress += args.time
                 if (task.progress >= task.duration) {
                     task.state = "completed"
-                    task.completedAt = new Date()
+                    const now = new Date()
+                    task.completedAt = now
+
+                    task.createTaskCompleteEvent(now)
                 }
                 return await task.save()
             } catch(err) {

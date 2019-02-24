@@ -67,6 +67,26 @@ const makeNewDayStartTimestamp = () => {
     return ts
 }
 
+
+const attemptShift = (events, i) => {
+    const a = events[i]
+    const b = events[i+1]
+    if (b === undefined) return
+    console.log(a.title, b.title, a.timestamp - b.timestamp)
+    if (a.timestamp - b.timestamp < 13*60*1000) {
+        console.log("shifting")
+        attemptShift(events, i+1)
+        b.timestamp = a.timestamp + 13*60*1000
+    }
+}
+const spaceOutCloseMarks = (events: ITaskEvent[]) => {
+    const sortedEvents = events.sort((a,b) => (b.timestamp - a.timestamp))
+    for(let i=0;i < sortedEvents.length-1;i++) {
+        attemptShift(events, i)
+    }
+    return sortedEvents
+}
+
 export const Timeline = (props) => {
     const [events, setEventsState] = useState([])
     const [startTime, setStartTime] = useState(makeNewDayStartTimestamp)
@@ -97,7 +117,8 @@ export const Timeline = (props) => {
     useEffect(() => {
         getTaskEvents()
             .then(response => {
-                setEventsState(response.data.taskEvents)
+                const newEventsState = response.data.taskEvents
+                setEventsState(spaceOutCloseMarks(newEventsState))
             })
             .catch(err => console.error(err))
 

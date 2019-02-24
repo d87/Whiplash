@@ -1,4 +1,7 @@
 {
   "private": true,
-  "workspaces": ["whiplash-api", "whiplash"]
+  "workspaces": [
+    "whiplash-api",
+    "whiplash"
+  ]
 }
