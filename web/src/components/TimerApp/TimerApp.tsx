@@ -6,6 +6,7 @@ import { playSound } from  '../SoundPlayer/SoundPlayer'
 import { ITimer, timerStart, timerStartNext, timerFinish, timerSetDuration, timerResetAll, timerResetCounter } from  './TimerAppActions'
 import './TimerApp.scss'
 import { NumericInput } from "../NumericInput/NumericInput"
+import { VolumeControl } from "../SoundPlayer/SoundPlayer"
 
 
 interface ITimerProps {
@@ -41,7 +42,7 @@ class TimerWithDuration extends React.Component<ITimerProps> {
 
     timerOnStart() {
         if (this.props.soundID) {
-            this.props.dispatch(playSound(this.props.soundID))
+            playSound(this.props.soundID)
         } 
     }
 
@@ -98,6 +99,7 @@ class TimerApp extends React.Component<ITimerAppProps> {
 
         return (
             <div>
+                <VolumeControl />
                 {timers.map(timer => (
                     <TimerWithDuration key={timer.id} {...timer} {...this.props} />
                 ))}

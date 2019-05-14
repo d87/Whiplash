@@ -5,7 +5,7 @@ import { schema } from "./schema"
 import { RedisPubSub } from 'graphql-redis-subscriptions';
 import { logger } from './logger'
 import { sessionParser } from './app'
-export const pubsub = new RedisPubSub();
+import { pubsub } from "./pubsub"
 
 export const startSubscriptionServer = (port: number) => {
     // Create WebSocket listener server

@@ -2,7 +2,7 @@ import './db';
 import crypto from 'crypto'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import { pubsub } from './subscriptionServer'
+import { pubsub } from "./pubsub"
 import mongoose, { Document, Schema, Model, model} from "mongoose";
 
 
@@ -176,7 +176,8 @@ const UserSchema = new mongoose.Schema(
         // roles: [{ type: String, enum: ['user', 'admin'] }],
         hash: String,
         // salt: String,
-        refreshTokenKey: String
+        refreshTokenKey: String,
+        telegramChatID: { type: Number }
     },
     {
         collection: "user",

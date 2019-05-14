@@ -3,7 +3,7 @@ import { Dispatch } from "../../store"
 import { ThunkDispatch } from "redux-thunk"
 import { connect } from "react-redux"
 import { createSelector } from "reselect"
-import Swipeable from "react-swipeable"
+import { Swipeable } from "react-swipeable"
 import { EditableTask } from './TaskEditableDisplay'
 
 

@@ -152,3 +152,25 @@ body {
     align-items: center;
     justify-content: center;
 }
+
+.flexRightAlign {
+    display: flex;
+    align-items: right;
+    justify-content: right;
+}
+
+
+.iconAlign_volume_down {
+    position: relative;
+    left: -0.08em;
+}
+
+.iconAlign_volume_mute {
+    position: relative;
+    left: -0.16em;
+}
+
+.iconAlign_volume_off {
+    position: relative;
+    left: 0em;
+}

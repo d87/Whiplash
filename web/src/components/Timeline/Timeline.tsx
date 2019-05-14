@@ -72,11 +72,9 @@ const attemptShift = (events, i) => {
     const a = events[i]
     const b = events[i+1]
     if (b === undefined) return
-    console.log(a.title, b.title, a.timestamp - b.timestamp)
     if (a.timestamp - b.timestamp < 13*60*1000) {
-        console.log("shifting")
         attemptShift(events, i+1)
-        b.timestamp = a.timestamp + 13*60*1000
+        b.timestamp = a.timestamp - 13*60*1000
     }
 }
 const spaceOutCloseMarks = (events: ITaskEvent[]) => {
@@ -87,7 +85,7 @@ const spaceOutCloseMarks = (events: ITaskEvent[]) => {
     return sortedEvents
 }
 
-export const Timeline = (props) => {
+export const Timeline: React.FC<{}> = (props) => {
     const [events, setEventsState] = useState([])
     const [startTime, setStartTime] = useState(makeNewDayStartTimestamp)
 
@@ -124,7 +122,8 @@ export const Timeline = (props) => {
 
         if (isBrowser) {
             const addEvent = (event: ITaskEvent) => {
-                setEventsState([...prevEventsRef.current, event])
+                const newEventsState = [...prevEventsRef.current, event]
+                setEventsState(spaceOutCloseMarks(newEventsState))
             }
             eventSubscription = subscribeToEventLog(addEvent)
         }

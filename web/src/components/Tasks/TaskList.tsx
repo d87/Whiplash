@@ -178,7 +178,7 @@ const refresher = new MiniDaemon(null, () => {
     store.dispatch(taskForceDateCheck())
     const newTasksAmount = storedTasksN
     if (newTasksAmount > currentTasksAmount) {
-        store.dispatch(playSound("mgs"))
+        playSound("mgs")
     }
 }, 10*60*1000)
 // }, 15*1000)

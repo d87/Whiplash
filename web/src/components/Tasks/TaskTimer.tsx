@@ -172,7 +172,7 @@ const ConnectedTaskTimer = connect(
     (dispatch) => ({
         onComplete(id, duration) {
             dispatch(taskStopAndAddProgress(id, duration))
-            dispatch(playSound("abolish"))
+            playSound("abolish")
         },
         onStop(id) {
             dispatch(taskStop(id))

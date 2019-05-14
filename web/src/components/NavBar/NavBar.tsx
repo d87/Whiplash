@@ -5,6 +5,7 @@ import { connect } from "react-redux"
 import Link from "next/link"
 import { history } from "../../history"
 import "./NavBar.scss"
+import { UserBadge } from "../UserBadge/UserBadge";
 
 class NavBar extends React.Component {
     render() {
@@ -31,6 +32,7 @@ class NavBar extends React.Component {
                 <label htmlFor="nav-toggle" className="nav-toggle-label">
                     <span className="material-icons iconOn largeText">menu</span>
                 </label>
+                <UserBadge/>
             </header>
         )
     }

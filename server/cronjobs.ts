@@ -1,14 +1,19 @@
 import { CronJob } from "cron"
-import { pubsub } from "./subscriptionServer"
+import { pubsub } from "./pubsub"
 import { Task, User, IUser, IUserModel, ITaskModel, ITask } from './models'
 import { eachLimit as asyncEachLimit } from 'async'
 import { logger } from './logger'
 
 const dayLength = 24 * 3600 * 1000
+const resetHour = 7
 
-const resetFunc = async () => {
+export const resetTasks = async () => {
     logger.info("Starting reset...")
-    const now = Date.now()
+    const d = new Date()
+    d.setHours(resetHour)
+    d.setMinutes(0)
+    d.setSeconds(0)
+    const todayResetTime = d.getTime()
     const users: IUser[] = await User.find()
 
     asyncEachLimit(users, 5, async (user) => {
@@ -24,7 +29,7 @@ const resetFunc = async () => {
                 if (task.state === "completed") {
                     if (task.resetMode === "inDays") {
                         const nDays = task.resetTime
-                        if (task.completedAt.getTime() < now - (nDays - 1) * dayLength) {
+                        if (task.completedAt.getTime() < todayResetTime - (nDays - 1) * dayLength) {
                             task.state = "active"
                             task.completedAt = null
                             isChanged = true
@@ -58,11 +63,11 @@ const resetFunc = async () => {
     })           
 }
 
-export const startDailyResetJob = () => {
+export const scheduleDailyResets = () => {
     // Run this cron job every day at 7:00:00
     return new CronJob(
-        "00 00 7 * * *",
-        resetFunc,
+        `00 00 ${resetHour} * * *`,
+        resetTasks,
         null,
         true,
         "Asia/Novosibirsk"

@@ -1,6 +1,6 @@
 import { loginSession as login, logoutSession as logout, getUser, } from './auth'
 import { history } from '../history'
-
+import { isBrowser } from "../../lib/isBrowser"
 
 const LOGIN_REQUEST = "AUTH_LOGIN_REQUEST"
 const LOGIN_SUCCESS = "AUTH_LOGIN_SUCCESS"
@@ -14,8 +14,9 @@ export interface IAuthState {
 }
 
 
-// const existingUser = getUser()
-// const defaultState = existingUser ? { loggedIn: true, user: existingUser } : {}
+let existingUser
+if (isBrowser) existingUser = getUser()
+const defaultState = existingUser ? { loggedIn: true, username: existingUser } : {}
 
 export const reducer = (state = defaultState, action) => {
     switch (action.type) {
@@ -23,7 +24,7 @@ export const reducer = (state = defaultState, action) => {
             return {
                 ...state,
                 loggingIn: true,
-                user: null
+                // username: null
             }
         }
 
@@ -31,7 +32,9 @@ export const reducer = (state = defaultState, action) => {
             return {
                 ...state,
                 loggedIn: true,
-                user: action.user
+                loggingIn: false,
+                uID: action.user._id,
+                username: action.user.username
             }
         }
 

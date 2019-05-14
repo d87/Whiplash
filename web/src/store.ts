@@ -3,9 +3,9 @@ import thunk, { ThunkAction, ThunkDispatch, ThunkMiddleware } from "redux-thunk"
 import { createLogger } from "redux-logger"
 import { composeWithDevTools } from "redux-devtools-extension"
 
-// import { reducer as auth } from "./auth/authActions"
+import { reducer as auth } from "./auth/authActions"
 import { reducer as tasks } from "./components/Tasks/TaskActions"
-import { soundReducer as sound } from "./components/SoundPlayer/SoundPlayer"
+// import { soundReducer as sound } from "./components/SoundPlayer/SoundPlayer"
 import { ITimerState, timerReducer as timers } from "./components/TimerApp/TimerAppActions"
 import { registerKeybindings } from './bindings'
 
@@ -22,8 +22,7 @@ export type Thunk = ThunkAction<void, IAppState, null, AnyAction>;
 export type Dispatch = ThunkDispatch<any, null, AnyAction>;
 
 export const reducers = combineReducers({
-    // auth,
-    sound,
+    auth,
     tasks,
     timers
 })

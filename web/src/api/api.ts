@@ -6,7 +6,7 @@ import { ApolloLink, concat, split } from "apollo-link"
 import { getMainDefinition } from 'apollo-utilities';
 import { InMemoryCache, NormalizedCacheObject } from "apollo-cache-inmemory"
 import { SubscriptionClient } from "subscriptions-transport-ws";
-import { getBearerToken } from "../auth/auth"
+// import { getBearerToken } from "../auth/auth"
 import { ITask, taskMerge } from "../components/Tasks/TaskActions"
 import { ITaskEvent } from "../components/Timeline/Timeline"
 import { GetTasks, GetTaskEvents, UpdateTasks, EventLog, NewTask, SaveTask, CompleteTask, UncompleteTask, AddProgress } from './task.gql'
@@ -16,16 +16,16 @@ import fetch from "cross-fetch"
 
 const isBrowser = typeof window !== "undefined"
 
-const authMiddlewareJWT = new ApolloLink((operation, forward) => {
-    // add the authorization to the headers
-    operation.setContext({
-        headers: {
-            authorization: getBearerToken() || null
-        }
-    })
+// const authMiddlewareJWT = new ApolloLink((operation, forward) => {
+//     // add the authorization to the headers
+//     operation.setContext({
+//         headers: {
+//             authorization: getBearerToken() || null
+//         }
+//     })
 
-    return forward(operation)
-})
+//     return forward(operation)
+// })
 
 const authMiddlewareCookies = new ApolloLink((operation, forward) => {
     // add the authorization to the headers

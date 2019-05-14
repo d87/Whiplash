@@ -15,7 +15,7 @@ import nunjucks from "nunjucks"
 import graphqlHTTP from "express-graphql"
 import { GraphQLError } from "graphql";
 import usersRouter from "./routes/users"
-import { startDailyResetJob } from './cronjobs'
+import { scheduleDailyResets, resetTasks } from './cronjobs'
 
 import { schema } from "./schema"
 import { authStrategy, jwtStrategy, serializeUser, deserializeUser } from "./auth"
@@ -71,7 +71,9 @@ app.use((req, res, next) => {
 // app.use(jsend.middleware)
 
 app.use("/users", usersRouter)
-startDailyResetJob()
+resetTasks()
+scheduleDailyResets()
+
 // app.use('/users', passport.authenticate('jwt', {session: false}), usersRouter);
 
 app.use(
@@ -84,7 +86,7 @@ app.use(
             context: {
                 user: req.user
             },
-            formatError: (error: GraphQLError) => {
+            customFormatErrorFn: (error: GraphQLError) => {
                 const errId = uuidv4();
                 logger.error(`errId: ${errId}`);
                 logger.error(error);

@@ -43,7 +43,16 @@ const StyledText = styled.span`
     transform: translate(-50%, -50%;
 `
 
-export const ProgressBar = props => {
+export interface IProgressBarProps {
+    color?: string
+    value?: number
+    text?: string
+    orientation?: string
+    attachPoint?: string
+    onMouseDown?: (e: any) => void
+}
+
+export const ProgressBar: React.FC<IProgressBarProps> = props => {
     const { value, color, orientation, attachPoint, text } = props
     const barStyle = orientation === "vertical" ? { height: `${value}%` } : { width: `${value}%` }
 
@@ -76,13 +85,7 @@ const getXY = (obj?: HTMLElement) => {
     return [left, top]
 }
 
-export interface IProgressBarProps {
-    color?: string
-    value?: number
-    text?: string
-    orientation?: string
-    onMouseDown?: (e: any) => void
-}
+
 
 export interface IClickableProgressBarProps extends IProgressBarProps {
     onChange: (value: number) => void

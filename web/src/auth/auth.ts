@@ -38,18 +38,18 @@ const handleAuthResponse = (response: Response): Promise<IUser> => {
     })
 }
 
-const acceptNewCredentials = (user: IUser): IUser => {
-    // login successful if there's a jwt token in the response
-    if (user.accessToken) {
-        // store user details and jwt token in local storage to keep user logged in between page refreshes
-        storeToken(user)
-        storeUser(user)
-    } else {
-        Promise.reject("Token was not received")
-    }
+// const acceptNewCredentials = (user: IUser): IUser => {
+//     // login successful if there's a jwt token in the response
+//     if (user.accessToken) {
+//         // store user details and jwt token in local storage to keep user logged in between page refreshes
+//         storeToken(user)
+//         storeUser(user)
+//     } else {
+//         Promise.reject("Token was not received")
+//     }
 
-    return user
-}
+//     return user
+// }
 
 export const loginSession = (username: string, password: string): Promise<IUser> => {
     const requestOptions: RequestInit  = {
@@ -67,106 +67,110 @@ export const loginSession = (username: string, password: string): Promise<IUser>
                 history.location.reload(true);
             }
         })
-        .then(storeUser)
+        .then(storeLocalUser)
 
         
 }
 export const logoutSession = () => {
-    // pass
+    cleanLocalUser()
 }
 
-
-export const loginJWT = (username: string, password: string): Promise<IUser> => {
-    const requestOptions = {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        // credentials: "same-origin",
-        body: JSON.stringify({ username, password })
-    }
-
-    return fetch(`${config.apiUrl}/users/login`, requestOptions)
-        .then(handleAuthResponse)
-        .catch(error => {
-            // auto logout if 401 response returned from api
-            if (error === "Unauthorized") {
-                logout()
-                history.location.reload(true);
-            }
-        })
-        .then(acceptNewCredentials)
-}
-
-export const requestNewToken = (user: { _id: string }, refreshToken: string): Promise<IUser> => {
-    const requestOptions = {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${refreshToken}`
-        },
-        body: JSON.stringify({ id: user._id, refreshToken })
-    }
-
-    return fetch(`${config.apiUrl}/users/token`, requestOptions)
-        .then(handleAuthResponse)
-        .then(acceptNewCredentials)
-}
-
-export const logoutJWT = () => {
-    // remove user from local storage to log user out
-    localStorage.removeItem("token")
-    localStorage.removeItem("tokenExpiresAt")
-}
-
-const storeToken = (user): void => {
-    localStorage.setItem("token", user.accessToken)
-
-    if (user.refreshToken) {
-        localStorage.setItem("refreshToken", user.refreshToken)
-    }
-
-    // not decoding the token for exp date
-    if (user.expiresIn) {
-        const now = Date.now()
-        const expirationDate = Date.now() + user.expiresIn * 1000
-        localStorage.setItem("tokenExpiresAt", expirationDate.toString())
-    }
-}
-
-const storeUser = (user: IUser) => {
+const storeLocalUser = (user: IUser) => {
     delete user.accessToken
     delete user.refreshToken
     localStorage.setItem("user", JSON.stringify(user))
     return user
 }
 
-export const isTokenExpired = (): boolean => {
-    const expTime = parseInt(localStorage.getItem("tokenExpiresAt"), 10)
-    return (Date.now() > expTime)
-}
-
-export const isTokenExpiringSoon = (remainingTime: number = 3600): boolean => {
-    const expTime = parseInt(localStorage.getItem("tokenExpiresAt"), 10)
-    return (Date.now() + remainingTime > expTime)
-}
-
-export const isLoggedIn = (): boolean => {
-    const token = localStorage.getItem("token")
-    return token !== null
-}
-
-
-export const getToken = (): string => {
-    return localStorage.getItem("token")
-}
-
-export const getRefreshToken = (): string => {
-    return localStorage.getItem("refreshToken")
-}
-
-export const getBearerToken = (): string => {
-    return `Bearer ${localStorage.getItem("token")}`
+const cleanLocalUser = () => {
+    localStorage.removeItem("user")
 }
 
 export const getUser = () => {
     return JSON.parse(localStorage.getItem("user"))
 }
+
+// export const loginJWT = (username: string, password: string): Promise<IUser> => {
+//     const requestOptions = {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         // credentials: "same-origin",
+//         body: JSON.stringify({ username, password })
+//     }
+
+//     return fetch(`${config.apiUrl}/users/login`, requestOptions)
+//         .then(handleAuthResponse)
+//         .catch(error => {
+//             // auto logout if 401 response returned from api
+//             if (error === "Unauthorized") {
+//                 logout()
+//                 history.location.reload(true);
+//             }
+//         })
+//         .then(acceptNewCredentials)
+// }
+
+// export const requestNewToken = (user: { _id: string }, refreshToken: string): Promise<IUser> => {
+//     const requestOptions = {
+//         method: "POST",
+//         headers: {
+//             "Content-Type": "application/json",
+//             "Authorization": `Bearer ${refreshToken}`
+//         },
+//         body: JSON.stringify({ id: user._id, refreshToken })
+//     }
+
+//     return fetch(`${config.apiUrl}/users/token`, requestOptions)
+//         .then(handleAuthResponse)
+//         .then(acceptNewCredentials)
+// }
+
+// export const logoutJWT = () => {
+//     // remove user from local storage to log user out
+//     localStorage.removeItem("token")
+//     localStorage.removeItem("tokenExpiresAt")
+// }
+
+// const storeToken = (user): void => {
+//     localStorage.setItem("token", user.accessToken)
+
+//     if (user.refreshToken) {
+//         localStorage.setItem("refreshToken", user.refreshToken)
+//     }
+
+//     // not decoding the token for exp date
+//     if (user.expiresIn) {
+//         const now = Date.now()
+//         const expirationDate = Date.now() + user.expiresIn * 1000
+//         localStorage.setItem("tokenExpiresAt", expirationDate.toString())
+//     }
+// }
+
+// export const isTokenExpired = (): boolean => {
+//     const expTime = parseInt(localStorage.getItem("tokenExpiresAt"), 10)
+//     return (Date.now() > expTime)
+// }
+
+// export const isTokenExpiringSoon = (remainingTime: number = 3600): boolean => {
+//     const expTime = parseInt(localStorage.getItem("tokenExpiresAt"), 10)
+//     return (Date.now() + remainingTime > expTime)
+// }
+
+// export const isLoggedIn = (): boolean => {
+//     const token = localStorage.getItem("token")
+//     return token !== null
+// }
+
+
+// export const getToken = (): string => {
+//     return localStorage.getItem("token")
+// }
+
+// export const getRefreshToken = (): string => {
+//     return localStorage.getItem("refreshToken")
+// }
+
+// export const getBearerToken = (): string => {
+//     return `Bearer ${localStorage.getItem("token")}`
+// }
+

@@ -3,7 +3,7 @@ import { Task, TaskEvent, Todo } from './models'
 import {makeExecutableSchema} from 'graphql-tools'
 import gql from 'graphql-tag'
 import { withFilter } from 'graphql-subscriptions';
-import { pubsub } from './subscriptionServer'
+import { pubsub } from './pubsub'
 import { logger } from './logger'
 import { taskInputValidationSchema, taskAddProgressValidationSchema } from './mutationValidators'
 
@@ -251,7 +251,7 @@ const resolvers = {
             resolve: (payload, variables, context, info) => {
                 // Manipulate and return the new value
                 logger.debug("Resolving updateTasks subscription")
-                logger.debug("payload =", payload)
+                // logger.debug("payload =", payload)
                 return payload.tasks
             },
             subscribe: // (_, args) => pubsub.asyncIterator("TASKS_UPDATE")
@@ -266,7 +266,6 @@ const resolvers = {
         },
         eventLog: {
             resolve: (payload, variables, context, info) => {
-                logger.debug(`TASK_COMPLETE event ${payload}`)
                 return payload.event
             },
             subscribe: // (_, args) => pubsub.asyncIterator("TASKS_UPDATE")
