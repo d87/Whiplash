@@ -8,14 +8,14 @@ import withRedux from "next-redux-wrapper"
 import { initStore } from "../src/store"
 
 class MyApp extends App {
-    // static async getInitialProps({ Component, router, ctx }) {
-    //     let pageProps = {}
+    // static async getInitialProps({Component, ctx}) {
 
-    //     if (Component.getInitialProps) {
-    //         pageProps = await Component.getInitialProps(ctx)
-    //     }
+    //     // we can dispatch from here too
+    //     // ctx.store.dispatch({type: 'FOO', payload: 'foo'});
 
-    //     return { pageProps }
+    //     const pageProps = Component.getInitialProps ? await Component.getInitialProps(ctx) : {};
+
+    //     return {pageProps};
     // }
 
     render() {
@@ -32,3 +32,4 @@ class MyApp extends App {
 }
 
 export default withApollo(withRedux(initStore)(MyApp))
+// export default withRedux(initStore)(MyApp)

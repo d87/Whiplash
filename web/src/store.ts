@@ -9,6 +9,8 @@ import { reducer as tasks } from "./components/Tasks/TaskActions"
 import { ITimerState, timerReducer as timers } from "./components/TimerApp/TimerAppActions"
 import { registerKeybindings } from './bindings'
 
+import { isBrowser } from '../lib/isBrowser'
+
 import { getTasks } from "./api/api"
 
 export interface IAppState {
@@ -74,9 +76,10 @@ if (process.env.NODE_ENV !== "production") {
     // const actionLogger = ({dispatch, getState}) =>
     //     (next) => (action) => { console.log(action); return next(action) }
 
-    const logger = createLogger({})
-
-    middleware.push(logger)
+    if (isBrowser) {
+        const logger = createLogger({})
+        middleware.push(logger)
+    }
 }
 
 const enchancers = composeEnhancers(

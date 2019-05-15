@@ -1,24 +1,29 @@
 import React from "react"
 import { Layout } from "../src/components/Layout/Layout"
-import App from "../src/components/App/App"
+import App, { TaskList } from "../src/components/Tasks/TaskList"
 // import { withApollo } from "react-apollo";
 import { BrowserRouter, Router } from "react-router-dom"
+import { getTasks } from "../src/api/api"
 
-class Index extends React.Component {
-    // static async getInitialProps(pageContext) {
-    //     const { req, res, store, isServer } = pageContext
-    //     // console.log(Object.keys(pageContext))
+const Tasks = props => {
+    return (
+        <Layout>
+            <App />
+        </Layout>
+    )
+}
 
-    //     return { }
-    // }
+Tasks.getInitialProps = async pageContext => {
+    const response = await getTasks()
 
-    render() {
-        return (
-            <Layout>
-                <App />
-            </Layout>
-        )
+    const { req, res, store, isServer } = pageContext
+    store.dispatch({
+        type: "TASK_INIT",
+        newState: response.data.tasks
+    })
+
+    return {
     }
 }
 
-export default Index
+export default Tasks

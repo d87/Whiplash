@@ -51,7 +51,16 @@ const httpLink = new HttpLink({
 })
 const authHttpLink = concat(authMiddlewareCookies, httpLink)
 
+const forceCookieLink = (cookie) => new ApolloLink((operation, forward) => {
+    operation.setContext({
+        headers: {
+            cookie: cookie,
+        },
+        credentials: "include"
+    })
 
+    return forward(operation)
+})
 
 let link
 if (isBrowser) {
@@ -90,20 +99,24 @@ if (isBrowser) {
 let apolloClient: ApolloClient<NormalizedCacheObject> = null
 
 
-function create (initialState) {
+function create (initialState, customCookie?: string) {
+    let link2 = link
+    if (customCookie) {
+        link2 = concat(forceCookieLink(customCookie), link)
+    }
     return new ApolloClient({
-        link: link,
+        link: link2,
         cache: new InMemoryCache().restore(initialState || {}),
         connectToDevTools: isBrowser,
         ssrMode: !isBrowser  // Disables forceFetch on the server (so queries are only run once)
     })
 }
   
-export function initApollo (initialState? : object) {
+export function initApollo (initialState : object, customCookie?: string) {
     // Make sure to create a new client for every server-side request so that data
     // isn't shared between connections (which would be bad)
     if (!isBrowser) {
-        apolloClient = create(initialState)
+        apolloClient = create(initialState, customCookie)
         return apolloClient
     }
   

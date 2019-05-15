@@ -13,10 +13,6 @@ function getComponentDisplayName(Component) {
 export default ComposedComponent => {
     return class WithData extends React.Component {
         static displayName = `WithData(${getComponentDisplayName(ComposedComponent)})`
-        static propTypes = {
-            serverState: PropTypes.object.isRequired
-        }
-
         static async getInitialProps(ctx) {
             const {
                 Component,
@@ -24,14 +20,21 @@ export default ComposedComponent => {
                 ctx: { req, res }
             } = ctx
 
-            // Initial serverState with apollo (empty)
-            let serverState = {
-                apollo: {
-                    data: {}
-                }
-            }
+            // This Apollo getInitialProps is the outermost wrapper
+            // This is a cutdown version, not using getDataFromTree, nor apollo cache extraction
+            // because i'm not using Apollo Query components, or apollo link state
+            // it only provides custom apollo client for Page's getInitialProps
+            // (Passing user request cookie for SSR apollo client connections)
+            // Data is fetched in page props and then dispatched to store
+            
+            // Later a second initApollo call is made in constructor,
+            // but it's reusing the existing client
 
-            const apollo = initApollo()
+
+            let customCookie = req ? req.headers.cookie : null
+            if (req === undefined) console.log("req is null", req)
+            const apollo = initApollo(null, customCookie)
+            
 
             ctx.ctx.client = apollo
             // Evaluate the composed component's getInitialProps()
@@ -40,59 +43,18 @@ export default ComposedComponent => {
                 composedInitialProps = await ComposedComponent.getInitialProps(ctx)
             }
 
-            // if (res && res.finished) {
-            //     // When redirecting, the response is finished.
-            //     // No point in continuing to render
-            //     return {}
-            // }
-
-            // Run all GraphQL queries in the component tree
-            // and extract the resulting data
-            if (!isBrowser) {
-                try {
-                    // Run all GraphQL queries
-                    await getDataFromTree(
-                        <ApolloProvider client={apollo}>
-                            <ComposedComponent
-                                {...composedInitialProps}
-                                router={router}
-                                Component={Component}
-                            />
-                        </ApolloProvider>
-                    )
-                } catch (error) {
-                    // Prevent Apollo Client GraphQL errors from crashing SSR.
-                    // Handle them in components via the data.error prop:
-                    // https://www.apollographql.com/docs/react/api/react-apollo.html#graphql-query-data-error
-                }
-                // getDataFromTree does not call componentWillUnmount
-                // head side effect therefore need to be cleared manually
-                Head.rewind()
-
-                // Extract query data from the Apollo store
-                serverState = {
-                    apollo: {
-                        data: apollo.cache.extract()
-                    }
-                }
-            }
-
-            return {
-                serverState,
-                ...composedInitialProps
-            }
+            return composedInitialProps
         }
 
         constructor(props) {
             super(props)
-            this.apollo = initApollo(this.props.serverState.apollo.data)
+            // this.apollo = initApollo(this.props.serverState.apollo.data)
+            this.apollo = initApollo({})
         }
 
         render() {
             return (
-                <ApolloProvider client={this.apollo}>
-                    <ComposedComponent {...this.props} />
-                </ApolloProvider>
+                <ComposedComponent apolloClient={this.apollo} {...this.props}/>
             )
         }
     }
