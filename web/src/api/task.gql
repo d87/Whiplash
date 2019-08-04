@@ -17,6 +17,13 @@ fragment taskFields on Task {
     completedAt
 }
 
+fragment userFields on User {
+    _id
+    username
+    name
+    email
+}
+
 fragment taskProgressFields on Task {
     _id
     progress
@@ -41,6 +48,12 @@ query GetTasks {
 query GetTaskEvents {
     taskEvents {
         ...taskEventFields
+    }
+}
+
+query GetCurrentUserProfile {
+    user_profile {
+        ...userFields
     }
 }
 

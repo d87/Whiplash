@@ -1,9 +1,8 @@
 import React from "react"
 import { Layout } from "../src/components/Layout/Layout"
 import App, { TaskList } from "../src/components/Tasks/TaskList"
-// import { withApollo } from "react-apollo";
-import { BrowserRouter, Router } from "react-router-dom"
-import { getTasks } from "../src/api/api"
+import { getTasks, getCurrentUserProfile } from "../src/api/api"
+import { authLoginSuccess } from "../src/auth/authActions"
 
 const Tasks = props => {
     return (
@@ -14,13 +13,23 @@ const Tasks = props => {
 }
 
 Tasks.getInitialProps = async pageContext => {
-    const response = await getTasks()
+    try {
+        const { req, res, store, isServer } = pageContext
 
-    const { req, res, store, isServer } = pageContext
-    store.dispatch({
-        type: "TASK_INIT",
-        newState: response.data.tasks
-    })
+        const userResponse = await getCurrentUserProfile()
+        if (!userResponse.data.user_profile.username) return {}
+
+        store.dispatch(authLoginSuccess(userResponse.data.user_profile))
+
+        const response = await getTasks()
+        store.dispatch({
+            type: "TASK_INIT",
+            newState: response.data.tasks
+        })
+        return {}
+    } catch(err) {
+        console.error(err)
+    }
 
     return {
     }

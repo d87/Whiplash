@@ -1,5 +1,5 @@
 import mongoose, { Error } from 'mongoose'
-import { Task, TaskEvent, Todo } from './models'
+import { Task, TaskEvent, Todo, User } from './models'
 import {makeExecutableSchema} from 'graphql-tools'
 import gql from 'graphql-tag'
 import { withFilter } from 'graphql-subscriptions';
@@ -16,6 +16,7 @@ const typeDefs = [gql`
     scalar Date
 
     type Query {
+        user_profile: User
         task(_id: ID): Task
         tasks: [Task]
         taskEvents: [TaskEvent]
@@ -23,6 +24,12 @@ const typeDefs = [gql`
         todos: [Todo]
     }
     
+    type User {
+        _id: ID
+        username: String
+        name: String
+        email: String
+    }
 
     type Task {
         _id: ID!
@@ -106,8 +113,13 @@ const typeDefs = [gql`
 
 const resolvers = {
     Query: {
+        user_profile: async (root, args, context) => {
+            if (context.user === undefined) return {}
+            const userID = context.user._id
+            return User.findOne({ _id: userID })
+        },
         todo: async (root, {_id}) => {
-            return await Todo.findOne({ _id })
+            return Todo.findOne({ _id })
         },
         todos: async (root, args, context) => {
             // if (!context.user) return [];
@@ -118,12 +130,14 @@ const resolvers = {
             return await Task.findOne({ _id })
         },
         tasks: async (root, args, context) => {
+            if (context.user === undefined) return []
             // logger.debug(context.user)
             const userID = context.user._id
             // const tasks = await 
             return Task.find({ userID })
         },
         taskEvents: async (root, args, context) => {
+            if (context.user === undefined) return []
             const userID = context.user._id
             return TaskEvent.find({ userID })
         },

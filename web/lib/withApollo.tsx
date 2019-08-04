@@ -4,6 +4,7 @@ import { ApolloProvider, getDataFromTree } from "react-apollo"
 import Head from "next/head"
 import { initApollo } from "../src/api/api"
 import { isBrowser } from "./isBrowser"
+import { ApolloClient } from "apollo-client";
 
 // Gets the display name of a JSX component for dev tools
 function getComponentDisplayName(Component) {
@@ -26,15 +27,15 @@ export default ComposedComponent => {
             // it only provides custom apollo client for Page's getInitialProps
             // (Passing user request cookie for SSR apollo client connections)
             // Data is fetched in page props and then dispatched to store
-            
+
             // Later a second initApollo call is made in constructor,
             // but it's reusing the existing client
 
 
-            let customCookie = req ? req.headers.cookie : null
+            const customCookie = req ? req.headers.cookie : null
             if (req === undefined) console.log("req is null", req)
             const apollo = initApollo(null, customCookie)
-            
+
 
             ctx.ctx.client = apollo
             // Evaluate the composed component's getInitialProps()

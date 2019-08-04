@@ -9,7 +9,7 @@ class FilterBar extends React.Component {
 
     render() {
         return (
-            <section styleName="filterBar" >
+            <section className="filterBar" >
                 <a className={`material-icons iconOn`} >history</a>
                 <a className={`material-icons iconOn`} >autorenew</a>
                 <a className={`material-icons iconOn`} >highlight_off</a>

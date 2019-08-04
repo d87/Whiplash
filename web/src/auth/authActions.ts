@@ -14,9 +14,12 @@ export interface IAuthState {
 }
 
 
-let existingUser
-if (isBrowser) existingUser = getUser()
-const defaultState = existingUser ? { loggedIn: true, username: existingUser } : {}
+// let existingUser
+// if (isBrowser) existingUser = getUser()
+// console.log(isBrowser)
+// console.log("Existing user", existingUser)
+// const defaultState = existingUser ? { loggedIn: true, username: existingUser } : {}
+const defaultState = {}
 
 export const reducer = (state = defaultState, action) => {
     switch (action.type) {
@@ -34,7 +37,9 @@ export const reducer = (state = defaultState, action) => {
                 loggedIn: true,
                 loggingIn: false,
                 uID: action.user._id,
-                username: action.user.username
+                username: action.user.username,
+                name: action.user.name,
+                // email: action.user.email,
             }
         }
 

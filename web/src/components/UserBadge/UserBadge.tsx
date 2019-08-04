@@ -10,7 +10,7 @@ export const UserBadge: React.FC<{}> = (props) => {
     // return null
     const { loggedIn, username } = useSelector(state => { 
         return state.auth 
-    })
+    }) 
     if (!loggedIn) return null
     return (
         <Username>{username}</Username>

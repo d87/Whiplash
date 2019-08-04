@@ -1,14 +1,9 @@
 import React from 'react';
 import { Dispatch } from 'redux';
-import { connect } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 import './LoginPage.scss'
-
 import { authLogin } from '../../auth/authActions'
 
-
-interface ILoginProps {
-    dispatch: Dispatch
-}
 
 interface ILoginState {
     username: string
@@ -16,7 +11,7 @@ interface ILoginState {
     submitted: boolean
 }
 
-class LoginForm extends React.Component<ILoginProps, ILoginState> {
+class LoginForm extends React.Component<{}, ILoginState> {
     constructor(props) {
         super(props);
 
@@ -43,9 +38,10 @@ class LoginForm extends React.Component<ILoginProps, ILoginState> {
     handleSubmit(e) {
         e.preventDefault();
 
+        const dispatch = useDispatch()
+
         this.setState({ submitted: true });
         const { username, password } = this.state;
-        const { dispatch } = this.props;
         if (username && password) {
             dispatch(authLogin(username, password))
         }
@@ -94,11 +90,6 @@ const mapStateToProps = (state, props) => {
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        dispatch,
-
-        onDurationChanged: (timerID, newDuration) => {
-            dispatch(timerSetDuration(timerID, newDuration))
-        }
     }
 }
 

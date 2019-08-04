@@ -2,17 +2,20 @@ import gql from "graphql-tag"
 import { ApolloClient, ApolloQueryResult } from "apollo-client"
 import { HttpLink } from "apollo-link-http"
 import { WebSocketLink } from 'apollo-link-ws'
-import { ApolloLink, concat, split } from "apollo-link"
+import { ApolloLink, concat, split, FetchResult } from "apollo-link"
 import { getMainDefinition } from 'apollo-utilities';
 import { InMemoryCache, NormalizedCacheObject } from "apollo-cache-inmemory"
 import { SubscriptionClient } from "subscriptions-transport-ws";
 // import { getBearerToken } from "../auth/auth"
 import { ITask, taskMerge } from "../components/Tasks/TaskActions"
 import { ITaskEvent } from "../components/Timeline/Timeline"
-import { GetTasks, GetTaskEvents, UpdateTasks, EventLog, NewTask, SaveTask, CompleteTask, UncompleteTask, AddProgress } from './task.gql'
+
+
+import fetch from "cross-fetch"
+import { GetTasks, GetCurrentUserProfile, GetTaskEvents, UpdateTasks, EventLog, NewTask, SaveTask, CompleteTask, UncompleteTask, AddProgress } from './task.gql'
+// import { GetTasks, GetCurrentUserProfile, GetTaskEvents, UpdateTasks, EventLog, NewTask, SaveTask, CompleteTask, UncompleteTask, AddProgress } from './task_queries'
 
 import config from "../config"
-import fetch from "cross-fetch"
 
 const isBrowser = typeof window !== "undefined"
 
@@ -99,7 +102,7 @@ if (isBrowser) {
 let apolloClient: ApolloClient<NormalizedCacheObject> = null
 
 
-function create (initialState, customCookie?: string) {
+function create (initialState, customCookie?: string): ApolloClient<NormalizedCacheObject> {
     let link2 = link
     if (customCookie) {
         link2 = concat(forceCookieLink(customCookie), link)
@@ -111,7 +114,7 @@ function create (initialState, customCookie?: string) {
         ssrMode: !isBrowser  // Disables forceFetch on the server (so queries are only run once)
     })
 }
-  
+
 export function initApollo (initialState : object, customCookie?: string) {
     // Make sure to create a new client for every server-side request so that data
     // isn't shared between connections (which would be bad)
@@ -119,15 +122,15 @@ export function initApollo (initialState : object, customCookie?: string) {
         apolloClient = create(initialState, customCookie)
         return apolloClient
     }
-  
+
     // Reuse client on the client-side
     if (!apolloClient) {
         apolloClient = create(initialState)
     }
-  
+
     return apolloClient
 }
-  
+
 // export const client = initApollo({})
 
 export const getTasks = (): Promise<ApolloQueryResult<{ tasks: Array<Partial<ITask>> }>> => {
@@ -139,6 +142,12 @@ export const getTasks = (): Promise<ApolloQueryResult<{ tasks: Array<Partial<ITa
 export const getTaskEvents = (): Promise<ApolloQueryResult<{ taskEvents: ITaskEvent[] }>> => {
     return apolloClient.query({
         query: GetTaskEvents
+    })
+}
+
+export const getCurrentUserProfile = (): Promise<ApolloQueryResult<{ user_profile: any }>> => {
+    return apolloClient.query({
+        query: GetCurrentUserProfile
     })
 }
 
@@ -165,9 +174,9 @@ export const subscribeToEventLog = (callback: (event: ITaskEvent) => any) => {
 }
 
 if (isBrowser) {
-    
 
-    // 
+
+    //
     // const subscriptionObserver = subscribeToResets()
     // subscriptionObserver.subscribe({
     //     next(message) {
