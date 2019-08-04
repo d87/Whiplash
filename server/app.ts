@@ -78,7 +78,7 @@ scheduleDailyResets()
 
 app.use(
     "/api/graphql",
-    graphqlHTTP(async (req, res, graphQLParams) => {
+    graphqlHTTP(async (req: any, res, graphQLParams) => {
         // console.log("gql user = ", req.user)
         return {
             schema: schema,
@@ -90,10 +90,10 @@ app.use(
                 const errId = uuidv4();
                 logger.error(`errId: ${errId}`);
                 logger.error(error);
-          
+
                 return new GraphQLError(`Internal Error: ${errId}`);
             }
-        }      
+        }
     })
 )
 

@@ -81,7 +81,7 @@ if (isBrowser) {
     link = split(
         // split based on operation type
         ({ query }) => {
-          const { kind, operation } = getMainDefinition(query);
+          const { kind, operation } = getMainDefinition(query) as any;
           return kind === 'OperationDefinition' && operation === 'subscription';
         },
         wsLink,
@@ -203,7 +203,7 @@ interface ITaskServerData {
     isRecurring: boolean
 }
 
-export const createTask = (data: ITaskServerData): Promise<ApolloQueryResult<{ createTask: Partial<ITask> }>> => {
+export const createTask = (data: ITaskServerData): Promise<FetchResult<{ createTask: Partial<ITask> }>> => {
     const { title, description, dueTime, color, duration, segmentDuration, priority, isRecurring } = data
     const taskInput = { title, description, dueTime, color, duration, segmentDuration, priority, isRecurring }
     return apolloClient.mutate({
@@ -212,7 +212,7 @@ export const createTask = (data: ITaskServerData): Promise<ApolloQueryResult<{ c
     })
 }
 
-export const saveTask = (data: ITaskServerData): Promise<ApolloQueryResult<{ saveTask: Partial<ITask> }>> => {
+export const saveTask = (data: ITaskServerData): Promise<FetchResult<{ saveTask: Partial<ITask> }>> => {
     const { _id, title, description, dueDate, dueTime, resetMode, resetTime, color, duration, segmentDuration, priority, isRecurring } = data
     const taskInput = { _id, title, description, dueDate, dueTime, resetMode, resetTime, color, duration, segmentDuration, priority, isRecurring }
     return apolloClient.mutate({
@@ -221,14 +221,14 @@ export const saveTask = (data: ITaskServerData): Promise<ApolloQueryResult<{ sav
     })
 }
 
-export const completeTask = (_id: string): Promise<ApolloQueryResult<{ completeTask: Partial<ITask> }>> => {
+export const completeTask = (_id: string): Promise<FetchResult<{ completeTask: Partial<ITask> }>> => {
     return apolloClient.mutate({
         mutation: CompleteTask,
         variables: { id: _id }
     })
 }
 
-export const uncompleteTask = (_id: string): Promise<ApolloQueryResult<{ uncompleteTask: Partial<ITask> }>> => {
+export const uncompleteTask = (_id: string): Promise<FetchResult<{ uncompleteTask: Partial<ITask> }>> => {
     return apolloClient.mutate({
         mutation: UncompleteTask,
         variables: { id: _id }
@@ -236,7 +236,7 @@ export const uncompleteTask = (_id: string): Promise<ApolloQueryResult<{ uncompl
 }
 
 
-export const addTaskProgress = (_id: string, progress: number): Promise<ApolloQueryResult<{ addProgress: Partial<ITask> }>> => {
+export const addTaskProgress = (_id: string, progress: number): Promise<FetchResult<{ addProgress: Partial<ITask> }>> => {
     return apolloClient.mutate({
         mutation: AddProgress,
         variables: { id: _id, time: progress }

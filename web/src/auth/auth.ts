@@ -2,7 +2,6 @@ import { Dispatch } from 'redux';
 import { history } from '../history'
 import config from "../config"
 import { MiniDaemon } from '../util'
-import { store } from '../store'
 // import { reducer } from './authActions'
 
 interface IUser {
@@ -69,7 +68,7 @@ export const loginSession = (username: string, password: string): Promise<IUser>
         })
         .then(storeLocalUser)
 
-        
+
 }
 export const logoutSession = () => {
     cleanLocalUser()

@@ -14,6 +14,8 @@ function getComponentDisplayName(Component) {
 export default ComposedComponent => {
     return class WithData extends React.Component {
         static displayName = `WithData(${getComponentDisplayName(ComposedComponent)})`
+        apollo: ApolloClient<any>
+
         static async getInitialProps(ctx) {
             const {
                 Component,

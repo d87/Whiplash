@@ -2,20 +2,32 @@
   "compilerOptions": {
     "noEmit": true,
     "allowJs": true,
-    "jsx": "react",
+    "jsx": "preserve",
     "module": "esnext",
-    "target": "esnext",
     "esModuleInterop": true,
     "lib": [
-        "es2017",
-        "esnext",
-        "dom",
+      "es2017",
+      "esnext",
+      "dom"
     ],
-    "types": ["jest"],
+    "types": [
+      "jest"
+    ],
     "moduleResolution": "node",
     "skipLibCheck": true,
-    "pretty": true
+    "pretty": true,
+    "strict": false,
+    "target": "es5",
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true
   },
-  "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules", "next.config.js"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    "next.config.js"
+  ]
 }
