@@ -1,0 +1,7 @@
+#import "./f_taskFields.gql"
+
+mutation NewTask($input: TaskInput) {
+    createTask(input: $input) {
+        ...taskFields
+    }
+}

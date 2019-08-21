@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react"
 import { Dispatch } from "redux"
 import { MiniDaemon, mulColor } from "../../util"
-import { isBrowser } from "../../../lib/isBrowser"
+// import { isBrowser } from "../../../lib/isBrowser"
+const isBrowser = true
 import styled from "styled-components"
 
 const Background = styled.div`

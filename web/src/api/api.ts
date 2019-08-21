@@ -12,8 +12,21 @@ import { ITaskEvent } from "../components/Timeline/Timeline"
 
 
 import fetch from "cross-fetch"
-import { GetTasks, GetCurrentUserProfile, GetTaskEvents, UpdateTasks, EventLog, NewTask, SaveTask, CompleteTask, UncompleteTask, AddProgress } from './task.gql'
+// import schema from './task.gql'
+import GetTasks from './GetTasks.gql'
+import GetTaskEvents from './GetTaskEvents.gql'
+import GetCurrentUserProfile from './GetCurrentUserProfile.gql'
+import UpdateTasks from './subUpdateTasks.gql'
+import EventLog from './subEventLog.gql'
+import NewTask from './NewTask.gql'
+import SaveTask from './SaveTask.gql'
+import CompleteTask from './CompleteTask.gql'
+import UncompleteTask from './UncompleteTask.gql'
+import AddProgress from './AddProgress.gql'
+
 // import { GetTasks, GetCurrentUserProfile, GetTaskEvents, UpdateTasks, EventLog, NewTask, SaveTask, CompleteTask, UncompleteTask, AddProgress } from './task_queries'
+
+console.log(GetTasks)
 
 import config from "../config"
 
@@ -131,7 +144,7 @@ export function initApollo (initialState : object, customCookie?: string) {
     return apolloClient
 }
 
-// export const client = initApollo({})
+export const client = initApollo({})
 
 export const getTasks = (): Promise<ApolloQueryResult<{ tasks: Array<Partial<ITask>> }>> => {
     return apolloClient.query({

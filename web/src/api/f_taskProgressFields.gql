@@ -1,0 +1,7 @@
+fragment taskProgressFields on Task {
+    _id
+    progress
+    duration
+    state
+    completedAt
+}

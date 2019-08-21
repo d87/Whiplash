@@ -1,0 +1,7 @@
+#import "./f_taskEventFields.gql"
+
+query GetTaskEvents {
+    taskEvents {
+        ...taskEventFields
+    }
+}

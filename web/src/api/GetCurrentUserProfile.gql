@@ -1,0 +1,7 @@
+#import "./f_userFields.gql"
+
+query GetCurrentUserProfile {
+    user_profile {
+        ...userFields
+    }
+}

@@ -1,0 +1,18 @@
+fragment taskFields on Task {
+    _id
+    title
+    description
+    priority
+    dueDate
+    dueTime
+    duration
+    segmentDuration
+    resetMode
+    resetTime
+    progress
+    state
+    color
+    isRecurring
+    createdAt
+    completedAt
+}

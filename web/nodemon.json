@@ -1,6 +1,0 @@
-{
-    "watch": ["server/**/*.js"],
-    "execMap": {
-      "ts": "ts-node --typeCheck"
-    }
-  }

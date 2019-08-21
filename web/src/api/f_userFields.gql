@@ -1,0 +1,6 @@
+fragment userFields on User {
+    _id
+    username
+    name
+    email
+}

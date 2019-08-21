@@ -52,9 +52,7 @@ $pyellow: #cfad15;
 .priosvg_yellow > polygon:last-child { fill: darken($pyellow, 20%); }
 
 
-:global .swipeBox {
-    grid-area: head;
-}
+
 
 
 .taskHeader {
@@ -112,10 +110,10 @@ $pyellow: #cfad15;
     font-family: var(--pretty-font);
     font-size: 20px;
     line-height: 40px;
-    
+
     user-select: none;
     -moz-user-select: none;
-    
+
     input[name="title"] {
         position: relative;
         padding: 3px 7px;
@@ -150,7 +148,7 @@ $pyellow: #cfad15;
         position: absolute;
         left: 50%;
         top: 50%;
-        transform: translate(-50%, -50%);    
+        transform: translate(-50%, -50%);
     }
 }
 .taskPriority > svg {

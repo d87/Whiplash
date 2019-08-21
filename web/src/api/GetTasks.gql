@@ -1,0 +1,7 @@
+#import "./f_taskFields.gql"
+
+query GetTasks {
+    tasks {
+        ...taskFields
+    }
+}

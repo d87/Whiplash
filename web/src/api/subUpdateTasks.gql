@@ -1,0 +1,7 @@
+#import "./f_taskProgressFields.gql"
+
+subscription UpdateTasks {
+    updateTasks {
+        ...taskProgressFields
+    }
+}

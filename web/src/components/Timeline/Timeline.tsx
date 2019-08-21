@@ -5,7 +5,8 @@ import { PeriodicProgressBar } from "../ProgressBar/ProgressBar"
 import { mulColor, formatTimeHM } from "../../util"
 import "./Timeline.scss"
 import styled from "styled-components"
-import { isBrowser } from "../../../lib/isBrowser"
+// import { isBrowser } from "../../../lib/isBrowser"
+const isBrowser = true
 import { getTaskEvents, subscribeToEventLog } from '../../api/api'
 
 const StyledEventMark = styled.div`
@@ -44,7 +45,10 @@ export interface ITaskEvent {
     color: string
 }
 
-const lines = [...Array(20).keys()]
+const lines = []
+for (let i=0; i < 19; i++) {
+    lines.push(i)
+}
 const workdayDuration = 20 * 3600
 const dayStartHour = 8
 
@@ -127,7 +131,7 @@ export const Timeline: React.FC<{}> = (props) => {
             }
             eventSubscription = subscribeToEventLog(addEvent)
         }
-        
+
         return () => {
             if (isBrowser) eventSubscription.unsubscribe()
         }
@@ -154,7 +158,7 @@ export const Timeline: React.FC<{}> = (props) => {
                 </div>
             </div>
 
-            {lines.map(index => (
+            {lines.map((val, index) => (
                 <ScheduleRow key={index} style={{ gridRow: index + 1 }}>
                     <ScheduleTimestamp>{formatTimeHM(dayStartHour * 3600 + (index + 1) * 3600)}</ScheduleTimestamp>
                 </ScheduleRow>

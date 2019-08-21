@@ -1,0 +1,7 @@
+#import "./f_taskProgressFields.gql"
+
+mutation AddProgress($id: String!, $time: Int!) {
+    addProgress(id: $id, time: $time) {
+        ...taskProgressFields
+    }
+}

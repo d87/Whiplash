@@ -9,7 +9,8 @@ import { reducer as tasks } from "./components/Tasks/TaskActions"
 import { ITimerState, timerReducer as timers } from "./components/TimerApp/TimerAppActions"
 import { registerKeybindings } from './bindings'
 
-import { isBrowser } from '../lib/isBrowser'
+// import { isBrowser } from '../lib/isBrowser'
+const isBrowser = true
 
 import { getTasks } from "./api/api"
 
@@ -102,7 +103,7 @@ export const initStore = (initialState) => {
 }
 
 export const getStore = () => store
-  
+
 
 // registerKeybindings(store)
 

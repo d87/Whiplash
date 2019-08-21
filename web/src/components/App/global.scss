@@ -69,44 +69,44 @@ body {
     color: var(--normal-text-hover);
 }
 
-:global .xlText {
+.xlText {
     font-size: 3em;
 }
 
-:global .largerText {
+.largerText {
     font-size: 1.5em;
 }
 
-:global .largeText {
+.largeText {
     font-size: 1.5em;
 }
 
-:global .mediumText {
+.mediumText {
     font-size: 1em;
 }
 
-:global .smallText {
+.smallText {
     font-size: 0.7em;
 }
 
-:global .marginBottom30 {
+.marginBottom30 {
     margin-bottom: 30px;
 }
 
-:global .marginTop10 {
+.marginTop10 {
     margin-top: 10px;
 }
 
-:global .marginLeft10 {
+.marginLeft10 {
     margin-left: 10px;
 }
 
-:global .marginRight10 {
+.marginRight10 {
     margin-right: 10px;
 }
 
 
-:global .paperButton {
+.paperButton {
     display: inline-flex;
     border: 0;
     background-color: var(--accent3);
@@ -122,11 +122,11 @@ body {
     -moz-user-select: none;
 }
 
-:global .paperButton:hover {
+.paperButton:hover {
     background-color: var(--accent1);
     color: var(--normal-text-active);
 }
-:global .paperButton:active {
+.paperButton:active {
     background-color: var(--accent2);
 }
 
@@ -173,4 +173,8 @@ body {
 .iconAlign_volume_off {
     position: relative;
     left: 0em;
+}
+
+.swipeBox {
+    grid-area: head;
 }

@@ -1,0 +1,7 @@
+#import "./f_taskProgressFields.gql"
+
+mutation UncompleteTask($id: String!) {
+    uncompleteTask(id: $id) {
+        ...taskProgressFields
+    }
+}

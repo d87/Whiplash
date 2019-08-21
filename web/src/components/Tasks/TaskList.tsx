@@ -34,14 +34,14 @@ export const TaskList: React.FC<ITaskListProps> = (props) => {
     const dispatch = useDispatch()
 
     useEffect(() => {
-        // getTasks()
-        //     .then(response => {
-        //         dispatch({
-        //             type: "TASK_INIT",
-        //             newState: response.data.tasks
-        //         })
-        //     })
-        //     .catch(err => console.error(err))
+        getTasks()
+            .then(response => {
+                dispatch({
+                    type: "TASK_INIT",
+                    newState: response.data.tasks
+                })
+            })
+            .catch(err => console.error(err))
 
         if (isBrowser) {
             resetSubscription = resetSubscriptionQuery().subscribe({
@@ -67,9 +67,9 @@ export const TaskList: React.FC<ITaskListProps> = (props) => {
                 <div>
                     <a className={`material-icons marginRight10 toggleable ${showFutureTasks ? "toggled" : "" }`} onClick={onFutureToggle}>history</a>
                     <a className={`material-icons marginRight10 toggleable ${props.filter === "completed" ? "toggled" : "" }`} onClick={onFilterToggle}>done_all</a>
-                </div> 
+                </div>
             </div>
-            
+
             <div className="taskListGrid">
                 <Timeline />
                 <section className="taskList">
@@ -138,8 +138,8 @@ const isCurrent = (task: ITask) => {
             d.setHours(h)
             d.setMinutes(m)
             const dueTimestamp = d.getTime()
-           
-            
+
+
             return (now.getTime() >= dueTimestamp)
         }
         return true
