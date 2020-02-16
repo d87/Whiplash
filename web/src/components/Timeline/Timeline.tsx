@@ -27,8 +27,8 @@ const ScheduleRow = styled.div`
     grid-column: 2;
     border-bottom-style: solid;
     border-bottom-width: 1px;
-    border-bottom-color: #111111;
-    color: #333333;
+    border-bottom-color: #333333;
+    color: #555555;
     padding-right: 0.5em;
     position: relative;
 `
@@ -146,6 +146,7 @@ export const Timeline: React.FC<{}> = (props) => {
                     startTime={startTime}
                     duration={workdayDuration}
                     interval={10000}
+                    boxShadow={"0px 0px 6px 4px rgba(0,0,0,0.75)"}
                     color={"#880088"}
                 />
                 <div>

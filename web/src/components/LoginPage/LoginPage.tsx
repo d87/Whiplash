@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dispatch } from 'redux';
+import { Dispatch, AnyAction } from 'redux';
 import { connect, useDispatch } from 'react-redux';
 import './LoginPage.scss'
 import { authLogin } from '../../auth/authActions'
@@ -12,11 +12,12 @@ interface ILoginState {
 }
 
 class LoginForm extends React.Component<{}, ILoginState> {
+    dispatch: Dispatch<any>
+
     constructor(props) {
         super(props);
 
-        // reset login status
-        // this.props.dispatch(userActions.logout());
+        this.dispatch = props.dispatch
 
         this.state = {
             username: '',
@@ -38,12 +39,10 @@ class LoginForm extends React.Component<{}, ILoginState> {
     handleSubmit(e) {
         e.preventDefault();
 
-        const dispatch = useDispatch()
-
         this.setState({ submitted: true });
         const { username, password } = this.state;
         if (username && password) {
-            dispatch(authLogin(username, password))
+            this.dispatch(authLogin(username, password))
         }
     }
 
@@ -90,6 +89,7 @@ const mapStateToProps = (state, props) => {
 
 const mapDispatchToProps = (dispatch) => {
     return {
+        dispatch
     }
 }
 

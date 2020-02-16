@@ -31,25 +31,29 @@
 //     stroke: var(--prio-yellow); fill: var(--prio-yellow);
 // }
 
-$pgreen: #009444;
-.priosvg_green > polygon { fill: darken($pgreen, 10%); }
-.priosvg_green > rect { fill: $pgreen; }
-.priosvg_green > polygon:last-child { fill: darken($pgreen, 20%); }
+$pgreen: #00944477;
+.priosvg_green { background-color: $pgreen; }
+// .priosvg_green > polygon { fill: darken($pgreen, 10%); }
+// .priosvg_green > rect { fill: $pgreen; }
+// .priosvg_green > polygon:last-child { fill: darken($pgreen, 20%); }
 
-$pred: #aa0c27;
-.priosvg_red > polygon { fill: darken($pred, 10%); }
-.priosvg_red > rect { fill: $pred; }
-.priosvg_red > polygon:last-child { fill: darken($pred, 20%); }
+$pred: #aa0c2777;
+.priosvg_red { background-color: $pred; }
+// .priosvg_red > polygon { fill: darken($pred, 10%); }
+// .priosvg_red > rect { fill: $pred; }
+// .priosvg_red > polygon:last-child { fill: darken($pred, 20%); }
 
-$porange: #b6440f;
-.priosvg_orange > polygon { fill: darken($porange, 10%); }
-.priosvg_orange > rect { fill: $porange; }
-.priosvg_orange > polygon:last-child { fill: darken($porange, 20%); }
+$porange: #b6440f77;
+.priosvg_orange { background-color: $porange; }
+// .priosvg_orange > polygon { fill: darken($porange, 10%); }
+// .priosvg_orange > rect { fill: $porange; }
+// .priosvg_orange > polygon:last-child { fill: darken($porange, 20%); }
 
-$pyellow: #cfad15;
-.priosvg_yellow > polygon { fill: darken($pyellow, 10%); }
-.priosvg_yellow > rect { fill: $pyellow; }
-.priosvg_yellow > polygon:last-child { fill: darken($pyellow, 20%); }
+$pyellow: #cfad1577;
+.priosvg_yellow { background-color: $pyellow; }
+// .priosvg_yellow > polygon { fill: darken($pyellow, 10%); }
+// .priosvg_yellow > rect { fill: $pyellow; }
+// .priosvg_yellow > polygon:last-child { fill: darken($pyellow, 20%); }
 
 
 
@@ -59,25 +63,25 @@ $pyellow: #cfad15;
     height: calc(100% + 5px);
     position: relative; // for swiping
     display: grid;
-    grid-template-columns: 16px minmax(200px, auto);
-    grid-template-rows: 5px 40px;
+    grid-template-columns: 10px minmax(200px, auto);
+    // grid-template-rows: 5px 40px;
     grid-template-areas:
-        "plane plane"
+        // "plane plane"
         "priority title"
 }
 // .task:hover {
 //     background-color: #070707;
 // }
-.taskHeader:before{
-    content: '';
-    display: block;
-    grid-area: plane;
-    // position: absolute;
-    height: 5px;
-    // max-width: 100%;
-    // min-width: 30%;
-    background-color: #171717;
-}
+// .taskHeader:before{
+//     content: '';
+//     display: block;
+//     grid-area: plane;
+//     // position: absolute;
+//     height: 5px;
+//     // max-width: 100%;
+//     // min-width: 30%;
+//     background-color: #171717;
+// }
 
 .taskControls {
     // grid-area: controls;
@@ -95,7 +99,7 @@ $pyellow: #cfad15;
 }
 
 .taskTitle {
-    background-color: #232323;
+    background-color: rgb(0,0,0,0.6);
     grid-area: title;
     padding-left: 10px;
 
@@ -132,7 +136,8 @@ $pyellow: #cfad15;
     }
 }
 .taskTitle:hover {
-    background-color: #313131;
+    // background-color: #313131;
+    background-color: rgb(40,40,40,0.6);
 }
 
 .taskPriority {
@@ -151,12 +156,17 @@ $pyellow: #cfad15;
         transform: translate(-50%, -50%);
     }
 }
-.taskPriority > svg {
-    position: relative;
-    top: -5px;
-    height: calc(100% + 5px);
-    width: 100%;
+
+.taskPriority > div {
+    width:100%;
+    height:100%;
 }
+// .taskPriority > svg {
+//     position: relative;
+//     top: -5px;
+//     height: calc(100% + 5px);
+//     width: 100%;
+// }
 
 .taskButtons {
     grid-area: buttons;
@@ -185,6 +195,7 @@ $pyellow: #cfad15;
 .taskExpanded {
     padding: 0.5em;
     grid-area: expanded;
+    background-color: rgb(0,0,0,0.45)
 }
 .taskDescriptionView {
     margin: 5px 15px;

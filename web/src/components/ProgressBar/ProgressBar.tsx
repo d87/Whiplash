@@ -11,6 +11,7 @@ const Background = styled.div`
     border-radius: 5px;
     background-color: ${props => mulColor(props.color, 0.4)};
     position: relative;
+    box-shadow: ${props => props.boxShadow || "none"};
 `
 
 const Foreground = styled.div`
@@ -50,15 +51,16 @@ export interface IProgressBarProps {
     text?: string
     orientation?: string
     attachPoint?: string
+    boxShadow?: string
     onMouseDown?: (e: any) => void
 }
 
 export const ProgressBar: React.FC<IProgressBarProps> = props => {
-    const { value, color, orientation, attachPoint, text } = props
+    const { value, color, orientation, attachPoint, text, boxShadow } = props
     const barStyle = orientation === "vertical" ? { height: `${value}%` } : { width: `${value}%` }
 
     return (
-        <Background color={color} draggable={true} onMouseDown={props.onMouseDown}>
+        <Background color={color} draggable={true} boxShadow={boxShadow} onMouseDown={props.onMouseDown}>
             <Foreground color={color} style={barStyle} orientation={orientation} attackPoint={attachPoint} />
             {typeof text !== "undefined" && <StyledText>{text}</StyledText>}
         </Background>

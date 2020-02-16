@@ -29,7 +29,7 @@ class TimerWithDuration extends React.Component<ITimerProps> {
         if (!prevProps.active && active) {
             this.timerOnStart()
         }
-    }    
+    }
 
     handleDurationChange = (value) => {
         this.props.onDurationChanged(this.props.id, value)
@@ -43,7 +43,7 @@ class TimerWithDuration extends React.Component<ITimerProps> {
     timerOnStart() {
         if (this.props.soundID) {
             playSound(this.props.soundID)
-        } 
+        }
     }
 
     render() {
@@ -59,6 +59,7 @@ class TimerWithDuration extends React.Component<ITimerProps> {
                         startTime={startTime}
                         duration={duration}
                         color={color}
+                        boxShadow={"0px 0px 6px 4px rgba(0,0,0,0.6)"}
                     />
                 </div>
                 <NumericInput onChange={this.handleDurationChange} min={1} max={100} value={duration}/>
@@ -88,10 +89,10 @@ class TimerApp extends React.Component<ITimerAppProps> {
             timers: []
         }
 
-        
+
     }
 
-    
+
 
     render() {
         const { timers } = this.props

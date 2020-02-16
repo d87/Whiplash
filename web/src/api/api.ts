@@ -12,7 +12,7 @@ import { ITaskEvent } from "../components/Timeline/Timeline"
 
 
 import fetch from "cross-fetch"
-// import schema from './task.gql'
+
 import GetTasks from './GetTasks.gql'
 import GetTaskEvents from './GetTaskEvents.gql'
 import GetCurrentUserProfile from './GetCurrentUserProfile.gql'
@@ -25,8 +25,6 @@ import UncompleteTask from './UncompleteTask.gql'
 import AddProgress from './AddProgress.gql'
 
 // import { GetTasks, GetCurrentUserProfile, GetTaskEvents, UpdateTasks, EventLog, NewTask, SaveTask, CompleteTask, UncompleteTask, AddProgress } from './task_queries'
-
-console.log(GetTasks)
 
 import config from "../config"
 

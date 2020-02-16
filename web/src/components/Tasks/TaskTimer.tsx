@@ -21,7 +21,7 @@ interface ITaskTimerProps extends ITask {
 
 const ProgressRing = ({ color, value }) => (
     <svg viewBox="0 0 100 100">
-        <path d="M 50,50 m 0,-46.5 a 46.5,46.5 0 1 1 0,93 a 46.5,46.5 0 1 1 0,-93" stroke="#222222" strokeWidth="1" fillOpacity="0"></path>
+        <path d="M 50,50 m 0,-46.5 a 46.5,46.5 0 1 1 0,93 a 46.5,46.5 0 1 1 0,-93" stroke="#222222" fill="#000000" strokeWidth="1" fillOpacity="0.4"></path>
         <path d="M 50,50 m 0,-46.5 a 46.5,46.5 0 1 1 0,93 a 46.5,46.5 0 1 1 0,-93" stroke={ color } strokeWidth="7" fillOpacity="0" strokeDasharray="292.209, 292.209" strokeDashoffset={ 292.209 - 292.209*value }></path>
     </svg>
 )
@@ -70,7 +70,7 @@ class TaskTimer extends React.Component<ITaskTimerProps, ITaskTimerState> {
         if (pausedNow) {
             this.pausedAt = now
         } else {
-            const newPauseBlock = now - this.pausedAt 
+            const newPauseBlock = now - this.pausedAt
             this.pausedTime += newPauseBlock
         }
 
@@ -93,7 +93,7 @@ class TaskTimer extends React.Component<ITaskTimerProps, ITaskTimerState> {
         if ( this.isStarted !== true){
             this.timer.pause()
             this.setState({ percCompleted: 0 })
-            return 
+            return
         }
 
         let co = this.state.opacity
@@ -153,7 +153,7 @@ class TaskTimer extends React.Component<ITaskTimerProps, ITaskTimerState> {
         return (
                 <div className={`clock`} style={{ opacity }}>
                     <ProgressRing color={color} value={percCompleted} />
-                    
+
                     <div className="clockControls">
                         <TimeText time={remains/1000} formatFunc={formatFunc} />
                         {/* <span>{ formatTime(remains/1000) }</span> */}

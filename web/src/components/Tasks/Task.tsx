@@ -108,7 +108,6 @@ class TaskHeader extends React.Component<ITaskHeaderProps, ITaskHeaderState> {
                 onContextMenu={onExpand}
             >
                 <PriorityMarker priority={priority} />
-                <StatusMarker isRecurring={isRecurring} />
 
                 <div className="taskTitle">
                     <span style={{ color }}>{title}</span>
@@ -155,11 +154,12 @@ export const PriorityMarker = ({ priority }) => {
     const color = prioColors[priority]
     return (
         <div className="taskPriority">
-            <svg className={color} viewBox="0 0 28.5 88" preserveAspectRatio="none">
+            <div className={color}></div>
+            {/* <svg className={color} viewBox="0 0 28.5 88" preserveAspectRatio="none">
                 <polygon points="9.5,88 0,77.3 0,0 9.5,8.7 9.5,88" />
                 <rect x="9.5" y="8.67" width="19" height="80" />
                 <polygon points="9.5 8.67 28.5 8.67 19 0 0 0 9.5 8.67" />
-            </svg>
+            </svg> */}
         </div>
     )
 }
@@ -308,34 +308,26 @@ class Task extends React.Component<ITaskProps, ITaskComponentState> {
                     <EditableTask task={task} onSubmit={this.handleSubmit} onEditCancel={onEditCancel} />
                 ) : (
                     <div>
-                        <Swipeable
-                            onSwipingLeft={this.handleSwipingLeft}
-                            onSwipedLeft={this.handleSwipedLeft}
-                            onSwipingRight={this.handleSwipingRight}
-                            onSwipedRight={this.handleSwipedRight}
-                            trackMouse={false}
-                            className="swipeBox"
-                        >
-                            <TaskHeader
-                                slideLeft={this.state.xOffset}
-                                slideRight={this.state.paddingXOffset}
-                                color={color}
-                                title={title}
-                                priority={priority}
-                                statusText={statusText}
-                                onExpand={this.handleTitleContextMenu}
-                                // isSelected={isSelected}
-                                isRecurring={isRecurring}
-                                state={state}
-                                progress={progress}
-                                onComplete={this.completeTask}
-                                onUncomplete={this.uncompleteTask}
-                                onStart={this.startTask}
-                                onEdit={onEdit}
-                                // onClick={this.handleTitleClick}
-                                onDoubleClick={this.handleTitleDoubleClick}
-                            />
-                        </Swipeable>
+
+                        <TaskHeader
+                            slideLeft={this.state.xOffset}
+                            slideRight={this.state.paddingXOffset}
+                            color={color}
+                            title={title}
+                            priority={priority}
+                            statusText={statusText}
+                            onExpand={this.handleTitleContextMenu}
+                            // isSelected={isSelected}
+                            isRecurring={isRecurring}
+                            state={state}
+                            progress={progress}
+                            onComplete={this.completeTask}
+                            onUncomplete={this.uncompleteTask}
+                            onStart={this.startTask}
+                            onEdit={onEdit}
+                            // onClick={this.handleTitleClick}
+                            onDoubleClick={this.handleTitleDoubleClick}
+                        />
                         {isExpanded && <NormalExpand description={description} onEdit={onEdit} />}
                     </div>
                 )}
@@ -397,7 +389,7 @@ const mapDispatchToProps = (dispatch: Dispatch, props) => {
                 dispatch(taskStop(props.task._id))
             }
             dispatch(taskComplete(props.task._id))
-            
+
         },
         onEdit: () => {
             dispatch(taskEdit(props.task._id))

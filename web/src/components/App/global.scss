@@ -24,21 +24,10 @@
     box-sizing: border-box;
 }
 
-body {
-    background-color: var(--background);
-    font-family: var(--normal-font);
-    // font-size: 12px;
-    color:  var(--normal-text);
-    margin: 0;
+a {
+    cursor: pointer;
 }
 
-
-.App {
-    padding-top: 60px;
-
-    // display: grid;
-    // place-items: center;
-}
 
 .clickable {
     text-decoration: none;
@@ -109,7 +98,11 @@ body {
 .paperButton {
     display: inline-flex;
     border: 0;
-    background-color: var(--accent3);
+    // background-color: var(--accent3);
+    background-color: rgb(0,0,0,0.2);
+    // box-shadow: 0px 0px 6px 4px rgba(0,0,0,0.75);
+    border: 1px solid rgba(255,255,255,.15);
+
     font-family: var(--pretty-font);
     color: var(--normal-text);
     // font-weight: bold;
@@ -123,11 +116,13 @@ body {
 }
 
 .paperButton:hover {
-    background-color: var(--accent1);
+    // background-color: var(--accent1);
+    background-color: rgb(30,30,30,0.2);
     color: var(--normal-text-active);
 }
 .paperButton:active {
-    background-color: var(--accent2);
+    // background-color: var(--accent2);
+    background-color: rgb(40,40,40,0.4);
 }
 
 .mutedButton {
