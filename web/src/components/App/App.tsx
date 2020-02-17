@@ -1,6 +1,8 @@
 import React, { Component } from "react"
 import ReactDOM from "react-dom"
-import { Provider } from 'react-redux'
+import { Provider as ReduxProvider } from 'react-redux'
+import { overmind } from "../../overmind"
+import { Provider } from 'overmind-react';
 import "./global.scss"
 import "./layout.scss"
 import { Route, Link, Redirect  } from "react-router-dom"
@@ -11,9 +13,9 @@ import LoginForm from "../LoginPage/LoginPage"
 
 export const App = (props) => {
     return (
-        <Provider store={props.store}>
+        <Provider value={overmind}>
             <div className="page">
-                <NavBar />
+                {/* <NavBar /> */}
                 <div className="content App">
                     <Route path="/" render={() => {
                         return <Redirect to='/tasks'/>

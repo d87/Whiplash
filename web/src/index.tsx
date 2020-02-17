@@ -9,14 +9,14 @@ import { history } from "./history"
 // import './index.css';
 // import './style.css';
 
-const store = initStore({})
+// const store = initStore({})
 
 if (typeof window !== "undefined") {
     ReactDOM.render(
         // <BrowserRouter>
         // using universal history instead
         <Router history={history}>
-            <App store={store} />
+            <App />
         </Router>,
         document.getElementById("root")
     )

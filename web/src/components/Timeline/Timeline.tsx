@@ -116,26 +116,26 @@ export const Timeline: React.FC<{}> = (props) => {
     }, [events])
 
     // fetching data and subscription hook
-    useEffect(() => {
-        getTaskEvents()
-            .then(response => {
-                const newEventsState = response.data.taskEvents
-                setEventsState(spaceOutCloseMarks(newEventsState))
-            })
-            .catch(err => console.error(err))
+    // useEffect(() => {
+    //     getTaskEvents()
+    //         .then(response => {
+    //             const newEventsState = response.data.taskEvents
+    //             setEventsState(spaceOutCloseMarks(newEventsState))
+    //         })
+    //         .catch(err => console.error(err))
 
-        if (isBrowser) {
-            const addEvent = (event: ITaskEvent) => {
-                const newEventsState = [...prevEventsRef.current, event]
-                setEventsState(spaceOutCloseMarks(newEventsState))
-            }
-            eventSubscription = subscribeToEventLog(addEvent)
-        }
+    //     if (isBrowser) {
+    //         const addEvent = (event: ITaskEvent) => {
+    //             const newEventsState = [...prevEventsRef.current, event]
+    //             setEventsState(spaceOutCloseMarks(newEventsState))
+    //         }
+    //         eventSubscription = subscribeToEventLog(addEvent)
+    //     }
 
-        return () => {
-            if (isBrowser) eventSubscription.unsubscribe()
-        }
-    }, [])
+    //     return () => {
+    //         if (isBrowser) eventSubscription.unsubscribe()
+    //     }
+    // }, [])
 
     return (
         <div className="timelineGrid">
