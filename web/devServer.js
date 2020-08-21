@@ -1,4 +1,4 @@
-const proxyMiddleware = require('http-proxy-middleware')
+const { createProxyMiddleware } = require('http-proxy-middleware')
 const Bundler = require('parcel-bundler')
 const express = require('express')
 
@@ -26,7 +26,7 @@ const devProxy = {
 
 if (dev && devProxy) {
     Object.keys(devProxy).forEach(context => {
-        app.use(proxyMiddleware(context, devProxy[context]))
+        app.use(createProxyMiddleware(context, devProxy[context]))
     })
 }
 

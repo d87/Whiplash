@@ -6,6 +6,30 @@ import { pubsub } from "./pubsub"
 import mongoose, { Document, Schema, Model, model} from "mongoose";
 
 
+export interface IBlogPost {
+    userID: string
+    body: string
+    rating: number
+    createdAt: Date
+    updatedAt: Date
+}
+
+export interface IBlogPostModel extends IBlogPost, mongoose.Document{}
+
+const BlogPostSchema = new mongoose.Schema(
+    {
+        userID: { type: mongoose.Schema.Types.ObjectId, ref: "User", index: true, required: true, },
+        body: { type: String, default: "" },
+        rating: { type: Number, default: 1 },
+    },
+    {
+        collection: "blogpost",
+        timestamps: { createdAt: "createdAt", updatedAt: "updatedAt" }
+    }
+);
+export const BlogPost = mongoose.model<IBlogPostModel>("BlogPost", BlogPostSchema);
+
+
 export interface ITask {
     userID: string
     title: string
@@ -51,7 +75,7 @@ const TaskSchema = new mongoose.Schema(
         resetMode: { type: String, enum: ['atDays', 'inDays'], default: "inDays"},
         resetTime: { type: Number, default: 1 },
         // startTime: { type: Number, default: 0 },
-        
+
         color: { type: String, default: () => "" },
         completedAt: { type: Date }
     },
@@ -74,7 +98,7 @@ TaskSchema.methods.createTaskCompleteEvent = function(time: Date) {
     pubsub.publish("TASK_COMPLETE", { targetUserID: event.userID, event: event })
 }
 
-/*  start_time 
+/*  start_time
  *      - if present, shold be projected on the timeline
  *      - should be prioritized in the task list close to that time
  *  task_time => progress / time_spent
@@ -86,14 +110,14 @@ TaskSchema.methods.createTaskCompleteEvent = function(time: Date) {
  *  is_new - set on client side if created_at is less than 1-2 days
  *  priority: { type: Number, default: 1 },
  *      - 4 red: urgent & important
- *      - 3 orange: important   
+ *      - 3 orange: important
  *      - 2 yellow: urgent & not important
  *      - 1 green: macro / non-urgent semi-important?
  *      - 0 grey?
  *  color
  *      - should be randomly generated at a certain brightness
- * 
- * 
+ *
+ *
  */
 
 // TaskSchema.methods.reset = () => {};

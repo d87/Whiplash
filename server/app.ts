@@ -2,7 +2,7 @@ import createError from "http-errors"
 import express from "express"
 import path from "path"
 import cookieParser from "cookie-parser"
-import uuidv4 from 'uuid'
+import { v4 as uuidv4 } from 'uuid'
 import morgan from "morgan"
 import cors from "cors"
 // import jsend from "jsend"
@@ -10,9 +10,10 @@ import cors from "cors"
 import session from "express-session"
 import passport from "passport"
 import { Strategy as LocalStrategy } from "passport-local"
+import redis from "redis"
 import connectRedis from "connect-redis"
 import nunjucks from "nunjucks"
-import graphqlHTTP from "express-graphql"
+import { graphqlHTTP } from "express-graphql"
 import { GraphQLError } from "graphql";
 import usersRouter from "./routes/users"
 import { scheduleDailyResets, resetTasks } from './cronjobs'
@@ -44,10 +45,19 @@ app.use("/static", express.static(path.join(__dirname, 'static')))
 
 const halfYear = 31536000 * 0.5 * 1000
 
+const redisClient = redis.createClient({
+    // host: 'localhost',
+    // port: 6379,
+    // password: 'my secret',
+    // db: 1,
+})
+redisClient.unref()
+redisClient.on('error', console.log)
+
 const RedisStore = connectRedis(session)
 export const sessionParser = session({
     secret: "ripp0-in-pepproni",
-    store: new RedisStore({}),
+    store: new RedisStore({ client: redisClient }),
     saveUninitialized: true,
     resave: true,
     cookie: {

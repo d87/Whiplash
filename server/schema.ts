@@ -1,5 +1,5 @@
 import mongoose, { Error } from 'mongoose'
-import { Task, TaskEvent, Todo, User } from './models'
+import { Task, TaskEvent, Todo, BlogPost, User } from './models'
 import {makeExecutableSchema} from 'graphql-tools'
 import gql from 'graphql-tag'
 import { withFilter } from 'graphql-subscriptions';
@@ -22,8 +22,9 @@ const typeDefs = [gql`
         taskEvents: [TaskEvent]
         todo(_id: ID): Todo
         todos: [Todo]
+        blogPosts: [BlogPost]
     }
-    
+
     type User {
         _id: ID
         username: String
@@ -90,6 +91,14 @@ const typeDefs = [gql`
         expiration_date: String
     }
 
+    type BlogPost {
+        _id: ID!
+        userID: ID
+        body: String
+        rating: Int
+        createdAt: Date
+    }
+
     type Mutation {
         createTodo(title: String!, description: String): Todo
         createTask(input: TaskInput): Task
@@ -133,13 +142,19 @@ const resolvers = {
             if (context.user === undefined) return []
             // logger.debug(context.user)
             const userID = context.user._id
-            // const tasks = await 
+            // const tasks = await
             return Task.find({ userID })
         },
         taskEvents: async (root, args, context) => {
             if (context.user === undefined) return []
             const userID = context.user._id
             return TaskEvent.find({ userID })
+        },
+
+        blogPosts: async (root, args, context) => {
+            if (context.user === undefined) return []
+            const userID = context.user._id
+            return BlogPost.find({ userID })
         },
     },
     Date: {
@@ -294,7 +309,7 @@ const resolvers = {
         }
     }
 }
-        
+
 
 export const schema = makeExecutableSchema({
     typeDefs,
